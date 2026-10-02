@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useChurch } from '../context/ChurchContext';
 import { generateWhatsAppRosterText } from '../utils/whatsappFormatter';
 import { getUpcomingServiceDate, formatDateLabel } from '../utils/dateUtils';
-import { ChevronLeft, Copy, Check, Send } from 'lucide-react';
+import { Copy, Check, Send } from 'lucide-react';
 import { t } from '../utils/i18n';
 import type { ServiceDefinition, ServiceRoster } from '../types';
 
@@ -100,31 +100,22 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Native iOS Grab Handle */}
-        <div className="w-full pt-3 pb-1 flex justify-center bg-white shrink-0">
-          <div className="w-10 h-1 bg-slate-300 rounded-full" />
+        <div
+          onClick={onClose}
+          className="w-full pt-3 pb-2 flex justify-center bg-white shrink-0 cursor-pointer"
+          title="下拉或点击关闭"
+        >
+          <div className="w-10 h-1 bg-slate-300 rounded-full hover:bg-slate-400 transition-colors" />
         </div>
 
-        {/* iOS Top Navigation Bar (Only ONE close button: < 返回) */}
-        <div className="px-4 py-2.5 bg-white border-b border-slate-100 flex items-center justify-between shrink-0 shadow-2xs">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex items-center gap-0.5 text-blue-600 hover:text-blue-700 active:opacity-60 -ml-1 py-1 px-2 font-medium text-sm rounded-lg transition-colors cursor-pointer"
-          >
-            <ChevronLeft size={20} strokeWidth={2.2} />
-            <span>{t('back', language)}</span>
-          </button>
-
-          <div className="text-center">
-            <h2 className="text-sm font-bold text-slate-900 leading-tight">
-              {t('whatsappNotification', language)}
-            </h2>
-            <p className="text-[10px] text-slate-400 font-medium">
-              {targetService.name}
-            </p>
-          </div>
-
-          <div className="w-12" />
+        {/* Sheet Title */}
+        <div className="px-4 pb-2.5 pt-0.5 bg-white border-b border-slate-100 text-center shrink-0">
+          <h2 className="text-sm font-bold text-slate-900 leading-tight">
+            {t('whatsappNotification', language)}
+          </h2>
+          <p className="text-[10px] text-slate-400 font-medium">
+            {targetService.name}
+          </p>
         </div>
 
         {/* Service & Date Pickers */}

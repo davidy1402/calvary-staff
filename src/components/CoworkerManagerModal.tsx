@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useChurch } from '../context/ChurchContext';
-import { ChevronLeft, Search, Trash2, Phone, UserCheck, MessageSquare, X } from 'lucide-react';
+import { Search, Trash2, Phone, UserCheck, MessageSquare, X } from 'lucide-react';
 import { t } from '../utils/i18n';
 
 interface CoworkerManagerModalProps {
@@ -78,22 +78,17 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
         onClick={(e) => e.stopPropagation()}
       >
         {/* Native iOS Grab Handle */}
-        <div className="w-full pt-3 pb-1 flex justify-center bg-white shrink-0">
-          <div className="w-10 h-1 bg-slate-300 rounded-full" />
+        <div
+          onClick={onClose}
+          className="w-full pt-3 pb-2 flex justify-center bg-white shrink-0 cursor-pointer"
+          title="下拉或点击关闭"
+        >
+          <div className="w-10 h-1 bg-slate-300 rounded-full hover:bg-slate-400 transition-colors" />
         </div>
 
-        {/* iOS Top Navigation Bar */}
-        <div className="px-4 py-2.5 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex items-center gap-0.5 text-blue-600 hover:text-blue-700 active:opacity-60 -ml-1 py-1 px-2 font-medium text-sm rounded-lg transition-colors cursor-pointer"
-          >
-            <ChevronLeft size={20} strokeWidth={2.2} />
-            <span>{t('back', language)}</span>
-          </button>
-
-          <div className="text-center">
+        {/* Top Bar with Title and Add Action */}
+        <div className="px-4 pb-2.5 pt-0.5 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
+          <div className="text-left">
             <h2 className="text-sm font-bold text-slate-900 leading-tight">
               {t('coworkerDirectoryTitle', language)}
             </h2>
@@ -105,7 +100,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
           <button
             type="button"
             onClick={() => setIsAdding((prev) => !prev)}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-700 active:opacity-60 py-1 px-2 rounded-lg transition-colors cursor-pointer"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 active:opacity-60 py-1.5 px-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors cursor-pointer"
           >
             {isAdding ? t('cancel', language) : `+ ${t('addCoworker', language)}`}
           </button>
