@@ -11,13 +11,27 @@ interface ChurchContextType {
   selectedDate: string;
   setSelectedDate: (date: string) => void;
   currentRoster: ServiceRoster | undefined;
-  assignCoworker: (roleId: string, coworkerId: string) => void;
-  removeAssignment: (roleId: string, coworkerId: string) => void;
-  updateRosterMeta: (patch: { theme?: string; speaker?: string; notes?: string }) => void;
+  currentUserId: string;
+  setCurrentUserId: (id: string) => void;
+  currentUser: Coworker | undefined;
+  isEditMode: boolean;
+  setIsEditMode: (val: boolean) => void;
+  toggleEditMode: () => void;
+  getRostersForService: (serviceId: string) => ServiceRoster[];
+  getUserSeasonAssignments: (coworkerId?: string) => Array<{
+    roster: ServiceRoster;
+    service: ServiceDefinition;
+    roles: string[];
+  }>;
+  assignCoworker: (roleId: string, coworkerId: string, customDate?: string, customServiceId?: string) => void;
+  removeAssignment: (roleId: string, coworkerId: string, customDate?: string, customServiceId?: string) => void;
+  updateRosterMeta: (patch: { theme?: string; speaker?: string; notes?: string }, customDate?: string, customServiceId?: string) => void;
+  addSpecialEvent: (eventName: string, customDate?: string, customServiceId?: string) => void;
+  removeSpecialEvent: (eventName: string, customDate?: string, customServiceId?: string) => void;
   addCoworker: (coworker: Omit<Coworker, 'id'>) => void;
   updateCoworker: (coworker: Coworker) => void;
   deleteCoworker: (id: string) => void;
-  getCoworkerConflictRoles: (coworkerId: string) => string[];
+  getCoworkerConflictRoles: (coworkerId: string, customDate?: string, customServiceId?: string) => string[];
   exportBackup: () => void;
   importBackup: (jsonText: string) => boolean;
   resetToDefault: () => void;
@@ -44,6 +58,20 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     churchState.services[0]?.id || 'sun_mandarin'
   );
 
+  const [currentUserId, setCurrentUserId] = useState<string>(() => {
+    return localStorage.getItem('calvary_current_user_id') || 'cw_01';
+  });
+
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const toggleEditMode = () => setIsEditMode((prev) => !prev);
+
+  useEffect(() => {
+    localStorage.setItem('calvary_current_user_id', currentUserId);
+  }, [currentUserId]);
+
+  const currentUser =
+    churchState.coworkers.find((c) => c.id === currentUserId) || churchState.coworkers[0];
+
   const activeService =
     churchState.services.find((s) => s.id === activeServiceId) || churchState.services[0];
 
@@ -68,15 +96,64 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const rosterKey = `${selectedDate}_${activeServiceId}`;
   const currentRoster = churchState.rosters[rosterKey];
 
-  const ensureRoster = (state: ChurchState): { state: ChurchState; roster: ServiceRoster } => {
-    const existing = state.rosters[rosterKey];
+  const getRostersForService = (serviceId: string): ServiceRoster[] => {
+    const list = Object.values(churchState.rosters).filter((r) => r.serviceId === serviceId);
+    return list.sort((a, b) => a.date.localeCompare(b.date));
+  };
+
+  const getUserSeasonAssignments = (coworkerId = currentUserId) => {
+    const results: Array<{
+      roster: ServiceRoster;
+      service: ServiceDefinition;
+      roles: string[];
+    }> = [];
+
+    const roleMap = new Map(churchState.roles.map((r) => [r.id, r.name]));
+    const serviceMap = new Map(churchState.services.map((s) => [s.id, s]));
+
+    // Sort all rosters by date
+    const allRosters = Object.values(churchState.rosters).sort((a, b) =>
+      a.date.localeCompare(b.date)
+    );
+
+    for (const r of allRosters) {
+      const assignedRoles: string[] = [];
+      for (const [roleId, ids] of Object.entries(r.assignments)) {
+        if (ids.includes(coworkerId)) {
+          const roleName = roleMap.get(roleId) || roleId;
+          assignedRoles.push(roleName);
+        }
+      }
+
+      if (assignedRoles.length > 0) {
+        const svc = serviceMap.get(r.serviceId);
+        if (svc) {
+          results.push({
+            roster: r,
+            service: svc,
+            roles: assignedRoles,
+          });
+        }
+      }
+    }
+
+    return results;
+  };
+
+  const ensureRoster = (
+    state: ChurchState,
+    targetDate = selectedDate,
+    targetServiceId = activeServiceId
+  ): { state: ChurchState; roster: ServiceRoster; key: string } => {
+    const key = `${targetDate}_${targetServiceId}`;
+    const existing = state.rosters[key];
     if (existing) {
-      return { state, roster: existing };
+      return { state, roster: existing, key };
     }
     const newRoster: ServiceRoster = {
-      id: rosterKey,
-      serviceId: activeServiceId,
-      date: selectedDate,
+      id: key,
+      serviceId: targetServiceId,
+      date: targetDate,
       assignments: {},
       updatedAt: new Date().toISOString(),
     };
@@ -85,16 +162,25 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...state,
         rosters: {
           ...state.rosters,
-          [rosterKey]: newRoster,
+          [key]: newRoster,
         },
       },
       roster: newRoster,
+      key,
     };
   };
 
-  const assignCoworker = (roleId: string, coworkerId: string) => {
+  const assignCoworker = (
+    roleId: string,
+    coworkerId: string,
+    customDate?: string,
+    customServiceId?: string
+  ) => {
     setChurchState((prev) => {
-      const { state, roster } = ensureRoster(prev);
+      const targetDate = customDate || selectedDate;
+      const targetSvcId = customServiceId || activeServiceId;
+      const { state, roster, key } = ensureRoster(prev, targetDate, targetSvcId);
+
       const currentList = roster.assignments[roleId] || [];
       if (currentList.includes(coworkerId)) return prev;
 
@@ -111,15 +197,21 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...state,
         rosters: {
           ...state.rosters,
-          [rosterKey]: updatedRoster,
+          [key]: updatedRoster,
         },
       };
     });
   };
 
-  const removeAssignment = (roleId: string, coworkerId: string) => {
+  const removeAssignment = (
+    roleId: string,
+    coworkerId: string,
+    customDate?: string,
+    customServiceId?: string
+  ) => {
     setChurchState((prev) => {
-      const roster = prev.rosters[rosterKey];
+      const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
+      const roster = prev.rosters[key];
       if (!roster) return prev;
 
       const currentList = roster.assignments[roleId] || [];
@@ -138,15 +230,23 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...prev,
         rosters: {
           ...prev.rosters,
-          [rosterKey]: updatedRoster,
+          [key]: updatedRoster,
         },
       };
     });
   };
 
-  const updateRosterMeta = (patch: { theme?: string; speaker?: string; notes?: string }) => {
+  const updateRosterMeta = (
+    patch: { theme?: string; speaker?: string; notes?: string },
+    customDate?: string,
+    customServiceId?: string
+  ) => {
     setChurchState((prev) => {
-      const { state, roster } = ensureRoster(prev);
+      const { state, roster, key } = ensureRoster(
+        prev,
+        customDate || selectedDate,
+        customServiceId || activeServiceId
+      );
       const updatedRoster: ServiceRoster = {
         ...roster,
         ...patch,
@@ -157,7 +257,64 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...state,
         rosters: {
           ...state.rosters,
-          [rosterKey]: updatedRoster,
+          [key]: updatedRoster,
+        },
+      };
+    });
+  };
+
+  const addSpecialEvent = (
+    eventName: string,
+    customDate?: string,
+    customServiceId?: string
+  ) => {
+    if (!eventName.trim()) return;
+    setChurchState((prev) => {
+      const { state, roster, key } = ensureRoster(
+        prev,
+        customDate || selectedDate,
+        customServiceId || activeServiceId
+      );
+      const events = roster.specialEvents || [];
+      if (events.includes(eventName.trim())) return prev;
+
+      const updatedRoster: ServiceRoster = {
+        ...roster,
+        specialEvents: [...events, eventName.trim()],
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        ...state,
+        rosters: {
+          ...state.rosters,
+          [key]: updatedRoster,
+        },
+      };
+    });
+  };
+
+  const removeSpecialEvent = (
+    eventName: string,
+    customDate?: string,
+    customServiceId?: string
+  ) => {
+    setChurchState((prev) => {
+      const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
+      const roster = prev.rosters[key];
+      if (!roster || !roster.specialEvents) return prev;
+
+      const updatedRoster: ServiceRoster = {
+        ...roster,
+        specialEvents: roster.specialEvents.filter((e) => e !== eventName),
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        ...prev,
+        rosters: {
+          ...prev.rosters,
+          [key]: updatedRoster,
         },
       };
     });
@@ -189,10 +346,16 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }));
   };
 
-  const getCoworkerConflictRoles = (coworkerId: string): string[] => {
-    if (!currentRoster) return [];
+  const getCoworkerConflictRoles = (
+    coworkerId: string,
+    customDate?: string,
+    customServiceId?: string
+  ): string[] => {
+    const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
+    const targetRoster = churchState.rosters[key];
+    if (!targetRoster) return [];
     const rolesAssigned: string[] = [];
-    for (const [roleId, ids] of Object.entries(currentRoster.assignments)) {
+    for (const [roleId, ids] of Object.entries(targetRoster.assignments)) {
       if (ids.includes(coworkerId)) {
         const roleDef = churchState.roles.find((r) => r.id === roleId);
         if (roleDef) rolesAssigned.push(roleDef.name);
@@ -243,9 +406,19 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         selectedDate,
         setSelectedDate,
         currentRoster,
+        currentUserId,
+        setCurrentUserId,
+        currentUser,
+        isEditMode,
+        setIsEditMode,
+        toggleEditMode,
+        getRostersForService,
+        getUserSeasonAssignments,
         assignCoworker,
         removeAssignment,
         updateRosterMeta,
+        addSpecialEvent,
+        removeSpecialEvent,
         addCoworker,
         updateCoworker,
         deleteCoworker,

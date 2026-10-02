@@ -13,7 +13,7 @@ export function generateWhatsAppRosterText(
   const dateFormatted = roster?.date ? formatDateLabel(roster.date) : '待定日期';
 
   const lines: string[] = [
-    `【${churchName} · 服事表】`,
+    `【${churchName} 服事表】`,
     `聚会：${service.name}`,
     `日期：${dateFormatted}`,
     `时间：${service.time}`,

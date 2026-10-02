@@ -7,14 +7,33 @@ interface AssignModalProps {
   role: RoleDefinition;
   isOpen: boolean;
   onClose: () => void;
+  targetDate?: string;
+  targetServiceId?: string;
 }
 
-export const AssignModal: React.FC<AssignModalProps> = ({ role, isOpen, onClose }) => {
-  const { churchState, currentRoster, assignCoworker, removeAssignment, getCoworkerConflictRoles } =
-    useChurch();
+export const AssignModal: React.FC<AssignModalProps> = ({
+  role,
+  isOpen,
+  onClose,
+  targetDate,
+  targetServiceId,
+}) => {
+  const {
+    churchState,
+    selectedDate,
+    activeServiceId,
+    assignCoworker,
+    removeAssignment,
+    getCoworkerConflictRoles,
+  } = useChurch();
   const [search, setSearch] = useState('');
 
-  const assignedIds = currentRoster?.assignments[role.id] || [];
+  const effectiveDate = targetDate || selectedDate;
+  const effectiveServiceId = targetServiceId || activeServiceId;
+  const rosterKey = `${effectiveDate}_${effectiveServiceId}`;
+  const targetRoster = churchState.rosters[rosterKey];
+
+  const assignedIds = targetRoster?.assignments?.[role.id] || [];
 
   const filteredCoworkers = useMemo(() => {
     return churchState.coworkers.filter((cw) => {
@@ -99,18 +118,20 @@ export const AssignModal: React.FC<AssignModalProps> = ({ role, isOpen, onClose 
             sortedCoworkers.map((cw) => {
               const isAssigned = assignedIds.includes(cw.id);
               const isQualified = cw.qualifiedRoleIds.includes(role.id);
-              const conflictRoles = getCoworkerConflictRoles(cw.id).filter(
-                (name) => name !== role.name
-              );
+              const conflictRoles = getCoworkerConflictRoles(
+                cw.id,
+                effectiveDate,
+                effectiveServiceId
+              ).filter((name) => name !== role.name);
 
               return (
                 <div
                   key={cw.id}
                   onClick={() => {
                     if (isAssigned) {
-                      removeAssignment(role.id, cw.id);
+                      removeAssignment(role.id, cw.id, effectiveDate, effectiveServiceId);
                     } else {
-                      assignCoworker(role.id, cw.id);
+                      assignCoworker(role.id, cw.id, effectiveDate, effectiveServiceId);
                     }
                   }}
                   className={`pt-2 pb-2 px-3 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-3 ${

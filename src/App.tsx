@@ -1,24 +1,21 @@
 import React, { useState } from 'react';
 import { ChurchProvider } from './context/ChurchContext';
-import { Header } from './components/Header';
-import { RosterBoard } from './components/RosterBoard';
-import { WhatsAppTab } from './components/WhatsAppTab';
-import { CoworkersTab } from './components/CoworkersTab';
-import { SettingsTab } from './components/SettingsTab';
+import { DashboardScreen } from './components/DashboardScreen';
+import { RosterScreen } from './components/RosterScreen';
+import { ProfileScreen } from './components/ProfileScreen';
 import { BottomNav, type TabType } from './components/BottomNav';
 
 const MainContent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('roster');
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col">
-      <Header />
-
-      <main className="flex-1 max-w-2xl w-full mx-auto px-4 pt-4 pb-24">
-        {activeTab === 'roster' && <RosterBoard />}
-        {activeTab === 'whatsapp' && <WhatsAppTab />}
-        {activeTab === 'coworkers' && <CoworkersTab />}
-        {activeTab === 'settings' && <SettingsTab />}
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-100">
+      <main className="flex-1 max-w-md w-full mx-auto px-4 pt-4 pb-24">
+        {activeTab === 'dashboard' && (
+          <DashboardScreen onNavigateToRoster={() => setActiveTab('roster')} />
+        )}
+        {activeTab === 'roster' && <RosterScreen />}
+        {activeTab === 'profile' && <ProfileScreen />}
       </main>
 
       <BottomNav currentTab={activeTab} onTabChange={setActiveTab} />

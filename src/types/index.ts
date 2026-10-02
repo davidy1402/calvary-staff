@@ -39,6 +39,7 @@ export interface ServiceRoster {
   serviceId: string;
   date: string; // YYYY-MM-DD
   theme?: string; // 主题或经文
+  specialEvents?: string[]; // 特别聚会标签，例如：圣餐主日、洗礼主日
   speaker?: string; // 讲员（可直接手填或从同工选）
   assignments: Record<string, string[]>; // roleId -> coworkerIds
   notes?: string;

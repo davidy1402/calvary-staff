@@ -1,4 +1,4 @@
-import type { ChurchState, ServiceDefinition, RoleDefinition, Coworker } from '../types';
+import type { ChurchState, ServiceDefinition, RoleDefinition, Coworker, ServiceRoster } from '../types';
 
 export const INITIAL_SERVICES: ServiceDefinition[] = [
   {
@@ -180,11 +180,108 @@ export const INITIAL_COWORKERS: Coworker[] = [
   },
 ];
 
+export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
+  '2026-10-04_sun_mandarin': {
+    id: '2026-10-04_sun_mandarin',
+    serviceId: 'sun_mandarin',
+    date: '2026-10-04',
+    theme: '合一与服事的呼召 (罗马书 12:1-8)',
+    specialEvents: ['圣餐主日'],
+    speaker: '黄志强',
+    assignments: {
+      speaker: ['cw_02'],
+      presider: ['cw_03'],
+      scripture: ['cw_03'],
+      worship_leader: ['cw_04'],
+      keyboard: ['cw_05'],
+      acoustic_guitar: ['cw_01'],
+      bass: ['cw_08'],
+      drums: ['cw_06'],
+      vocals: ['cw_05'],
+      sound_pa: ['cw_10'],
+      ppt_lyrics: ['cw_07'],
+      livestream: ['cw_10'],
+      chief_usher: ['cw_03'],
+      greeter: ['cw_09', 'cw_11'],
+      offering: ['cw_09', 'cw_11'],
+    },
+    updatedAt: '2026-10-02T12:00:00.000Z',
+  },
+  '2026-10-11_sun_mandarin': {
+    id: '2026-10-11_sun_mandarin',
+    serviceId: 'sun_mandarin',
+    date: '2026-10-11',
+    theme: '信心的跃进与门徒代价',
+    speaker: '客座讲员',
+    assignments: {
+      presider: ['cw_02'],
+      worship_leader: ['cw_01'],
+      keyboard: ['cw_05'],
+      drums: ['cw_12'],
+      sound_pa: ['cw_06'],
+      ppt_lyrics: ['cw_07'],
+      chief_usher: ['cw_09'],
+      greeter: ['cw_09'],
+    },
+    updatedAt: '2026-10-02T12:00:00.000Z',
+  },
+  '2026-10-04_sun_english': {
+    id: '2026-10-04_sun_english',
+    serviceId: 'sun_english',
+    date: '2026-10-04',
+    theme: 'Living by the Spirit (Galatians 5:16-26)',
+    specialEvents: ['Holy Communion'],
+    speaker: 'Pastor Jason Wong',
+    assignments: {
+      speaker: ['cw_02'],
+      presider: ['cw_04'],
+      worship_leader: ['cw_01'],
+      keyboard: ['cw_05'],
+      drums: ['cw_06'],
+      sound_pa: ['cw_10'],
+      ppt_lyrics: ['cw_07'],
+      chief_usher: ['cw_09'],
+    },
+    updatedAt: '2026-10-02T12:00:00.000Z',
+  },
+  '2026-10-03_sat_youth': {
+    id: '2026-10-03_sat_youth',
+    serviceId: 'sat_youth',
+    date: '2026-10-03',
+    theme: 'Ignite: Radical Worship',
+    speaker: '青年同工',
+    assignments: {
+      worship_leader: ['cw_01'],
+      acoustic_guitar: ['cw_01'],
+      bass: ['cw_08'],
+      drums: ['cw_06'],
+      sound_pa: ['cw_06'],
+      ppt_lyrics: ['cw_12'],
+    },
+    updatedAt: '2026-10-02T12:00:00.000Z',
+  },
+  '2026-10-07_wed_prayer': {
+    id: '2026-10-07_wed_prayer',
+    serviceId: 'wed_prayer',
+    date: '2026-10-07',
+    theme: '为国家、家庭与教会复兴守望',
+    assignments: {
+      presider: ['cw_02'],
+      worship_leader: ['cw_04'],
+      keyboard: ['cw_05'],
+      sound_pa: ['cw_06'],
+      ppt_lyrics: ['cw_07'],
+    },
+    updatedAt: '2026-10-02T12:00:00.000Z',
+  },
+};
+
 export const INITIAL_STATE: ChurchState = {
   churchName: '新山加略山社区教会',
   shortName: '加略山同工',
   services: INITIAL_SERVICES,
   roles: INITIAL_ROLES,
   coworkers: INITIAL_COWORKERS,
-  rosters: {},
+  rosters: INITIAL_ROSTERS,
 };
+
