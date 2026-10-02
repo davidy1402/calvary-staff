@@ -11,9 +11,11 @@ import {
   Share2,
   AlertCircle,
   FileText,
+  Languages,
 } from 'lucide-react';
 import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
+import { t } from '../utils/i18n';
 import type { RoleDefinition, ServiceRoster } from '../types';
 
 export const RosterScreen: React.FC = () => {
@@ -30,6 +32,8 @@ export const RosterScreen: React.FC = () => {
     addSpecialEvent,
     removeSpecialEvent,
     getCoworkerConflictRoles,
+    language,
+    toggleLanguage,
   } = useChurch();
 
   // Selected role for AssignModal
@@ -65,36 +69,60 @@ export const RosterScreen: React.FC = () => {
   const getWeekdayShort = (dateStr: string) => {
     const [yyyy, mm, dd] = dateStr.split('-');
     const date = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-    return weekdays[date.getDay()];
+    const weekdaysZh = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekdaysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return language === 'zh' ? weekdaysZh[date.getDay()] : weekdaysEn[date.getDay()];
+  };
+
+  const getServiceName = (serviceId: string, defaultName: string) => {
+    const key = serviceId as any;
+    return t(key, language) !== key ? t(key, language) : defaultName;
+  };
+
+  const getServiceShortName = (serviceId: string, defaultShortName: string) => {
+    const shortKey = `${serviceId}_short` as any;
+    return t(shortKey, language) !== shortKey ? t(shortKey, language) : defaultShortName;
   };
 
   const coworkerMap = new Map(churchState.coworkers.map((c) => [c.id, c]));
 
   return (
-    <div className="space-y-3">
-      {/* Centered AppBar with Edit Action */}
+    <div className="space-y-3 animate-slide-up">
+      {/* Centered AppBar with Edit Action & Language Toggle */}
       <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 pt-3.5 pb-0 sticky top-0 z-20 shadow-2xs">
-        <div className="relative flex items-center justify-center">
+        <div className="relative flex items-center justify-between">
+          {/* Left Action: Language Toggle */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            title={language === 'zh' ? 'Switch to English' : '切换为中文'}
+            className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-all duration-150 active:scale-90 cursor-pointer"
+          >
+            <Languages size={13} strokeWidth={2} />
+            <span>{language === 'zh' ? 'EN' : '中文'}</span>
+          </button>
+
           <h1 className="text-base font-bold text-slate-900">
-            {isEditMode ? '編輯服事表' : '服事表'}
+            {isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
           </h1>
-          <div className="absolute right-0">
+
+          {/* Right Action: Edit Toggle */}
+          <div>
             {isEditMode ? (
               <button
                 type="button"
                 onClick={toggleEditMode}
-                className="text-xs font-bold text-blue-600 hover:text-blue-800 px-2 py-1 flex items-center gap-1 transition-colors"
+                className="text-xs font-bold text-blue-600 hover:text-blue-800 px-2 py-1 flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
               >
                 <Check size={14} strokeWidth={2.5} />
-                <span>完成</span>
+                <span>{t('done', language)}</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={toggleEditMode}
-                title="切換至編輯模式"
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                title={t('editRosterTooltip', language)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all active:scale-90 cursor-pointer"
               >
                 <Edit2 size={16} strokeWidth={1.75} />
               </button>
@@ -102,10 +130,11 @@ export const RosterScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* TabBar: Material Underline Tabs (matching Flutter TabBar) */}
+        {/* TabBar: Material Underline Tabs */}
         <div className="flex border-b border-slate-200/80 mt-3 px-1">
           {churchState.services.map((svc) => {
             const isActive = svc.id === activeServiceId;
+            const tabLabel = getServiceShortName(svc.id, svc.shortName);
             return (
               <button
                 key={svc.id}
@@ -117,13 +146,13 @@ export const RosterScreen: React.FC = () => {
                     setExpandedDates({ [rosters[0].date]: true });
                   }
                 }}
-                className={`flex-1 pb-2 pt-1 text-xs text-center transition-all relative ${
+                className={`flex-1 pb-2 pt-1 text-xs text-center transition-all duration-200 relative cursor-pointer ${
                   isActive ? 'text-blue-900 font-bold' : 'text-slate-500 hover:text-slate-800 font-medium'
                 }`}
               >
-                <span>{svc.shortName}</span>
+                <span>{tabLabel}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-blue-900 rounded-full" />
+                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-blue-900 rounded-full transition-all duration-200" />
                 )}
               </button>
             );
@@ -133,11 +162,11 @@ export const RosterScreen: React.FC = () => {
 
       {/* Roster Cards List */}
       {serviceRosters.length === 0 ? (
-        <div className="bg-white rounded-xl p-8 border border-slate-200 text-center text-slate-500">
+        <div className="bg-white rounded-xl p-8 border border-slate-200 text-center text-slate-500 animate-slide-up">
           <CalendarDays size={32} strokeWidth={1.5} className="mx-auto text-slate-300 mb-2" />
-          <p className="text-sm font-semibold">此類別目前沒有服事資訊</p>
+          <p className="text-sm font-semibold">{t('noRosterData', language)}</p>
           <p className="text-xs text-slate-400 mt-1">
-            {isEditMode ? '點擊右上角新增排班日期' : '管理員建立後會在此顯示'}
+            {isEditMode ? t('noRosterHintEdit', language) : t('noRosterHintView', language)}
           </p>
         </div>
       ) : (
@@ -145,6 +174,7 @@ export const RosterScreen: React.FC = () => {
           {serviceRosters.map((roster, index) => {
             const isExpanded = expandedDates[roster.date] ?? (index === 0);
             const dateTitle = `${roster.date.replace(/-/g, '/')} (${getWeekdayShort(roster.date)})`;
+            const currentServiceName = getServiceName(activeService.id, activeService.name);
 
             // Active categories for this service
             const activeRoles = churchState.roles.filter((r) =>
@@ -154,7 +184,7 @@ export const RosterScreen: React.FC = () => {
             return (
               <div
                 key={roster.id}
-                className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden transition-all"
+                className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden transition-all duration-200 hover:border-slate-300"
               >
                 {/* Card Header (ExpansionTile) */}
                 <div
@@ -180,7 +210,7 @@ export const RosterScreen: React.FC = () => {
                             </span>
                           ))}
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5 truncate">{activeService.name}</p>
+                      <p className="text-xs text-slate-500 mt-0.5 truncate">{currentServiceName}</p>
                     </div>
                   </div>
 
@@ -192,11 +222,11 @@ export const RosterScreen: React.FC = () => {
                         setWhatsAppModalRoster(roster);
                       }}
                       title="预览并分享 WhatsApp 服事表"
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors active:scale-90"
                     >
                       <Share2 size={16} strokeWidth={1.75} />
                     </button>
-                    <div className="text-slate-400">
+                    <div className="text-slate-400 transition-transform duration-200">
                       {isExpanded ? (
                         <ChevronUp size={18} strokeWidth={1.75} />
                       ) : (
@@ -208,7 +238,7 @@ export const RosterScreen: React.FC = () => {
 
                 {/* Card Body (RosterViewCardBody / DutyRow list) */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 pt-1 border-t border-slate-100">
+                  <div className="px-4 pb-4 pt-1 border-t border-slate-100 animate-slide-up">
                     {/* Theme / Scripture Bar */}
                     <div className="py-2 mb-2 border-b border-slate-100 flex items-center justify-between text-xs text-slate-600">
                       <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -219,7 +249,7 @@ export const RosterScreen: React.FC = () => {
                               type="text"
                               value={themeInput}
                               onChange={(e) => setThemeInput(e.target.value)}
-                              placeholder="输入本周讲道主题或经文..."
+                              placeholder={language === 'zh' ? '输入本周讲道主题或经文...' : 'Enter sermon theme or scripture...'}
                               className="w-full text-xs px-2 py-1 bg-slate-50 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                               autoFocus
                             />
@@ -229,17 +259,19 @@ export const RosterScreen: React.FC = () => {
                                 updateRosterMeta({ theme: themeInput.trim() }, roster.date, roster.serviceId);
                                 setEditingThemeDate(null);
                               }}
-                              className="px-2 py-1 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 shrink-0 text-xs"
+                              className="px-2 py-1 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 shrink-0 text-xs transition-colors active:scale-95"
                             >
-                              保存
+                              {t('save', language)}
                             </button>
                           </div>
                         ) : (
                           <span className="truncate">
                             {roster.theme ? (
-                              <span className="font-medium text-slate-800">主题：{roster.theme}</span>
+                              <span className="font-medium text-slate-800">
+                                {t('theme', language)}: {roster.theme}
+                              </span>
                             ) : (
-                              <span className="text-slate-400 italic">未填主题</span>
+                              <span className="text-slate-400 italic">{t('unfilledTheme', language)}</span>
                             )}
                           </span>
                         )}
@@ -252,9 +284,9 @@ export const RosterScreen: React.FC = () => {
                             setThemeInput(roster.theme || '');
                             setEditingThemeDate(roster.date);
                           }}
-                          className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 shrink-0 ml-2"
+                          className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 shrink-0 ml-2 transition-colors active:scale-95 cursor-pointer"
                         >
-                          {roster.theme ? '修改' : '填写真题'}
+                          {roster.theme ? t('modifyTheme', language) : t('fillTheme', language)}
                         </button>
                       )}
                     </div>
@@ -262,7 +294,9 @@ export const RosterScreen: React.FC = () => {
                     {/* Special Event Tags Management in Edit Mode */}
                     {isEditMode && (
                       <div className="py-1.5 flex items-center gap-1.5 flex-wrap border-b border-slate-100 mb-2">
-                        <span className="text-[11px] text-slate-500 font-medium">特别聚会：</span>
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          {t('specialEvents', language)}:
+                        </span>
                         {roster.specialEvents &&
                           roster.specialEvents.map((ev) => (
                             <span
@@ -273,7 +307,7 @@ export const RosterScreen: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => removeSpecialEvent(ev, roster.date, roster.serviceId)}
-                                className="text-rose-400 hover:text-rose-700"
+                                className="text-rose-400 hover:text-rose-700 cursor-pointer"
                               >
                                 <X size={11} strokeWidth={2} />
                               </button>
@@ -282,18 +316,22 @@ export const RosterScreen: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            const name = prompt('输入特别聚会名称（例如：圣餐主日、洗礼主日、宣教主日）：');
+                            const name = prompt(
+                              language === 'zh'
+                                ? '输入特别聚会名称（例如：圣餐主日、洗礼主日、宣教主日）：'
+                                : 'Enter special event name (e.g. Holy Communion, Baptism Sunday):'
+                            );
                             if (name) addSpecialEvent(name, roster.date, roster.serviceId);
                           }}
-                          className="text-[11px] font-medium text-blue-600 hover:text-blue-800 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-50 border border-blue-100"
+                          className="text-[11px] font-medium text-blue-600 hover:text-blue-800 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-50 border border-blue-100 transition-colors active:scale-95 cursor-pointer"
                         >
                           <Plus size={12} strokeWidth={2} />
-                          <span>加标签</span>
+                          <span>{t('addTag', language)}</span>
                         </button>
                       </div>
                     )}
 
-                    {/* Duty Rows List (matching DutyRow in Flutter) */}
+                    {/* Duty Rows List */}
                     <div className="divide-y divide-slate-50">
                       {activeRoles.map((role) => {
                         const assignedIds = roster.assignments[role.id] || [];
@@ -304,9 +342,9 @@ export const RosterScreen: React.FC = () => {
                         return (
                           <div
                             key={role.id}
-                            className="py-2 flex items-start text-xs leading-relaxed"
+                            className="py-2 flex items-start text-xs leading-relaxed hover:bg-slate-50/50 rounded px-1 transition-colors"
                           >
-                            {/* Role Name (Fixed 88px width) */}
+                            {/* Role Name */}
                             <div className="w-[88px] shrink-0 text-slate-500 font-medium pt-0.5">
                               {role.name}
                             </div>
@@ -314,7 +352,7 @@ export const RosterScreen: React.FC = () => {
                             {/* Volunteer Names */}
                             <div className="flex-1 flex flex-wrap items-center gap-x-1 gap-y-1">
                               {assignedCoworkers.length === 0 ? (
-                                <span className="text-slate-400 italic">待定</span>
+                                <span className="text-slate-400 italic">{t('pending', language)}</span>
                               ) : (
                                 assignedCoworkers.map((cw, i) => {
                                   if (!cw) return null;
@@ -332,7 +370,7 @@ export const RosterScreen: React.FC = () => {
                                       </span>
                                       {conflicts.length > 0 && (
                                         <span
-                                          title={`兼任：${conflicts.join('、')}`}
+                                          title={`${t('conflict', language)}: ${conflicts.join('、')}`}
                                           className="text-amber-600 inline-flex align-middle"
                                         >
                                           <AlertCircle size={11} strokeWidth={2.5} />
@@ -344,7 +382,7 @@ export const RosterScreen: React.FC = () => {
                                           onClick={() =>
                                             removeAssignment(role.id, cw.id, roster.date, roster.serviceId)
                                           }
-                                          className="text-slate-300 hover:text-rose-600 ml-0.5 p-0.5"
+                                          className="text-slate-300 hover:text-rose-600 ml-0.5 p-0.5 cursor-pointer"
                                         >
                                           <X size={11} strokeWidth={2} />
                                         </button>
@@ -367,10 +405,10 @@ export const RosterScreen: React.FC = () => {
                                       serviceId: roster.serviceId,
                                     })
                                   }
-                                  className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1 transition-colors"
+                                  className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
                                 >
                                   <Plus size={11} strokeWidth={2} />
-                                  <span>{assignedCoworkers.length === 0 ? '指派' : '更换'}</span>
+                                  <span>{assignedCoworkers.length === 0 ? t('assign', language) : t('change', language)}</span>
                                 </button>
                               </div>
                             )}

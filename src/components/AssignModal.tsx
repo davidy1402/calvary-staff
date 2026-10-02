@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
 import { X, Search, Check, AlertTriangle, Star, User } from 'lucide-react';
+import { t } from '../utils/i18n';
 
 interface AssignModalProps {
   role: RoleDefinition;
@@ -25,6 +26,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
     assignCoworker,
     removeAssignment,
     getCoworkerConflictRoles,
+    language,
   } = useChurch();
   const [search, setSearch] = useState('');
 
@@ -74,10 +76,10 @@ export const AssignModal: React.FC<AssignModalProps> = ({
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-slate-900">
-              指派岗位：{role.name}
+              {t('assignRole', language)}: {role.name}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              点击同工名字即可分配或取消分配
+              {t('selectCoworkerHint', language)}
             </p>
           </div>
           <button
@@ -102,7 +104,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="搜索同工姓名、英文名或小组..."
+              placeholder={t('searchCoworker', language)}
               className="w-full pl-9 pr-4 py-2 bg-slate-50 text-sm text-slate-800 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
           </div>
@@ -112,7 +114,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
         <div className="overflow-y-auto p-4 space-y-2 flex-1 divide-y divide-slate-50">
           {sortedCoworkers.length === 0 ? (
             <div className="text-center py-8 text-sm text-slate-400">
-              没有找到符合条件的同工
+              {t('noCoworkerFound', language)}
             </div>
           ) : (
             sortedCoworkers.map((cw) => {
@@ -163,7 +165,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                         {isQualified && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">
                             <Star size={10} strokeWidth={2} />
-                            常用
+                            {t('regularRole', language)}
                           </span>
                         )}
                       </div>
@@ -175,7 +177,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                       {conflictRoles.length > 0 && !isAssigned && (
                         <div className="flex items-center gap-1 text-[11px] text-amber-600 mt-1 font-medium bg-amber-50/60 px-2 py-0.5 rounded">
                           <AlertTriangle size={12} strokeWidth={2} />
-                          <span>本日已排：{conflictRoles.join('、')}</span>
+                          <span>{t('todayAssigned', language)}: {conflictRoles.join('、')}</span>
                         </div>
                       )}
                     </div>
@@ -203,9 +205,9 @@ export const AssignModal: React.FC<AssignModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-xs"
+            className="w-full py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-xs cursor-pointer active:scale-95"
           >
-            完成选择（已排 {assignedIds.length} 位）
+            {t('completeSelection', language)} ({assignedIds.length})
           </button>
         </div>
       </div>

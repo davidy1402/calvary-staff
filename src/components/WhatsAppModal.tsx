@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { generateWhatsAppRosterText } from '../utils/whatsappFormatter';
 import { X, Copy, Check, Send, MessageSquare } from 'lucide-react';
+import { t } from '../utils/i18n';
 import type { ServiceDefinition, ServiceRoster } from '../types';
 
 interface WhatsAppModalProps {
@@ -17,7 +18,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   initialService,
   initialRoster,
 }) => {
-  const { churchState, activeService, currentRoster } = useChurch();
+  const { churchState, activeService, currentRoster, language } = useChurch();
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
@@ -55,7 +56,9 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
               <MessageSquare size={18} strokeWidth={1.75} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">WhatsApp 服事通知</h2>
+              <h2 className="text-base font-bold text-slate-900">
+                {t('whatsappNotification', language)}
+              </h2>
               <p className="text-xs text-slate-500">
                 {targetService.name} ({targetRoster?.date || '待定日期'})
               </p>
@@ -83,7 +86,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           <button
             type="button"
             onClick={handleCopy}
-            className={`flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
               copied
                 ? 'bg-emerald-600 text-white'
                 : 'bg-slate-900 text-white hover:bg-slate-800'
@@ -92,12 +95,12 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
             {copied ? (
               <>
                 <Check size={14} strokeWidth={2.5} />
-                <span>已复制全部</span>
+                <span>{t('copiedAll', language)}</span>
               </>
             ) : (
               <>
                 <Copy size={14} strokeWidth={1.75} />
-                <span>复制全部文字</span>
+                <span>{t('copyAllText', language)}</span>
               </>
             )}
           </button>
@@ -106,10 +109,10 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs"
+            className="flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs cursor-pointer active:scale-95"
           >
             <Send size={14} strokeWidth={1.75} />
-            <span>打开 WhatsApp</span>
+            <span>{t('openWhatsApp', language)}</span>
           </a>
         </div>
       </div>

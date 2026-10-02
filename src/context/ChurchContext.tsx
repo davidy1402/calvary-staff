@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ChurchState, ServiceRoster, Coworker, ServiceDefinition } from '../types';
 import { INITIAL_STATE } from '../data/initialData';
 import { getUpcomingServiceDate } from '../utils/dateUtils';
+import type { Language } from '../utils/i18n';
 
 interface ChurchContextType {
   churchState: ChurchState;
@@ -14,6 +15,9 @@ interface ChurchContextType {
   currentUserId: string;
   setCurrentUserId: (id: string) => void;
   currentUser: Coworker | undefined;
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  toggleLanguage: () => void;
   isEditMode: boolean;
   setIsEditMode: (val: boolean) => void;
   toggleEditMode: () => void;
@@ -53,6 +57,19 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
     return INITIAL_STATE;
   });
+
+  const [language, setLanguageState] = useState<Language>(() => {
+    return (localStorage.getItem('calvary_staff_lang') as Language) || 'zh';
+  });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('calvary_staff_lang', lang);
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'zh' ? 'en' : 'zh');
+  };
 
   const [activeServiceId, setActiveServiceId] = useState<string>(
     churchState.services[0]?.id || 'sun_mandarin'
@@ -409,6 +426,9 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         currentUserId,
         setCurrentUserId,
         currentUser,
+        language,
+        setLanguage,
+        toggleLanguage,
         isEditMode,
         setIsEditMode,
         toggleEditMode,
