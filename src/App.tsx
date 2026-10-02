@@ -10,7 +10,7 @@ const MainContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-100">
-      <main className="flex-1 max-w-md w-full mx-auto px-4 pt-4 pb-24">
+      <main className="flex-1 max-w-md w-full mx-auto px-4 pt-4 pb-28">
         {activeTab === 'dashboard' && (
           <DashboardScreen onNavigateToRoster={() => setActiveTab('roster')} />
         )}

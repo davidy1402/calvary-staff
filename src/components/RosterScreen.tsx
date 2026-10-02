@@ -86,6 +86,17 @@ export const RosterScreen: React.FC = () => {
 
   const coworkerMap = new Map(churchState.coworkers.map((c) => [c.id, c]));
 
+  const categoryGroups: Array<{
+    id: 'pulpit' | 'worship' | 'media' | 'hospitality';
+    nameZh: string;
+    nameEn: string;
+  }> = [
+    { id: 'pulpit', nameZh: '讲台与主理', nameEn: 'Pulpit & Service' },
+    { id: 'worship', nameZh: '敬拜赞美团', nameEn: 'Worship Team' },
+    { id: 'media', nameZh: '影音多媒体', nameEn: 'AV & Media' },
+    { id: 'hospitality', nameZh: '接待与关怀', nameEn: 'Hospitality & Ushers' },
+  ];
+
   return (
     <div className="space-y-3 animate-slide-up">
       {/* Centered AppBar with Edit Action & Language Toggle */}
@@ -96,7 +107,7 @@ export const RosterScreen: React.FC = () => {
             type="button"
             onClick={toggleLanguage}
             title={language === 'zh' ? 'Switch to English' : '切换为中文'}
-            className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-all duration-150 active:scale-90 cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-all duration-150 active:scale-90 cursor-pointer"
           >
             <Languages size={13} strokeWidth={2} />
             <span>{language === 'zh' ? 'EN' : '中文'}</span>
@@ -176,17 +187,24 @@ export const RosterScreen: React.FC = () => {
             const dateTitle = `${roster.date.replace(/-/g, '/')} (${getWeekdayShort(roster.date)})`;
             const currentServiceName = getServiceName(activeService.id, activeService.name);
 
-            // Active categories for this service
+            // Active categories and roles for this service
             const activeRoles = churchState.roles.filter((r) =>
               activeService.categoryIds.includes(r.category)
             );
 
+            // Staffing metrics (HCI Glanceability)
+            const totalRoles = activeRoles.length;
+            const assignedCount = activeRoles.filter(
+              (r) => (roster.assignments[r.id]?.length ?? 0) > 0
+            ).length;
+            const isFullyStaffed = assignedCount === totalRoles;
+
             return (
               <div
                 key={roster.id}
-                className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden transition-all duration-200 hover:border-slate-300"
+                className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden transition-all duration-200 hover:border-slate-300"
               >
-                {/* Card Header (ExpansionTile) */}
+                {/* Card Header */}
                 <div
                   onClick={() => toggleExpand(roster.date)}
                   className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-slate-50/60 transition-colors select-none"
@@ -200,6 +218,19 @@ export const RosterScreen: React.FC = () => {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-bold text-slate-900">{dateTitle}</span>
+                        {/* Staffing Health Pill */}
+                        <span
+                          className={`text-[10px] font-semibold px-2 py-0.2 rounded-full ${
+                            isFullyStaffed
+                              ? 'text-emerald-700 bg-emerald-50 border border-emerald-200/60'
+                              : 'text-blue-700 bg-blue-50 border border-blue-200/60'
+                          }`}
+                        >
+                          {isFullyStaffed
+                            ? (language === 'zh' ? '全员就绪' : 'Fully Staffed')
+                            : (language === 'zh' ? `${assignedCount}/${totalRoles} 已排` : `${assignedCount}/${totalRoles} Staffed`)}
+                        </span>
+
                         {roster.specialEvents &&
                           roster.specialEvents.map((ev) => (
                             <span
@@ -222,7 +253,7 @@ export const RosterScreen: React.FC = () => {
                         setWhatsAppModalRoster(roster);
                       }}
                       title="预览并分享 WhatsApp 服事表"
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors active:scale-90"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors active:scale-90 cursor-pointer"
                     >
                       <Share2 size={16} strokeWidth={1.75} />
                     </button>
@@ -236,7 +267,7 @@ export const RosterScreen: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Card Body (RosterViewCardBody / DutyRow list) */}
+                {/* Card Body */}
                 {isExpanded && (
                   <div className="px-4 pb-4 pt-1 border-t border-slate-100 animate-slide-up">
                     {/* Theme / Scripture Bar */}
@@ -331,90 +362,122 @@ export const RosterScreen: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Duty Rows List */}
-                    <div className="divide-y divide-slate-50">
-                      {activeRoles.map((role) => {
-                        const assignedIds = roster.assignments[role.id] || [];
-                        const assignedCoworkers = assignedIds
-                          .map((id) => coworkerMap.get(id))
-                          .filter(Boolean);
+                    {/* Department-Grouped Duty Rows (Gestalt HCI Organization) */}
+                    <div className="space-y-3 pt-1">
+                      {categoryGroups
+                        .filter((cat) => activeService.categoryIds.includes(cat.id))
+                        .map((cat) => {
+                          const catRoles = activeRoles.filter((r) => r.category === cat.id);
+                          if (catRoles.length === 0) return null;
 
-                        return (
-                          <div
-                            key={role.id}
-                            className="py-2 flex items-start text-xs leading-relaxed hover:bg-slate-50/50 rounded px-1 transition-colors"
-                          >
-                            {/* Role Name */}
-                            <div className="w-[88px] shrink-0 text-slate-500 font-medium pt-0.5">
-                              {role.name}
-                            </div>
+                          return (
+                            <div key={cat.id} className="space-y-1">
+                              {/* Department Subheader */}
+                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-0.5 border-b border-slate-100">
+                                {language === 'zh' ? cat.nameZh : cat.nameEn}
+                              </div>
 
-                            {/* Volunteer Names */}
-                            <div className="flex-1 flex flex-wrap items-center gap-x-1 gap-y-1">
-                              {assignedCoworkers.length === 0 ? (
-                                <span className="text-slate-400 italic">{t('pending', language)}</span>
-                              ) : (
-                                assignedCoworkers.map((cw, i) => {
-                                  if (!cw) return null;
-                                  const conflicts = getCoworkerConflictRoles(
-                                    cw.id,
-                                    roster.date,
-                                    roster.serviceId
-                                  ).filter((n) => n !== role.name);
+                              <div className="divide-y divide-slate-50">
+                                {catRoles.map((role) => {
+                                  const assignedIds = roster.assignments[role.id] || [];
+                                  const assignedCoworkers = assignedIds
+                                    .map((id) => coworkerMap.get(id))
+                                    .filter(Boolean);
 
                                   return (
-                                    <span key={cw.id} className="inline-flex items-center gap-0.5 font-bold text-slate-900">
-                                      <span>
-                                        {cw.name}
-                                        {i < assignedCoworkers.length - 1 ? '、' : ''}
-                                      </span>
-                                      {conflicts.length > 0 && (
-                                        <span
-                                          title={`${t('conflict', language)}: ${conflicts.join('、')}`}
-                                          className="text-amber-600 inline-flex align-middle"
-                                        >
-                                          <AlertCircle size={11} strokeWidth={2.5} />
-                                        </span>
-                                      )}
-                                      {isEditMode && (
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            removeAssignment(role.id, cw.id, roster.date, roster.serviceId)
-                                          }
-                                          className="text-slate-300 hover:text-rose-600 ml-0.5 p-0.5 cursor-pointer"
-                                        >
-                                          <X size={11} strokeWidth={2} />
-                                        </button>
-                                      )}
-                                    </span>
-                                  );
-                                })
-                              )}
-                            </div>
+                                    <div
+                                      key={role.id}
+                                      className="py-2 flex items-start text-xs leading-relaxed hover:bg-slate-50/50 rounded px-1 transition-colors"
+                                    >
+                                      {/* Role Name */}
+                                      <div className="w-[88px] shrink-0 text-slate-500 font-medium pt-0.5">
+                                        {role.name}
+                                      </div>
 
-                            {/* Edit Action Button */}
-                            {isEditMode && (
-                              <div className="shrink-0 ml-2">
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setSelectedRoleForAssign({
-                                      role,
-                                      date: roster.date,
-                                      serviceId: roster.serviceId,
-                                    })
-                                  }
-                                  className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
-                                >
-                                  <Plus size={11} strokeWidth={2} />
-                                  <span>{assignedCoworkers.length === 0 ? t('assign', language) : t('change', language)}</span>
-                                </button>
+                                      {/* Volunteer Names */}
+                                      <div className="flex-1 flex flex-wrap items-center gap-x-1 gap-y-1">
+                                        {assignedCoworkers.length === 0 ? (
+                                          <span className="text-slate-400 italic bg-slate-50 px-1.5 py-0.2 rounded border border-dashed border-slate-200">
+                                            {t('pending', language)}
+                                          </span>
+                                        ) : (
+                                          assignedCoworkers.map((cw, i) => {
+                                            if (!cw) return null;
+                                            const conflicts = getCoworkerConflictRoles(
+                                              cw.id,
+                                              roster.date,
+                                              roster.serviceId
+                                            ).filter((n) => n !== role.name);
+
+                                            return (
+                                              <span
+                                                key={cw.id}
+                                                className="inline-flex items-center gap-0.5 font-bold text-slate-900"
+                                              >
+                                                <span>
+                                                  {cw.name}
+                                                  {i < assignedCoworkers.length - 1 ? '、' : ''}
+                                                </span>
+                                                {conflicts.length > 0 && (
+                                                  <span
+                                                    title={`${t('conflict', language)}: ${conflicts.join('、')}`}
+                                                    className="text-amber-600 inline-flex align-middle"
+                                                  >
+                                                    <AlertCircle size={11} strokeWidth={2.5} />
+                                                  </span>
+                                                )}
+                                                {isEditMode && (
+                                                  <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                      removeAssignment(
+                                                        role.id,
+                                                        cw.id,
+                                                        roster.date,
+                                                        roster.serviceId
+                                                      )
+                                                    }
+                                                    className="text-slate-300 hover:text-rose-600 ml-0.5 p-0.5 cursor-pointer"
+                                                  >
+                                                    <X size={11} strokeWidth={2} />
+                                                  </button>
+                                                )}
+                                              </span>
+                                            );
+                                          })
+                                        )}
+                                      </div>
+
+                                      {/* Edit Action Button */}
+                                      {isEditMode && (
+                                        <div className="shrink-0 ml-2">
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setSelectedRoleForAssign({
+                                                role,
+                                                date: roster.date,
+                                                serviceId: roster.serviceId,
+                                              })
+                                            }
+                                            className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
+                                          >
+                                            <Plus size={11} strokeWidth={2} />
+                                            <span>
+                                              {assignedCoworkers.length === 0
+                                                ? t('assign', language)
+                                                : t('change', language)}
+                                            </span>
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
                 )}

@@ -20,8 +20,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
   ];
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 select-none">
-      <div className="bg-white/80 backdrop-blur-2xl border border-white/70 shadow-[0_12px_32px_rgba(0,0,0,0.09),0_2px_6px_rgba(0,0,0,0.04)] rounded-full p-1.5 flex items-center gap-1.5 transition-all duration-300">
+    <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 select-none">
+      <div className="bg-white/80 backdrop-blur-2xl border border-white/70 shadow-[0_12px_36px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.04)] ring-1 ring-black/5 rounded-3xl p-1.5 flex items-center gap-1 transition-all duration-300">
         {tabs.map((tab) => {
           const isActive = currentTab === tab.id;
           const IconComponent = tab.icon;
@@ -32,14 +32,20 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
               key={tab.id}
               type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
+              className={`relative flex flex-col items-center justify-center w-18 h-13 rounded-2xl transition-all duration-200 active:scale-90 cursor-pointer ${
                 isActive
                   ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/60'
               }`}
             >
-              <IconComponent size={18} strokeWidth={isActive ? 2 : 1.75} />
-              <span className="tracking-tight">{label}</span>
+              <IconComponent size={20} strokeWidth={isActive ? 2.2 : 1.75} />
+              <span
+                className={`text-[11px] tracking-tight mt-1 leading-none ${
+                  isActive ? 'font-bold text-white' : 'font-medium text-slate-500'
+                }`}
+              >
+                {label}
+              </span>
             </button>
           );
         })}
