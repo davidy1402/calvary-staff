@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
-import { X, Search, Check, AlertTriangle, Star, User } from 'lucide-react';
+import { X, Search, ChevronLeft, Star, User } from 'lucide-react';
 import { t } from '../utils/i18n';
 
 interface AssignModalProps {
@@ -70,34 +70,55 @@ export const AssignModal: React.FC<AssignModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs animate-backdrop p-0 sm:p-4">
-      <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl max-h-[85vh] flex flex-col shadow-xl animate-sheet-up">
+    <div
+      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/45 backdrop-blur-xs animate-backdrop"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-sheet-up"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Native iOS Grab Handle */}
+        <div className="w-full pt-3 pb-1 flex justify-center bg-white shrink-0">
+          <div className="w-10 h-1 bg-slate-300 rounded-full" />
+        </div>
+
         {/* Modal Header */}
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-bold text-slate-900">
+        <div className="px-4 py-2.5 bg-white border-b border-slate-100 flex items-center justify-between shrink-0 shadow-2xs">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center gap-0.5 text-blue-600 hover:text-blue-700 active:opacity-60 -ml-1 py-1 px-2 font-medium text-sm rounded-lg transition-colors cursor-pointer"
+          >
+            <ChevronLeft size={20} strokeWidth={2.2} />
+            <span>{t('back', language)}</span>
+          </button>
+
+          <div className="text-center">
+            <h2 className="text-sm font-bold text-slate-900 leading-tight">
               {t('assignRole', language)}: {role.name}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-[10px] text-slate-400 font-medium">
               {t('selectCoworkerHint', language)}
             </p>
           </div>
+
           <button
             type="button"
             onClick={onClose}
             aria-label="关闭窗口"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
         {/* Search Bar */}
-        <div className="p-4 border-b border-slate-100">
+        <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200/70 shrink-0">
           <div className="relative">
             <Search
-              size={16}
-              strokeWidth={1.75}
+              size={15}
+              strokeWidth={2}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
@@ -105,15 +126,15 @@ export const AssignModal: React.FC<AssignModalProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('searchCoworker', language)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 text-sm text-slate-800 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="w-full pl-9 pr-4 py-2 bg-white text-xs text-slate-800 placeholder-slate-400 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs"
             />
           </div>
         </div>
 
         {/* Coworkers List */}
-        <div className="overflow-y-auto p-4 space-y-2 flex-1 divide-y divide-slate-50">
+        <div className="overflow-y-auto p-4 space-y-2 flex-1 divide-y divide-slate-100 pb-8 sm:pb-6">
           {sortedCoworkers.length === 0 ? (
-            <div className="text-center py-8 text-sm text-slate-400">
+            <div className="text-center py-8 text-xs text-slate-400">
               {t('noCoworkerFound', language)}
             </div>
           ) : (
@@ -136,7 +157,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                       assignCoworker(role.id, cw.id, effectiveDate, effectiveServiceId);
                     }
                   }}
-                  className={`pt-2 pb-2 px-3 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-3 ${
+                  className={`pt-2.5 pb-2.5 px-3 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-3 ${
                     isAssigned
                       ? 'bg-blue-50/80 border border-blue-200'
                       : 'hover:bg-slate-50 border border-transparent'
@@ -162,61 +183,46 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                     )}
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-sm font-semibold text-slate-900">
+                        <span className="text-xs font-bold text-slate-900">
                           {cw.name}
                         </span>
                         {cw.englishName && (
-                          <span className="text-xs text-slate-500">
+                          <span className="text-[11px] text-slate-500">
                             ({cw.englishName})
                           </span>
                         )}
                         {isQualified && (
-                          <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60">
+                          <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200/60">
                             <Star size={10} strokeWidth={2} />
                             {t('regularRole', language)}
                           </span>
                         )}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                        <span>{cw.cellGroup}</span>
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {cw.cellGroup}
+                        </span>
                       </div>
 
-                      {/* Conflict Alert Tag */}
-                      {conflictRoles.length > 0 && !isAssigned && (
-                        <div className="flex items-center gap-1 text-[11px] text-amber-600 mt-1 font-medium bg-amber-50/60 px-2 py-0.5 rounded">
-                          <AlertTriangle size={12} strokeWidth={2} />
-                          <span>{t('todayAssigned', language)}: {conflictRoles.join('、')}</span>
+                      {conflictRoles.length > 0 && (
+                        <div className="text-[10px] text-amber-600 font-medium mt-0.5">
+                          {t('todayAssigned', language)}: {conflictRoles.join(', ')}
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="shrink-0">
-                    <div
-                      className={`w-6 h-6 rounded-md flex items-center justify-center border transition-all ${
-                        isAssigned
-                          ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                          : 'border-slate-300 bg-white'
-                      }`}
-                    >
-                      {isAssigned && <Check size={14} strokeWidth={2.5} />}
-                    </div>
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border transition-all ${
+                      isAssigned
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'border-slate-300 bg-white'
+                    }`}
+                  >
+                    {isAssigned && <span className="text-xs font-bold leading-none">✓</span>}
                   </div>
                 </div>
               );
             })
           )}
-        </div>
-
-        {/* Modal Footer */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-xs cursor-pointer active:scale-95"
-          >
-            {t('completeSelection', language)} ({assignedIds.length})
-          </button>
         </div>
       </div>
     </div>

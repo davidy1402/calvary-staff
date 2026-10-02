@@ -15,7 +15,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
 
   // Short display name
   const getShortName = (fullName?: string) => {
-    if (!fullName) return language === 'zh' ? '同工' : 'Volunteer';
+    if (!fullName) return language === 'zh' ? '服侍人员' : 'Volunteer';
     if (language === 'en') {
       return currentUser?.englishName || fullName;
     }

@@ -69,10 +69,10 @@ export function generateWhatsAppRosterText(
 
   lines.push('─────────────────');
   lines.push('📌 温馨提醒：');
-  lines.push(`1. 请各位服事同工准时于【${service.rehearsalTime}】到场，一同祷告预备心。`);
+  lines.push(`1. 请各位服侍人员准时于【${service.rehearsalTime}】到场，一同祷告预备心。`);
   lines.push('2. 若临时有突发状况需要调班，请尽早告知各组长或干事，以利协调。');
   lines.push('');
-  lines.push('愿神大大恩膏并纪念各位同工忠心的服事与摆上！🙌');
+  lines.push('愿神大大恩膏并纪念各位服侍人员忠心的摆上与服事！🙌');
 
   return lines.join('\n');
 }

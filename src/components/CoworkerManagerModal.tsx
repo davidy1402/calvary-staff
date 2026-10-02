@@ -61,10 +61,21 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   const roleMap = new Map(churchState.roles.map((r) => [r.id, r]));
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center bg-black/40 backdrop-blur-xs animate-backdrop p-0 sm:p-4">
-      <div className="bg-slate-50 w-full h-full sm:h-[88vh] sm:max-w-lg sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden animate-sheet-up">
+    <div
+      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/45 backdrop-blur-xs animate-backdrop"
+      onClick={onClose}
+    >
+      <div
+        className="bg-slate-50 w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-sheet-up"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Native iOS Grab Handle */}
+        <div className="w-full pt-3 pb-1 flex justify-center bg-white shrink-0">
+          <div className="w-10 h-1 bg-slate-300 rounded-full" />
+        </div>
+
         {/* iOS Top Navigation Bar */}
-        <div className="px-4 py-3 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
+        <div className="px-4 py-2.5 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
           <button
             type="button"
             onClick={onClose}
@@ -120,7 +131,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
         </div>
 
         {/* Scrollable Content */}
-        <div className="p-4 overflow-y-auto flex-1 space-y-3">
+        <div className="p-4 overflow-y-auto flex-1 space-y-3 pb-8 sm:pb-6">
           {/* Add Form Card */}
           {isAdding && (
             <form
@@ -238,7 +249,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
             </div>
           ) : (
             filteredCoworkers.map((cw) => {
-              const letter = cw.name.trim()[0] || '同';
+              const letter = cw.name.trim()[0] || '服';
               const cleanPhone = cw.phone.replace(/[^0-9]/g, '').replace(/^0/, '');
 
               return (
@@ -318,7 +329,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                   <button
                     type="button"
                     onClick={() => {
-                      if (window.confirm(`确定要移除同工 ${cw.name} 吗？`)) {
+                      if (window.confirm(`确定要移除服侍人员 ${cw.name} 吗？`)) {
                         deleteCoworker(cw.id);
                       }
                     }}

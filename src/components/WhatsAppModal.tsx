@@ -83,10 +83,21 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center bg-black/40 backdrop-blur-xs animate-backdrop p-0 sm:p-4">
-      <div className="bg-slate-50 w-full h-full sm:h-[88vh] sm:max-w-lg sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden animate-sheet-up">
+    <div
+      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/45 backdrop-blur-xs animate-backdrop"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-sheet-up"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Native iOS Grab Handle */}
+        <div className="w-full pt-3 pb-1 flex justify-center bg-white shrink-0">
+          <div className="w-10 h-1 bg-slate-300 rounded-full" />
+        </div>
+
         {/* iOS Top Navigation Bar */}
-        <div className="px-4 py-3 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
+        <div className="px-4 py-2.5 bg-white border-b border-slate-100 flex items-center justify-between shrink-0 shadow-2xs">
           <button
             type="button"
             onClick={onClose}
@@ -116,7 +127,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
         </div>
 
         {/* Service & Date Pickers */}
-        <div className="px-4 py-2.5 bg-white border-b border-slate-200/70 shrink-0">
+        <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200/70 shrink-0">
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
@@ -132,7 +143,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                     setSelectedDateStr(getUpcomingServiceDate(newSvc.weekday, 0));
                   }
                 }}
-                className="w-full text-xs font-semibold text-slate-800 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                className="w-full text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
               >
                 {churchState.services.map((svc) => (
                   <option key={svc.id} value={svc.id}>
@@ -149,7 +160,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
               <select
                 value={selectedDateStr}
                 onChange={(e) => setSelectedDateStr(e.target.value)}
-                className="w-full text-xs font-semibold text-slate-800 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                className="w-full text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
               >
                 {dateOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -169,7 +180,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="p-4 bg-white border-t border-slate-200/90 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs">
+        <div className="p-4 bg-white border-t border-slate-100 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs pb-8 sm:pb-4">
           <button
             type="button"
             onClick={handleCopy}

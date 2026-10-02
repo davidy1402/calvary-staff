@@ -11,6 +11,7 @@ import {
   Languages,
   Camera,
   RotateCcw,
+  X,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
@@ -35,7 +36,7 @@ export const ProfileScreen: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const avatarLetter =
-    currentUser?.name?.trim()?.[0] || (language === 'zh' ? '同' : 'V');
+    currentUser?.name?.trim()?.[0] || (language === 'zh' ? '服' : 'V');
 
   const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -46,7 +47,6 @@ export const ProfileScreen: React.FC = () => {
     } catch (err) {
       console.error('Failed to compress/save avatar', err);
     } finally {
-      // reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -72,7 +72,7 @@ export const ProfileScreen: React.FC = () => {
       {/* Volunteer Identity Card */}
       <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs space-y-3.5">
         <div className="flex items-center gap-3.5">
-          {/* Avatar with Photo Picker Overlay */}
+          {/* Avatar with Camera Icon Overlay */}
           <div className="relative group shrink-0">
             <button
               type="button"
@@ -121,7 +121,7 @@ export const ProfileScreen: React.FC = () => {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-bold text-slate-900">
-                {currentUser?.name || (language === 'zh' ? '加略山同工' : 'Calvary Volunteer')}
+                {currentUser?.name || (language === 'zh' ? '加略山服侍人员' : 'Calvary Volunteer')}
               </h2>
               {currentUser?.englishName && (
                 <span className="text-xs text-slate-500 font-medium">({currentUser.englishName})</span>
@@ -137,26 +137,19 @@ export const ProfileScreen: React.FC = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 mt-1.5">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
-              >
-                {t('changeAvatar', language)}
-              </button>
-
-              {currentUser?.avatar && (
+            {/* Remove custom avatar action (only shown when custom photo exists) */}
+            {currentUser?.avatar && (
+              <div className="mt-1.5">
                 <button
                   type="button"
                   onClick={handleRemoveAvatar}
-                  className="text-[11px] font-medium text-slate-400 hover:text-rose-600 flex items-center gap-0.5 cursor-pointer"
+                  className="text-[10px] font-medium text-slate-400 hover:text-rose-600 flex items-center gap-1 cursor-pointer"
                 >
                   <RotateCcw size={10} strokeWidth={2} />
                   <span>{t('removeAvatar', language)}</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -200,7 +193,7 @@ export const ProfileScreen: React.FC = () => {
           <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400 shrink-0" />
         </div>
 
-        {/* Coworker Directory */}
+        {/* Volunteer Directory */}
         <div
           onClick={() => setIsCoworkersOpen(true)}
           className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors active:bg-slate-100"
@@ -292,7 +285,7 @@ export const ProfileScreen: React.FC = () => {
         <p className="text-[10px] text-slate-300">v1.2</p>
       </div>
 
-      {/* WhatsApp Modal */}
+      {/* WhatsApp Bottom Sheet Modal */}
       {isWhatsAppOpen && (
         <WhatsAppModal
           isOpen={true}
@@ -300,7 +293,7 @@ export const ProfileScreen: React.FC = () => {
         />
       )}
 
-      {/* Coworker Modal */}
+      {/* Volunteer Directory Bottom Sheet Modal */}
       {isCoworkersOpen && (
         <CoworkerManagerModal
           isOpen={true}
@@ -308,12 +301,23 @@ export const ProfileScreen: React.FC = () => {
         />
       )}
 
-      {/* Service Settings iOS Sheet Modal */}
+      {/* Service Settings True Bottom Sheet */}
       {isServicesOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center bg-black/40 backdrop-blur-xs animate-backdrop p-0 sm:p-4">
-          <div className="bg-slate-50 w-full h-full sm:h-[85vh] sm:max-w-md sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden animate-sheet-up">
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/45 backdrop-blur-xs animate-backdrop"
+          onClick={() => setIsServicesOpen(false)}
+        >
+          <div
+            className="bg-slate-50 w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-sheet-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Native iOS Grab Handle */}
+            <div className="w-full pt-3 pb-1 flex justify-center bg-white shrink-0">
+              <div className="w-10 h-1 bg-slate-300 rounded-full" />
+            </div>
+
             {/* iOS Top Navigation Bar */}
-            <div className="px-4 py-3 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
+            <div className="px-4 py-2.5 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setIsServicesOpen(false)}
@@ -327,11 +331,18 @@ export const ProfileScreen: React.FC = () => {
                 {t('serviceSettingsModalTitle', language)}
               </h2>
 
-              <div className="w-12" />
+              <button
+                type="button"
+                onClick={() => setIsServicesOpen(false)}
+                aria-label="关闭"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X size={18} strokeWidth={1.75} />
+              </button>
             </div>
 
             {/* Service Cards List */}
-            <div className="p-4 overflow-y-auto flex-1 space-y-3">
+            <div className="p-4 overflow-y-auto flex-1 space-y-3 pb-8 sm:pb-6">
               {churchState.services.map((svc) => (
                 <div
                   key={svc.id}
