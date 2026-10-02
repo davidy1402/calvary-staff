@@ -13,6 +13,8 @@ import {
   X,
   CheckCircle2,
   Languages,
+  ShieldCheck,
+  HardDrive,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
@@ -28,7 +30,7 @@ export const ProfileScreen: React.FC = () => {
     importBackup,
     resetToDefault,
     language,
-    toggleLanguage,
+    setLanguage,
   } = useChurch();
 
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
@@ -62,186 +64,236 @@ export const ProfileScreen: React.FC = () => {
     currentUser?.name?.trim()?.[0] || (language === 'zh' ? '同' : 'V');
 
   return (
-    <div className="space-y-4 animate-slide-up">
-      {/* Centered AppBar with Language Switcher */}
-      <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-3.5 mb-4 sticky top-0 z-20 shadow-2xs">
-        <div className="relative flex items-center justify-between">
-          <div className="w-16">
-            {/* Empty spacer for centering */}
+    <div className="space-y-4 animate-slide-up pb-4">
+      {/* Centered AppBar (Clean, uncluttered) */}
+      <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-3.5 mb-2 sticky top-0 z-20 shadow-2xs">
+        <h1 className="text-base font-bold text-slate-900 text-center">
+          {t('settingsTitle', language)}
+        </h1>
+      </div>
+
+      {/* SECTION 1: Volunteer Identity Card */}
+      <div className="space-y-1.5">
+        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+          {t('sectionVolunteer', language)}
+        </div>
+        <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-3">
+          <div className="flex items-center gap-3.5">
+            <div className="w-13 h-13 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center text-xl font-black shrink-0 shadow-2xs">
+              {avatarLetter}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base font-bold text-slate-900">
+                  {currentUser?.name || (language === 'zh' ? '加略山同工' : 'Calvary Volunteer')}
+                </h2>
+                {currentUser?.englishName && (
+                  <span className="text-xs text-slate-500 font-medium">({currentUser.englishName})</span>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                <span className="text-[11px] font-semibold px-2 py-0.2 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                  {currentUser?.cellGroup || '青年牧区'}
+                </span>
+                <span className="text-[11px] font-semibold px-2 py-0.2 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                  {t('coworker', language)}
+                </span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-base font-bold text-slate-900 text-center">
-            {t('personalCenter', language)}
-          </h1>
-          <div className="w-16 flex justify-end">
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              title={language === 'zh' ? 'Switch to English' : '切换为中文'}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-all duration-150 active:scale-90 cursor-pointer"
+
+          {/* Switch Identity Dropdown */}
+          <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span className="font-medium text-slate-600">{t('switchCoworkerIdentity', language)}:</span>
+            <select
+              value={currentUserId}
+              onChange={(e) => setCurrentUserId(e.target.value)}
+              className="text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer max-w-[190px] truncate"
             >
-              <Languages size={13} strokeWidth={2} />
-              <span>{language === 'zh' ? 'EN' : '中文'}</span>
-            </button>
+              {churchState.coworkers.map((cw) => (
+                <option key={cw.id} value={cw.id}>
+                  {cw.name} ({cw.cellGroup})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
 
-      {/* User Info Header Card */}
-      <div className="bg-white rounded-xl p-5 border border-slate-200/90 shadow-xs flex flex-col items-center text-center">
-        <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-2xl font-bold mb-3 shadow-2xs">
-          {avatarLetter}
+      {/* SECTION 2: Ministry & Sharing Tools */}
+      <div className="space-y-1.5">
+        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+          {t('sectionMinistry', language)}
         </div>
-        <h2 className="text-lg font-bold text-slate-900">
-          {currentUser?.name || (language === 'zh' ? '加略山同工' : 'Calvary Volunteer')}
-        </h2>
-        {currentUser?.englishName && (
-          <p className="text-xs text-slate-500 font-medium">({currentUser.englishName})</p>
-        )}
-
-        {/* Roles & Pastoral Group Badges */}
-        <div className="flex items-center gap-1.5 flex-wrap justify-center mt-2.5">
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-            {currentUser?.cellGroup || '青年牧区'}
-          </span>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-            {t('coworker', language)}
-          </span>
-        </div>
-
-        {/* Switch Coworker Selector */}
-        <div className="mt-4 pt-3 border-t border-slate-100 w-full flex items-center justify-between text-xs text-slate-500">
-          <span>{t('switchCoworkerIdentity', language)}:</span>
-          <select
-            value={currentUserId}
-            onChange={(e) => setCurrentUserId(e.target.value)}
-            className="text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs divide-y divide-slate-100 overflow-hidden">
+          {/* WhatsApp Export */}
+          <div
+            onClick={() => setIsWhatsAppOpen(true)}
+            className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
           >
-            {churchState.coworkers.map((cw) => (
-              <option key={cw.id} value={cw.id}>
-                {cw.name} ({cw.cellGroup})
-              </option>
-            ))}
-          </select>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <MessageSquare size={17} strokeWidth={1.75} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-slate-900">
+                  {t('shareWhatsAppTitle', language)}
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  {t('shareWhatsAppDesc', language)}
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+          </div>
+
+          {/* Coworker Directory */}
+          <div
+            onClick={() => setIsCoworkersOpen(true)}
+            className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <Users size={17} strokeWidth={1.75} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-slate-900">
+                  {t('coworkerDirectoryTitle', language)}
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  {t('coworkerDirectoryDesc', language)} ({churchState.coworkers.length})
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+          </div>
+
+          {/* Service Settings */}
+          <div
+            onClick={() => setIsServicesOpen(true)}
+            className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <Calendar size={17} strokeWidth={1.75} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-slate-900">
+                  {t('serviceSettingsTitle', language)}
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  {t('serviceSettingsDesc', language)}
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+          </div>
         </div>
       </div>
 
-      {/* Action ListTiles */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs divide-y divide-slate-100 overflow-hidden">
-        {/* WhatsApp Export */}
-        <div
-          onClick={() => setIsWhatsAppOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <MessageSquare size={17} strokeWidth={1.75} />
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900">
-                {t('shareWhatsAppTitle', language)}
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                {t('shareWhatsAppDesc', language)}
-              </p>
-            </div>
-          </div>
-          <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400" />
+      {/* SECTION 3: System Preferences */}
+      <div className="space-y-1.5">
+        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+          {t('sectionSystem', language)}
         </div>
-
-        {/* Coworker Management */}
-        <div
-          onClick={() => setIsCoworkersOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-              <Users size={17} strokeWidth={1.75} />
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs divide-y divide-slate-100 overflow-hidden">
+          {/* Language Row with Segmented Control */}
+          <div className="p-3.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <Languages size={17} strokeWidth={1.75} />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-xs font-bold text-slate-900">
+                  {t('language', language)}
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  {t('languageDesc', language)}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900">
-                {t('coworkerDirectoryTitle', language)}
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                {t('coworkerDirectoryDesc', language)} ({churchState.coworkers.length})
-              </p>
+
+            {/* Segmented Control for Language */}
+            <div className="bg-slate-100 p-0.5 rounded-xl flex items-center shrink-0 border border-slate-200/60">
+              <button
+                type="button"
+                onClick={() => setLanguage('zh')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  language === 'zh'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                中文
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  language === 'en'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                English
+              </button>
             </div>
           </div>
-          <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400" />
+
+          {/* Backup & Restore */}
+          <div
+            onClick={() => setIsBackupOpen(true)}
+            className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <Download size={17} strokeWidth={1.75} />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-slate-900">
+                  {t('backupRestoreTitle', language)}
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  {t('backupRestoreDesc', language)}
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+          </div>
         </div>
+      </div>
 
-        {/* Service Settings */}
-        <div
-          onClick={() => setIsServicesOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-              <Calendar size={17} strokeWidth={1.75} />
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900">
-                {t('serviceSettingsTitle', language)}
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                {t('serviceSettingsDesc', language)}
-              </p>
-            </div>
-          </div>
-          <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400" />
+      {/* SECTION 4: About & System Health */}
+      <div className="space-y-1.5">
+        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+          {t('sectionAbout', language)}
         </div>
-
-        {/* Language Switch Option */}
-        <div
-          onClick={toggleLanguage}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-              <Languages size={17} strokeWidth={1.75} />
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900">
-                {t('language', language)}
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                {t('languageDesc', language)}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">
-              {language === 'zh' ? '简体中文' : 'English'}
+        <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-2.5 text-xs">
+          <div className="flex items-center justify-between text-slate-600">
+            <span className="flex items-center gap-1.5">
+              <HardDrive size={14} strokeWidth={1.75} className="text-slate-400" />
+              <span>{t('storageMode', language)}</span>
             </span>
-            <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400" />
+            <span className="font-semibold text-slate-900">{t('localStorageMode', language)}</span>
           </div>
-        </div>
 
-        {/* Backup & Restore */}
-        <div
-          onClick={() => setIsBackupOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
-              <Download size={17} strokeWidth={1.75} />
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900">
-                {t('backupRestoreTitle', language)}
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                {t('backupRestoreDesc', language)}
-              </p>
-            </div>
+          <div className="flex items-center justify-between text-slate-600 pt-2 border-t border-slate-100">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck size={14} strokeWidth={1.75} className="text-emerald-600" />
+              <span>{t('systemVersion', language)}</span>
+            </span>
+            <span className="font-mono text-slate-500">v1.2.0 (2026/10/02)</span>
           </div>
-          <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400" />
+
+          <p className="text-[11px] text-slate-400 pt-1 leading-relaxed">
+            {t('offlineStatus', language)}
+          </p>
         </div>
       </div>
 
       {/* Version Footer */}
-      <div className="text-center pt-4 text-xs text-slate-400">
-        <p>{t('updatedAt', language)} 2026/10/02</p>
-        <p className="text-[10px] mt-0.5 text-slate-400">{t('churchFooterName', language)}</p>
+      <div className="text-center pt-2 text-xs text-slate-400">
+        <p className="text-[11px] text-slate-400">{t('churchFooterName', language)}</p>
       </div>
 
       {/* WhatsApp Modal */}

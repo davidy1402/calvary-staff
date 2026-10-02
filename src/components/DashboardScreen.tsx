@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { AddToHomeCard } from './AddToHomeCard';
-import { HeartHandshake, Calendar, ChevronRight, Languages, Clock, MapPin } from 'lucide-react';
+import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin } from 'lucide-react';
 import { t } from '../utils/i18n';
 
 interface DashboardScreenProps {
@@ -9,7 +9,7 @@ interface DashboardScreenProps {
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRoster }) => {
-  const { currentUser, getUserSeasonAssignments, language, toggleLanguage } = useChurch();
+  const { currentUser, getUserSeasonAssignments, language } = useChurch();
 
   const userAssignments = getUserSeasonAssignments(currentUser?.id);
 
@@ -43,25 +43,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
 
   return (
     <div className="space-y-4 animate-slide-up">
-      {/* Centered AppBar with Language Toggle */}
+      {/* Centered AppBar */}
       <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-3.5 mb-4 sticky top-0 z-20 shadow-2xs">
-        <div className="relative flex items-center justify-between">
-          <div className="w-16" />
-          <h1 className="text-base font-bold text-slate-900 text-center">
-            {t('home', language)}
-          </h1>
-          <div className="w-16 flex justify-end">
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              title={language === 'zh' ? 'Switch to English' : '切换为中文'}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-all duration-150 active:scale-90 cursor-pointer"
-            >
-              <Languages size={13} strokeWidth={2} />
-              <span>{language === 'zh' ? 'EN' : '中文'}</span>
-            </button>
-          </div>
-        </div>
+        <h1 className="text-base font-bold text-slate-900 text-center">
+          {t('home', language)}
+        </h1>
       </div>
 
       {/* Greeting Card with Volunteer Status */}

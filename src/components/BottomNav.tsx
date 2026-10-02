@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, CalendarDays, User } from 'lucide-react';
+import { Home, CalendarDays, SlidersHorizontal } from 'lucide-react';
 import { useChurch } from '../context/ChurchContext';
 import { t, type TranslationKey } from '../utils/i18n';
 
@@ -16,7 +16,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
   const tabs: Array<{ id: TabType; key: TranslationKey; icon: typeof Home }> = [
     { id: 'dashboard', key: 'home', icon: Home },
     { id: 'roster', key: 'roster', icon: CalendarDays },
-    { id: 'profile', key: 'profile', icon: User },
+    { id: 'profile', key: 'settings', icon: SlidersHorizontal },
   ];
 
   return (

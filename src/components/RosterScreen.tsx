@@ -11,7 +11,6 @@ import {
   Share2,
   AlertCircle,
   FileText,
-  Languages,
 } from 'lucide-react';
 import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
@@ -21,6 +20,7 @@ import type { RoleDefinition, ServiceRoster } from '../types';
 export const RosterScreen: React.FC = () => {
   const {
     churchState,
+    currentUser,
     activeServiceId,
     setActiveServiceId,
     activeService,
@@ -33,7 +33,6 @@ export const RosterScreen: React.FC = () => {
     removeSpecialEvent,
     getCoworkerConflictRoles,
     language,
-    toggleLanguage,
   } = useChurch();
 
   // Selected role for AssignModal
@@ -45,6 +44,9 @@ export const RosterScreen: React.FC = () => {
 
   // Selected roster for WhatsApp share
   const [whatsAppModalRoster, setWhatsAppModalRoster] = useState<ServiceRoster | null>(null);
+
+  // Filter state for quick scanning
+  const [filterType, setFilterType] = useState<'all' | 'my' | 'worship' | 'media' | 'hospitality'>('all');
 
   // Accordion state: dates that are expanded (default first one open)
   const serviceRosters = getRostersForService(activeServiceId);
@@ -99,26 +101,15 @@ export const RosterScreen: React.FC = () => {
 
   return (
     <div className="space-y-3 animate-slide-up">
-      {/* Centered AppBar with Edit Action & Language Toggle */}
+      {/* Centered AppBar with Edit Action (Clean, No Distracting Language Button) */}
       <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 pt-3.5 pb-0 sticky top-0 z-20 shadow-2xs">
-        <div className="relative flex items-center justify-between">
-          {/* Left Action: Language Toggle */}
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            title={language === 'zh' ? 'Switch to English' : '切换为中文'}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-all duration-150 active:scale-90 cursor-pointer"
-          >
-            <Languages size={13} strokeWidth={2} />
-            <span>{language === 'zh' ? 'EN' : '中文'}</span>
-          </button>
-
+        <div className="relative flex items-center justify-center">
           <h1 className="text-base font-bold text-slate-900">
             {isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
           </h1>
 
           {/* Right Action: Edit Toggle */}
-          <div>
+          <div className="absolute right-0">
             {isEditMode ? (
               <button
                 type="button"
@@ -169,6 +160,33 @@ export const RosterScreen: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Fast Filter Chips Row (HCI Cognitive Scannability) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto py-2 px-1 scrollbar-none">
+          {[
+            { id: 'all', label: t('filterAll', language) },
+            { id: 'my', label: t('filterMyDuties', language) },
+            { id: 'worship', label: t('filterWorship', language) },
+            { id: 'media', label: t('filterMedia', language) },
+            { id: 'hospitality', label: t('filterHospitality', language) },
+          ].map((chip) => {
+            const isChipActive = filterType === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => setFilterType(chip.id as any)}
+                className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer active:scale-95 ${
+                  isChipActive
+                    ? 'bg-blue-900 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+                }`}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Roster Cards List */}
@@ -192,7 +210,7 @@ export const RosterScreen: React.FC = () => {
               activeService.categoryIds.includes(r.category)
             );
 
-            // Staffing metrics (HCI Glanceability)
+            // Staffing metrics
             const totalRoles = activeRoles.length;
             const assignedCount = activeRoles.filter(
               (r) => (roster.assignments[r.id]?.length ?? 0) > 0
@@ -362,12 +380,25 @@ export const RosterScreen: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Department-Grouped Duty Rows (Gestalt HCI Organization) */}
+                    {/* Department-Grouped Duty Rows */}
                     <div className="space-y-3 pt-1">
                       {categoryGroups
-                        .filter((cat) => activeService.categoryIds.includes(cat.id))
+                        .filter((cat) => {
+                          if (!activeService.categoryIds.includes(cat.id)) return false;
+                          if (filterType === 'all' || filterType === 'my') return true;
+                          return cat.id === filterType;
+                        })
                         .map((cat) => {
-                          const catRoles = activeRoles.filter((r) => r.category === cat.id);
+                          const catRoles = activeRoles.filter((r) => {
+                            if (r.category !== cat.id) return false;
+                            if (filterType === 'all') return true;
+                            if (filterType === 'my') {
+                              const assignedIds = roster.assignments[r.id] || [];
+                              return currentUser?.id ? assignedIds.includes(currentUser.id) : true;
+                            }
+                            return cat.id === filterType;
+                          });
+
                           if (catRoles.length === 0) return null;
 
                           return (

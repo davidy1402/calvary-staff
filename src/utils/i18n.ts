@@ -5,7 +5,8 @@ export const TRANSLATIONS = {
     // Navigation
     home: '首页',
     roster: '服事表',
-    profile: '个人中心',
+    settings: '设置',
+    profile: '设置',
 
     // Home Screen
     welcomeBack: '欢迎回来',
@@ -45,8 +46,20 @@ export const TRANSLATIONS = {
     change: '更换',
     conflict: '兼任',
 
-    // Profile Screen
-    personalCenter: '个人中心',
+    // Roster Filters
+    filterAll: '全部岗位',
+    filterMyDuties: '只看我的',
+    filterWorship: '敬拜赞美',
+    filterMedia: '影音多媒体',
+    filterHospitality: '接待关怀',
+
+    // Settings Screen
+    settingsTitle: '设置与同工中心',
+    personalCenter: '设置与同工中心',
+    sectionVolunteer: '同工身份与牧区',
+    sectionMinistry: '服事与协调工具',
+    sectionSystem: '系统偏好设置',
+    sectionAbout: '关于系统与数据',
     coworker: '同工',
     admin: '管理员',
     switchCoworkerIdentity: '切换当前同工身份',
@@ -59,11 +72,15 @@ export const TRANSLATIONS = {
     backupRestoreTitle: '数据备份与还原',
     backupRestoreDesc: '导出 JSON 档案或导入恢复排班数据',
     updatedAt: '更新于',
-    language: '语言设置',
-    languageDesc: '切换界面显示语言 (中文 / English)',
+    language: '界面语言',
+    languageDesc: '切换系统显示语言 (中文 / English)',
     languageOption: '简体中文',
     languageOptionZh: '简体中文',
     languageOptionEn: 'English',
+    offlineStatus: '数据保存在本地浏览器，断网亦可顺畅查阅',
+    storageMode: '存储模式',
+    localStorageMode: '离线纯净模式 (无月租)',
+    systemVersion: '系统版本',
 
     // Modals & Actions
     assignRole: '指派岗位',
@@ -112,7 +129,8 @@ export const TRANSLATIONS = {
     // Navigation
     home: 'Home',
     roster: 'Roster',
-    profile: 'Profile',
+    settings: 'Settings',
+    profile: 'Settings',
 
     // Home Screen
     welcomeBack: 'Welcome back',
@@ -152,11 +170,23 @@ export const TRANSLATIONS = {
     change: 'Change',
     conflict: 'Overlap',
 
-    // Profile Screen
-    personalCenter: 'Profile',
+    // Roster Filters
+    filterAll: 'All Roles',
+    filterMyDuties: 'My Duties Only',
+    filterWorship: 'Worship',
+    filterMedia: 'Media & AV',
+    filterHospitality: 'Hospitality',
+
+    // Settings Screen
+    settingsTitle: 'Settings & Volunteer Hub',
+    personalCenter: 'Settings & Volunteer Hub',
+    sectionVolunteer: 'Volunteer Identity',
+    sectionMinistry: 'Ministry & Sharing Tools',
+    sectionSystem: 'Preferences & System',
+    sectionAbout: 'About & Local Storage',
     coworker: 'Volunteer',
     admin: 'Admin',
-    switchCoworkerIdentity: 'Switch Demo Volunteer',
+    switchCoworkerIdentity: 'Switch Active Volunteer',
     shareWhatsAppTitle: 'Share via WhatsApp',
     shareWhatsAppDesc: 'Preview, copy, or launch WhatsApp directly',
     coworkerDirectoryTitle: 'Volunteer Directory',
@@ -166,11 +196,15 @@ export const TRANSLATIONS = {
     backupRestoreTitle: 'Backup & Restore',
     backupRestoreDesc: 'Export JSON backup or restore church data',
     updatedAt: 'Updated at',
-    language: 'Language Settings',
+    language: 'Language',
     languageDesc: 'Switch interface language (中文 / English)',
     languageOption: 'English',
     languageOptionZh: 'Simplified Chinese',
     languageOptionEn: 'English',
+    offlineStatus: 'Stored locally in browser, works smoothly offline',
+    storageMode: 'Storage Engine',
+    localStorageMode: 'Offline Pure Mode ($0/mo)',
+    systemVersion: 'Version',
 
     // Modals & Actions
     assignRole: 'Assign Role',

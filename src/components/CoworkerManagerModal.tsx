@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
-import { X, Search, Plus, Trash2, Phone, UserCheck, Users } from 'lucide-react';
+import { X, Search, Plus, Trash2, Phone, UserCheck, Users, MessageSquare } from 'lucide-react';
 
 interface CoworkerManagerModalProps {
   isOpen: boolean;
@@ -221,9 +221,21 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                   </span>
                 </div>
                 {cw.phone && (
-                  <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-1">
-                    <Phone size={11} strokeWidth={1.75} className="text-slate-400" />
-                    <span>{cw.phone}</span>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-1">
+                    <span className="flex items-center gap-1">
+                      <Phone size={11} strokeWidth={1.75} className="text-slate-400" />
+                      <span>{cw.phone}</span>
+                    </span>
+                    <a
+                      href={`https://wa.me/60${cw.phone.replace(/[^0-9]/g, '').replace(/^0/, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 px-1.5 py-0.2 rounded transition-colors"
+                      title="打开 WhatsApp 发送消息"
+                    >
+                      <MessageSquare size={10} strokeWidth={2} />
+                      <span>WhatsApp</span>
+                    </a>
                   </div>
                 )}
                 {cw.qualifiedRoleIds.length > 0 && (
