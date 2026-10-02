@@ -25,11 +25,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
 
   const displayName = getShortName(currentUser?.name);
 
-  const getWeekdayName = (dateStr: string) => {
+  const getWeekdayShort = (dateStr: string) => {
     const [yyyy, mm, dd] = dateStr.split('-');
     const date = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
     const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-    return `星期${weekdays[date.getDay()]}`;
+    return weekdays[date.getDay()];
   };
 
   return (
@@ -41,7 +41,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
 
       {/* Greeting */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900">
+        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
           歡迎回來，{displayName}！
         </h2>
       </div>
@@ -49,11 +49,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
       {/* Add To Home Prompt Card */}
       <AddToHomeCard />
 
-      {/* 本季服事 Section */}
+      {/* 我的服事 Section */}
       <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs">
         <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-          <HeartHandshake size={18} strokeWidth={2} className="text-blue-600" />
-          <h3 className="text-base font-bold text-slate-900">本季服事</h3>
+          <HeartHandshake size={20} strokeWidth={2} className="text-blue-900" />
+          <h3 className="text-base font-bold text-slate-900">我的服事</h3>
         </div>
 
         {userAssignments.length === 0 ? (
@@ -64,13 +64,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
         ) : (
           <div className="divide-y divide-slate-100">
             {userAssignments.map(({ roster, service, roles }, index) => {
-              const dateText = `${formatShortDate(roster.date)} (${getWeekdayName(roster.date)})`;
+              const dateText = `${formatShortDate(roster.date)} (${getWeekdayShort(roster.date)})`;
               const roleText = roles.join('、');
 
               return (
-                <div key={`${roster.id}_${index}`} className="py-3 flex items-start gap-3">
+                <div key={`${roster.id}_${index}`} className="py-3 flex items-start gap-4">
                   <div className="w-24 shrink-0">
-                    <span className="text-xs font-bold text-slate-800 block">{dateText}</span>
+                    <span className="text-sm font-bold text-slate-900 block">{dateText}</span>
                     {roster.specialEvents && roster.specialEvents.length > 0 && (
                       <span className="inline-block text-[10px] font-semibold text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded mt-0.5">
                         {roster.specialEvents[0]}
@@ -78,10 +78,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-semibold text-slate-900 leading-tight">
+                    <h4 className="text-sm font-bold text-slate-900 leading-tight">
                       {service.name}
                     </h4>
-                    <p className="text-xs text-slate-600 mt-0.5 leading-snug">{roleText}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 font-medium">{roleText}</p>
                   </div>
                 </div>
               );

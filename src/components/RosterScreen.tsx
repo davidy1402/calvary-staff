@@ -62,11 +62,11 @@ export const RosterScreen: React.FC = () => {
     }));
   };
 
-  const getWeekdayName = (dateStr: string) => {
+  const getWeekdayShort = (dateStr: string) => {
     const [yyyy, mm, dd] = dateStr.split('-');
     const date = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
     const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-    return `星期${weekdays[date.getDay()]}`;
+    return weekdays[date.getDay()];
   };
 
   const coworkerMap = new Map(churchState.coworkers.map((c) => [c.id, c]));
@@ -74,7 +74,7 @@ export const RosterScreen: React.FC = () => {
   return (
     <div className="space-y-3">
       {/* Centered AppBar with Edit Action */}
-      <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-3 sticky top-0 z-20 shadow-2xs">
+      <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 pt-3.5 pb-0 sticky top-0 z-20 shadow-2xs">
         <div className="relative flex items-center justify-center">
           <h1 className="text-base font-bold text-slate-900">
             {isEditMode ? '編輯服事表' : '服事表'}
@@ -102,8 +102,8 @@ export const RosterScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* TabBar: Service Switcher */}
-        <div className="flex gap-1 overflow-x-auto no-scrollbar mt-3 border-t border-slate-100 pt-2 -mx-1 px-1">
+        {/* TabBar: Material Underline Tabs (matching Flutter TabBar) */}
+        <div className="flex border-b border-slate-200/80 mt-3 px-1">
           {churchState.services.map((svc) => {
             const isActive = svc.id === activeServiceId;
             return (
@@ -117,13 +117,14 @@ export const RosterScreen: React.FC = () => {
                     setExpandedDates({ [rosters[0].date]: true });
                   }
                 }}
-                className={`flex-1 py-1.5 px-2 text-xs font-semibold rounded-lg text-center whitespace-nowrap transition-colors ${
-                  isActive
-                    ? 'bg-slate-900 text-white shadow-2xs'
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                className={`flex-1 pb-2 pt-1 text-xs text-center transition-all relative ${
+                  isActive ? 'text-blue-900 font-bold' : 'text-slate-500 hover:text-slate-800 font-medium'
                 }`}
               >
-                {svc.shortName}
+                <span>{svc.shortName}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-blue-900 rounded-full" />
+                )}
               </button>
             );
           })}
@@ -143,7 +144,7 @@ export const RosterScreen: React.FC = () => {
         <div className="space-y-3">
           {serviceRosters.map((roster, index) => {
             const isExpanded = expandedDates[roster.date] ?? (index === 0);
-            const dateTitle = `${roster.date.replace(/-/g, '/')} (${getWeekdayName(roster.date)})`;
+            const dateTitle = `${roster.date.replace(/-/g, '/')} (${getWeekdayShort(roster.date)})`;
 
             // Active categories for this service
             const activeRoles = churchState.roles.filter((r) =>

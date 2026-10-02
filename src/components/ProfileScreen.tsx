@@ -178,7 +178,7 @@ export const ProfileScreen: React.FC = () => {
       {/* Version Footer (matching Flutter ProfileScreen footnote) */}
       <div className="text-center pt-4 text-xs text-slate-400">
         <p>更新于 2026/10/02</p>
-        <p className="text-[10px] mt-0.5 text-slate-300">加略山社区教会 · Calvary Community Church JB</p>
+        <p className="text-[10px] mt-0.5 text-slate-300">加略山社区教会 (Calvary Community Church JB)</p>
       </div>
 
       {/* WhatsApp Modal */}

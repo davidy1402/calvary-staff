@@ -27,20 +27,22 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
               key={tab.id}
               type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center justify-center w-20 py-1 transition-colors select-none ${
-                isActive
-                  ? 'text-blue-600 font-bold'
-                  : 'text-slate-400 hover:text-slate-600 font-medium'
-              }`}
+              className="flex flex-col items-center justify-center w-20 py-1 select-none transition-colors"
             >
               <div
-                className={`w-10 h-7 rounded-full flex items-center justify-center transition-colors ${
-                  isActive ? 'bg-blue-50 text-blue-600' : ''
+                className={`w-14 h-8 rounded-full flex items-center justify-center transition-all ${
+                  isActive ? 'bg-blue-100 text-blue-950 font-bold' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <IconComponent size={20} strokeWidth={isActive ? 2.2 : 1.75} />
               </div>
-              <span className="text-[11px] mt-0.5">{tab.label}</span>
+              <span
+                className={`text-[11px] mt-0.5 tracking-tight ${
+                  isActive ? 'font-bold text-slate-900' : 'font-medium text-slate-600'
+                }`}
+              >
+                {tab.label}
+              </span>
             </button>
           );
         })}

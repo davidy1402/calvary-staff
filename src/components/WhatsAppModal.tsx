@@ -57,7 +57,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
             <div>
               <h2 className="text-base font-bold text-slate-900">WhatsApp 服事通知</h2>
               <p className="text-xs text-slate-500">
-                {targetService.name} · {targetRoster?.date || '待定日期'}
+                {targetService.name} ({targetRoster?.date || '待定日期'})
               </p>
             </div>
           </div>
