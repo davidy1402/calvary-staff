@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useChurch } from '../context/ChurchContext';
 import {
   MessageSquare,
@@ -11,7 +12,6 @@ import {
   Languages,
   Camera,
   RotateCcw,
-  X,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
@@ -34,6 +34,15 @@ export const ProfileScreen: React.FC = () => {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isServicesOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [isServicesOpen]);
 
   const avatarLetter =
     currentUser?.name?.trim()?.[0] || (language === 'zh' ? '服' : 'V');
@@ -301,82 +310,77 @@ export const ProfileScreen: React.FC = () => {
         />
       )}
 
-      {/* Service Settings True Bottom Sheet */}
-      {isServicesOpen && (
-        <div
-          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/45 backdrop-blur-xs animate-backdrop"
-          onClick={() => setIsServicesOpen(false)}
-        >
+      {/* Service Settings True Bottom Sheet via Portal */}
+      {isServicesOpen &&
+        createPortal(
           <div
-            className="bg-slate-50 w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-sheet-up"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs animate-backdrop"
+            onClick={() => setIsServicesOpen(false)}
           >
-            {/* Native iOS Grab Handle */}
-            <div className="w-full pt-3 pb-1 flex justify-center bg-white shrink-0">
-              <div className="w-10 h-1 bg-slate-300 rounded-full" />
-            </div>
+            <div
+              className="bg-slate-50 w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-sheet-up"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Native iOS Grab Handle */}
+              <div className="w-full pt-3 pb-1 flex justify-center bg-white shrink-0">
+                <div className="w-10 h-1 bg-slate-300 rounded-full" />
+              </div>
 
-            {/* iOS Top Navigation Bar */}
-            <div className="px-4 py-2.5 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
-              <button
-                type="button"
-                onClick={() => setIsServicesOpen(false)}
-                className="flex items-center gap-0.5 text-blue-600 hover:text-blue-700 active:opacity-60 -ml-1 py-1 px-2 font-medium text-sm rounded-lg transition-colors cursor-pointer"
-              >
-                <ChevronLeft size={20} strokeWidth={2.2} />
-                <span>{t('back', language)}</span>
-              </button>
-
-              <h2 className="text-sm font-bold text-slate-900 leading-tight">
-                {t('serviceSettingsModalTitle', language)}
-              </h2>
-
-              <button
-                type="button"
-                onClick={() => setIsServicesOpen(false)}
-                aria-label="关闭"
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                <X size={18} strokeWidth={1.75} />
-              </button>
-            </div>
-
-            {/* Service Cards List */}
-            <div className="p-4 overflow-y-auto flex-1 space-y-3 pb-8 sm:pb-6">
-              {churchState.services.map((svc) => (
-                <div
-                  key={svc.id}
-                  className="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-2.5"
+              {/* iOS Top Navigation Bar (Only ONE close button: < 返回) */}
+              <div className="px-4 py-2.5 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setIsServicesOpen(false)}
+                  className="flex items-center gap-0.5 text-blue-600 hover:text-blue-700 active:opacity-60 -ml-1 py-1 px-2 font-medium text-sm rounded-lg transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-sm text-slate-900">{svc.name}</span>
-                    <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                      {svc.time}
-                    </span>
-                  </div>
+                  <ChevronLeft size={20} strokeWidth={2.2} />
+                  <span>{t('back', language)}</span>
+                </button>
 
-                  <div className="space-y-1.5 text-xs text-slate-600">
-                    <div className="flex items-center gap-2">
-                      <Clock size={13} strokeWidth={1.75} className="text-slate-400 shrink-0" />
-                      <span>
-                        <strong className="font-semibold text-slate-700">{t('rehearsalTime', language)}:</strong>{' '}
-                        {svc.rehearsalTime}
+                <h2 className="text-sm font-bold text-slate-900 leading-tight">
+                  {t('serviceSettingsModalTitle', language)}
+                </h2>
+
+                <div className="w-12" />
+              </div>
+
+              {/* Service Cards List */}
+              <div className="p-4 overflow-y-auto space-y-3 pb-8 sm:pb-6">
+                {churchState.services.map((svc) => (
+                  <div
+                    key={svc.id}
+                    className="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-2.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-slate-900">{svc.name}</span>
+                      <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                        {svc.time}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin size={13} strokeWidth={1.75} className="text-slate-400 shrink-0" />
-                      <span>
-                        <strong className="font-semibold text-slate-700">{t('venue', language)}:</strong>{' '}
-                        {svc.venue}
-                      </span>
+
+                    <div className="space-y-1.5 text-xs text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <Clock size={13} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+                        <span>
+                          <strong className="font-semibold text-slate-700">{t('rehearsalTime', language)}:</strong>{' '}
+                          {svc.rehearsalTime}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin size={13} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+                        <span>
+                          <strong className="font-semibold text-slate-700">{t('venue', language)}:</strong>{' '}
+                          {svc.venue}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

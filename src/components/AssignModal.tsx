@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
-import { X, Search, ChevronLeft, Star, User } from 'lucide-react';
+import { Search, ChevronLeft, Star, User } from 'lucide-react';
 import { t } from '../utils/i18n';
 
 interface AssignModalProps {
@@ -67,11 +68,18 @@ export const AssignModal: React.FC<AssignModalProps> = ({
     });
   }, [filteredCoworkers, assignedIds, role.id]);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/45 backdrop-blur-xs animate-backdrop"
+      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs animate-backdrop"
       onClick={onClose}
     >
       <div
@@ -83,7 +91,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
           <div className="w-10 h-1 bg-slate-300 rounded-full" />
         </div>
 
-        {/* Modal Header */}
+        {/* Modal Header (Only ONE close button: < 返回) */}
         <div className="px-4 py-2.5 bg-white border-b border-slate-100 flex items-center justify-between shrink-0 shadow-2xs">
           <button
             type="button"
@@ -103,14 +111,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="关闭窗口"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-          >
-            <X size={18} strokeWidth={1.75} />
-          </button>
+          <div className="w-12" />
         </div>
 
         {/* Search Bar */}
@@ -225,6 +226,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

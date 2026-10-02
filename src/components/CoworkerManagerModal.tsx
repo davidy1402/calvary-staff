@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useChurch } from '../context/ChurchContext';
 import { ChevronLeft, Search, Trash2, Phone, UserCheck, MessageSquare, X } from 'lucide-react';
 import { t } from '../utils/i18n';
@@ -19,6 +20,13 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   const [phone, setPhone] = useState('');
   const [cellGroup, setCellGroup] = useState('青年牧区 Ignite');
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -60,9 +68,9 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
 
   const roleMap = new Map(churchState.roles.map((r) => [r.id, r]));
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/45 backdrop-blur-xs animate-backdrop"
+      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs animate-backdrop"
       onClick={onClose}
     >
       <div
@@ -344,6 +352,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

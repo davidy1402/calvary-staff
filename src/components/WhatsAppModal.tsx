@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useChurch } from '../context/ChurchContext';
 import { generateWhatsAppRosterText } from '../utils/whatsappFormatter';
 import { getUpcomingServiceDate, formatDateLabel } from '../utils/dateUtils';
-import { ChevronLeft, Copy, Check, Send, X } from 'lucide-react';
+import { ChevronLeft, Copy, Check, Send } from 'lucide-react';
 import { t } from '../utils/i18n';
 import type { ServiceDefinition, ServiceRoster } from '../types';
 
@@ -51,6 +52,13 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
     return getUpcomingServiceDate(targetService.weekday, 0);
   });
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   if (!isOpen) return null;
 
   // Find roster or fallback to skeleton
@@ -82,9 +90,9 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
 
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/45 backdrop-blur-xs animate-backdrop"
+      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs animate-backdrop"
       onClick={onClose}
     >
       <div
@@ -96,7 +104,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           <div className="w-10 h-1 bg-slate-300 rounded-full" />
         </div>
 
-        {/* iOS Top Navigation Bar */}
+        {/* iOS Top Navigation Bar (Only ONE close button: < 返回) */}
         <div className="px-4 py-2.5 bg-white border-b border-slate-100 flex items-center justify-between shrink-0 shadow-2xs">
           <button
             type="button"
@@ -116,14 +124,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="关闭"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-          >
-            <X size={18} strokeWidth={1.75} />
-          </button>
+          <div className="w-12" />
         </div>
 
         {/* Service & Date Pickers */}
@@ -214,6 +215,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           </a>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
