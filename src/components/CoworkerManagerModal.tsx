@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { Search, Trash2, Phone, UserCheck, MessageSquare, X } from 'lucide-react';
+import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 
 interface CoworkerManagerModalProps {
@@ -20,13 +20,6 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   const [phone, setPhone] = useState('');
   const [cellGroup, setCellGroup] = useState('青年牧区 Ignite');
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, []);
 
   if (!isOpen) return null;
 
@@ -68,43 +61,27 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
 
   const roleMap = new Map(churchState.roles.map((r) => [r.id, r]));
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs animate-backdrop"
-      onClick={onClose}
-    >
-      <div
-        className="bg-slate-50 w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-sheet-up"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Native iOS Grab Handle */}
-        <div
-          onClick={onClose}
-          className="w-full pt-3 pb-2 flex justify-center bg-white shrink-0 cursor-pointer"
-          title="下拉或点击关闭"
+  return (
+    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-slate-50" maxHeight="88vh">
+      {/* Top Bar with Title and Add Action */}
+      <div className="px-4 pb-2.5 pt-0.5 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
+        <div className="text-left">
+          <h2 className="text-sm font-bold text-slate-900 leading-tight">
+            {t('coworkerDirectoryTitle', language)}
+          </h2>
+          <p className="text-[10px] text-slate-400 font-medium">
+            {filteredCoworkers.length} {t('coworker', language)}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsAdding((prev) => !prev)}
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 active:opacity-60 py-1.5 px-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors cursor-pointer"
         >
-          <div className="w-10 h-1 bg-slate-300 rounded-full hover:bg-slate-400 transition-colors" />
-        </div>
-
-        {/* Top Bar with Title and Add Action */}
-        <div className="px-4 pb-2.5 pt-0.5 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
-          <div className="text-left">
-            <h2 className="text-sm font-bold text-slate-900 leading-tight">
-              {t('coworkerDirectoryTitle', language)}
-            </h2>
-            <p className="text-[10px] text-slate-400 font-medium">
-              {filteredCoworkers.length} {t('coworker', language)}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsAdding((prev) => !prev)}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-700 active:opacity-60 py-1.5 px-3 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors cursor-pointer"
-          >
-            {isAdding ? t('cancel', language) : `+ ${t('addCoworker', language)}`}
-          </button>
-        </div>
+          {isAdding ? t('cancel', language) : `+ ${t('addCoworker', language)}`}
+        </button>
+      </div>
 
         {/* Search Bar */}
         <div className="px-4 py-2.5 bg-white border-b border-slate-200/70 shrink-0">
@@ -346,8 +323,6 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
             })
           )}
         </div>
-      </div>
-    </div>,
-    document.body
+    </BottomSheet>
   );
 };

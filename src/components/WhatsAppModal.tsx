@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { generateWhatsAppRosterText } from '../utils/whatsappFormatter';
 import { getUpcomingServiceDate, formatDateLabel } from '../utils/dateUtils';
 import { Copy, Check, Send } from 'lucide-react';
+import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 import type { ServiceDefinition, ServiceRoster } from '../types';
 
@@ -52,13 +52,6 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
     return getUpcomingServiceDate(targetService.weekday, 0);
   });
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, []);
-
   if (!isOpen) return null;
 
   // Find roster or fallback to skeleton
@@ -90,33 +83,17 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
 
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs animate-backdrop"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-sheet-up"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Native iOS Grab Handle */}
-        <div
-          onClick={onClose}
-          className="w-full pt-3 pb-2 flex justify-center bg-white shrink-0 cursor-pointer"
-          title="下拉或点击关闭"
-        >
-          <div className="w-10 h-1 bg-slate-300 rounded-full hover:bg-slate-400 transition-colors" />
-        </div>
-
-        {/* Sheet Title */}
-        <div className="px-4 pb-2.5 pt-0.5 bg-white border-b border-slate-100 text-center shrink-0">
-          <h2 className="text-sm font-bold text-slate-900 leading-tight">
-            {t('whatsappNotification', language)}
-          </h2>
-          <p className="text-[10px] text-slate-400 font-medium">
-            {targetService.name}
-          </p>
-        </div>
+  return (
+    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-white" maxHeight="88vh">
+      {/* Sheet Title */}
+      <div className="px-4 pb-2.5 pt-0.5 bg-white border-b border-slate-100 text-center shrink-0">
+        <h2 className="text-sm font-bold text-slate-900 leading-tight">
+          {t('whatsappNotification', language)}
+        </h2>
+        <p className="text-[10px] text-slate-400 font-medium">
+          {targetService.name}
+        </p>
+      </div>
 
         {/* Service & Date Pickers */}
         <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200/70 shrink-0">
@@ -205,8 +182,6 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
             <span>{t('openWhatsApp', language)}</span>
           </a>
         </div>
-      </div>
-    </div>,
-    document.body
+    </BottomSheet>
   );
 };
