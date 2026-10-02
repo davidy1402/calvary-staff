@@ -51,20 +51,34 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
       </div>
 
       {/* Greeting Card with Volunteer Status */}
-      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-xs">
-        <p className="text-xs text-blue-200 font-medium">
-          {currentUser?.cellGroup || (language === 'zh' ? '加略山社区教会' : 'Calvary Community Church')}
-        </p>
-        <h2 className="text-2xl font-extrabold tracking-tight mt-1">
-          {t('welcomeBack', language)}, {displayName}!
-        </h2>
-        <div className="flex items-center gap-2 mt-3 text-xs text-blue-100">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-xs font-semibold">
-            {language === 'zh' ? '本季服事：' : 'Assigned: '}
-            <strong className="text-white ml-1">{userAssignments.length}</strong>
-            {language === 'zh' ? ' 堂' : ' services'}
-          </span>
+      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-xs flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-blue-200 font-medium">
+            {currentUser?.cellGroup || (language === 'zh' ? '加略山社区教会' : 'Calvary Community Church')}
+          </p>
+          <h2 className="text-2xl font-extrabold tracking-tight mt-1">
+            {t('welcomeBack', language)}, {displayName}!
+          </h2>
+          <div className="flex items-center gap-2 mt-3 text-xs text-blue-100">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-xs font-semibold">
+              {language === 'zh' ? '本季服事：' : 'Assigned: '}
+              <strong className="text-white ml-1">{userAssignments.length}</strong>
+              {language === 'zh' ? ' 堂' : ' services'}
+            </span>
+          </div>
         </div>
+
+        {currentUser?.avatar ? (
+          <img
+            src={currentUser.avatar}
+            alt={currentUser.name}
+            className="w-13 h-13 rounded-full object-cover shrink-0 border-2 border-white/30 shadow-md"
+          />
+        ) : (
+          <div className="w-13 h-13 rounded-full bg-white/15 text-white flex items-center justify-center text-xl font-bold shrink-0 border-2 border-white/20 shadow-md">
+            {currentUser?.name?.trim()?.[0] || '同'}
+          </div>
+        )}
       </div>
 
       {/* Add To Home Prompt Card */}

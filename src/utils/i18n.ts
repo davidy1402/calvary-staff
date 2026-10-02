@@ -105,6 +105,15 @@ export const TRANSLATIONS = {
     importBackupBtn: '导入恢复备份',
     restoreDefaultBtn: '恢复初始加略山数据',
     churchFooterName: '加略山社区教会 (Calvary Community Church JB)',
+    back: '返回',
+    changeAvatar: '更换头像',
+    tapToUploadAvatar: '点击上传头像',
+    removeAvatar: '移除头像',
+    serviceSelector: '选择聚会',
+    dateSelector: '选择日期',
+    close: '关闭',
+    addCoworker: '录入新同工',
+    cancel: '取消',
 
     // Services
     sun_mandarin: '主日华语崇拜',
@@ -229,6 +238,15 @@ export const TRANSLATIONS = {
     importBackupBtn: 'Import Backup',
     restoreDefaultBtn: 'Restore Default Calvary Data',
     churchFooterName: 'Calvary Community Church JB',
+    back: 'Back',
+    changeAvatar: 'Change Photo',
+    tapToUploadAvatar: 'Tap to upload photo',
+    removeAvatar: 'Remove Photo',
+    serviceSelector: 'Select Service',
+    dateSelector: 'Select Date',
+    close: 'Close',
+    addCoworker: 'Add Volunteer',
+    cancel: 'Cancel',
 
     // Services
     sun_mandarin: 'Sunday Mandarin Service',

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { generateWhatsAppRosterText } from '../utils/whatsappFormatter';
-import { X, Copy, Check, Send, MessageSquare } from 'lucide-react';
+import { getUpcomingServiceDate, formatDateLabel } from '../utils/dateUtils';
+import { ChevronLeft, Copy, Check, Send, X } from 'lucide-react';
 import { t } from '../utils/i18n';
 import type { ServiceDefinition, ServiceRoster } from '../types';
 
@@ -18,13 +19,48 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   initialService,
   initialRoster,
 }) => {
-  const { churchState, activeService, currentRoster, language } = useChurch();
+  const { churchState, activeService, language } = useChurch();
   const [copied, setCopied] = useState(false);
+
+  // Allow selecting service and date dynamically inside modal
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(
+    initialService?.id || activeService.id
+  );
+
+  const targetService = useMemo(() => {
+    return (
+      churchState.services.find((s) => s.id === selectedServiceId) ||
+      initialService ||
+      activeService
+    );
+  }, [churchState.services, selectedServiceId, initialService, activeService]);
+
+  // Compute 4 upcoming date options for this service
+  const dateOptions = useMemo(() => {
+    return [0, 1, 2, 3].map((offset) => {
+      const dateVal = getUpcomingServiceDate(targetService.weekday, offset);
+      return {
+        value: dateVal,
+        label: `${dateVal} (${formatDateLabel(dateVal).split('（')[1]?.replace('）', '') || ''})`,
+      };
+    });
+  }, [targetService.weekday]);
+
+  const [selectedDateStr, setSelectedDateStr] = useState<string>(() => {
+    if (initialRoster?.date) return initialRoster.date;
+    return getUpcomingServiceDate(targetService.weekday, 0);
+  });
 
   if (!isOpen) return null;
 
-  const targetService = initialService || activeService;
-  const targetRoster = initialRoster || currentRoster;
+  // Find roster or fallback to skeleton
+  const rosterKey = `${selectedDateStr}_${targetService.id}`;
+  const targetRoster: ServiceRoster = churchState.rosters[rosterKey] || {
+    id: rosterKey,
+    serviceId: targetService.id,
+    date: selectedDateStr,
+    assignments: {},
+  };
 
   const formattedText = generateWhatsAppRosterText(
     churchState.churchName,
@@ -47,42 +83,93 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-0 sm:p-4">
-      <div className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[90vh] flex flex-col shadow-xl animate-in fade-in duration-200">
-        {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <MessageSquare size={18} strokeWidth={1.75} />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                {t('whatsappNotification', language)}
-              </h2>
-              <p className="text-xs text-slate-500">
-                {targetService.name} ({targetRoster?.date || '待定日期'})
-              </p>
-            </div>
+    <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center bg-black/40 backdrop-blur-xs animate-backdrop p-0 sm:p-4">
+      <div className="bg-slate-50 w-full h-full sm:h-[88vh] sm:max-w-lg sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden animate-sheet-up">
+        {/* iOS Top Navigation Bar */}
+        <div className="px-4 py-3 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center gap-0.5 text-blue-600 hover:text-blue-700 active:opacity-60 -ml-1 py-1 px-2 font-medium text-sm rounded-lg transition-colors cursor-pointer"
+          >
+            <ChevronLeft size={20} strokeWidth={2.2} />
+            <span>{t('back', language)}</span>
+          </button>
+
+          <div className="text-center">
+            <h2 className="text-sm font-bold text-slate-900 leading-tight">
+              {t('whatsappNotification', language)}
+            </h2>
+            <p className="text-[10px] text-slate-400 font-medium">
+              {targetService.name}
+            </p>
           </div>
+
           <button
             type="button"
             onClick={onClose}
             aria-label="关闭"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
-        {/* Text Preview */}
+        {/* Service & Date Pickers */}
+        <div className="px-4 py-2.5 bg-white border-b border-slate-200/70 shrink-0">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                {t('serviceSelector', language)}
+              </label>
+              <select
+                value={selectedServiceId}
+                onChange={(e) => {
+                  const newId = e.target.value;
+                  setSelectedServiceId(newId);
+                  const newSvc = churchState.services.find((s) => s.id === newId);
+                  if (newSvc) {
+                    setSelectedDateStr(getUpcomingServiceDate(newSvc.weekday, 0));
+                  }
+                }}
+                className="w-full text-xs font-semibold text-slate-800 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+              >
+                {churchState.services.map((svc) => (
+                  <option key={svc.id} value={svc.id}>
+                    {svc.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                {t('dateSelector', language)}
+              </label>
+              <select
+                value={selectedDateStr}
+                onChange={(e) => setSelectedDateStr(e.target.value)}
+                className="w-full text-xs font-semibold text-slate-800 bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+              >
+                {dateOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Text Preview Box */}
         <div className="p-4 overflow-y-auto flex-1">
-          <div className="bg-slate-900 text-emerald-400 p-4 rounded-xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all">
+          <div className="bg-slate-900 text-emerald-400 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all shadow-inner border border-slate-800">
             {formattedText}
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl grid grid-cols-2 gap-2.5">
+        <div className="p-4 bg-white border-t border-slate-200/90 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs">
           <button
             type="button"
             onClick={handleCopy}

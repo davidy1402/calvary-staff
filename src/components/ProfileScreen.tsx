@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import {
   MessageSquare,
   Users,
   Calendar,
   ChevronRight,
+  ChevronLeft,
   Clock,
   MapPin,
-  X,
   Languages,
+  Camera,
+  RotateCcw,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
+import { compressAvatarImage } from '../utils/imageUtils';
 import { t } from '../utils/i18n';
 
 export const ProfileScreen: React.FC = () => {
@@ -20,6 +23,7 @@ export const ProfileScreen: React.FC = () => {
     currentUser,
     currentUserId,
     setCurrentUserId,
+    updateCurrentUserAvatar,
     language,
     setLanguage,
   } = useChurch();
@@ -28,24 +32,92 @@ export const ProfileScreen: React.FC = () => {
   const [isCoworkersOpen, setIsCoworkersOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const avatarLetter =
     currentUser?.name?.trim()?.[0] || (language === 'zh' ? '同' : 'V');
 
+  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressedBase64 = await compressAvatarImage(file);
+      updateCurrentUserAvatar(compressedBase64);
+    } catch (err) {
+      console.error('Failed to compress/save avatar', err);
+    } finally {
+      // reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveAvatar = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('确定要恢复默认文字头像吗？')) {
+      updateCurrentUserAvatar('');
+    }
+  };
+
   return (
-    <div className="space-y-4 animate-slide-up pb-6">
+    <div className="space-y-4 animate-slide-up pb-8">
       {/* Centered AppBar */}
-      <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-3.5 mb-2 sticky top-0 z-20 shadow-2xs">
+      <div className="bg-white border-b border-slate-200/80 -mx-4 -mt-4 px-4 py-3.5 mb-2 sticky top-0 z-20 shadow-2xs">
         <h1 className="text-base font-bold text-slate-900 text-center">
           {t('settingsTitle', language)}
         </h1>
       </div>
 
       {/* Volunteer Identity Card */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-3">
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs space-y-3.5">
         <div className="flex items-center gap-3.5">
-          <div className="w-13 h-13 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center text-xl font-black shrink-0 shadow-2xs">
-            {avatarLetter}
+          {/* Avatar with Photo Picker Overlay */}
+          <div className="relative group shrink-0">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label={t('changeAvatar', language)}
+              className="relative w-14 h-14 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer block border-2 border-white shadow-xs"
+            >
+              {currentUser?.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-blue-100 text-blue-900 flex items-center justify-center text-xl font-black">
+                  {avatarLetter}
+                </div>
+              )}
+
+              {/* Camera Hover/Touch Overlay */}
+              <div className="absolute inset-0 bg-black/25 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera size={16} strokeWidth={2.2} />
+              </div>
+            </button>
+
+            {/* Camera badge bottom right */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label={t('changeAvatar', language)}
+              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center border-2 border-white shadow-2xs cursor-pointer active:scale-95 transition-transform"
+            >
+              <Camera size={12} strokeWidth={2.5} />
+            </button>
+
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarFile}
+            />
           </div>
+
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-bold text-slate-900">
@@ -55,6 +127,7 @@ export const ProfileScreen: React.FC = () => {
                 <span className="text-xs text-slate-500 font-medium">({currentUser.englishName})</span>
               )}
             </div>
+
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               <span className="text-[11px] font-semibold px-2 py-0.2 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
                 {currentUser?.cellGroup || '青年牧区'}
@@ -62,6 +135,27 @@ export const ProfileScreen: React.FC = () => {
               <span className="text-[11px] font-semibold px-2 py-0.2 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
                 {t('coworker', language)}
               </span>
+            </div>
+
+            <div className="flex items-center gap-2 mt-1.5">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
+              >
+                {t('changeAvatar', language)}
+              </button>
+
+              {currentUser?.avatar && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  className="text-[11px] font-medium text-slate-400 hover:text-rose-600 flex items-center gap-0.5 cursor-pointer"
+                >
+                  <RotateCcw size={10} strokeWidth={2} />
+                  <span>{t('removeAvatar', language)}</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -84,11 +178,11 @@ export const ProfileScreen: React.FC = () => {
       </div>
 
       {/* Ministry & Coordination Tools */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs divide-y divide-slate-100 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs divide-y divide-slate-100 overflow-hidden">
         {/* WhatsApp Export */}
         <div
           onClick={() => setIsWhatsAppOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
+          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors active:bg-slate-100"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
@@ -109,7 +203,7 @@ export const ProfileScreen: React.FC = () => {
         {/* Coworker Directory */}
         <div
           onClick={() => setIsCoworkersOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
+          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors active:bg-slate-100"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -130,7 +224,7 @@ export const ProfileScreen: React.FC = () => {
         {/* Service Settings */}
         <div
           onClick={() => setIsServicesOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
+          className="p-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors active:bg-slate-100"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
@@ -150,7 +244,7 @@ export const ProfileScreen: React.FC = () => {
       </div>
 
       {/* Language Preference Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-3.5 flex items-center justify-between gap-3">
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-3.5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
             <Languages size={17} strokeWidth={1.75} />
@@ -199,43 +293,72 @@ export const ProfileScreen: React.FC = () => {
       </div>
 
       {/* WhatsApp Modal */}
-      {isWhatsAppOpen && <WhatsAppModal isOpen={true} onClose={() => setIsWhatsAppOpen(false)} />}
+      {isWhatsAppOpen && (
+        <WhatsAppModal
+          isOpen={true}
+          onClose={() => setIsWhatsAppOpen(false)}
+        />
+      )}
 
       {/* Coworker Modal */}
-      {isCoworkersOpen && <CoworkerManagerModal isOpen={true} onClose={() => setIsCoworkersOpen(false)} />}
+      {isCoworkersOpen && (
+        <CoworkerManagerModal
+          isOpen={true}
+          onClose={() => setIsCoworkersOpen(false)}
+        />
+      )}
 
-      {/* Service Settings Modal */}
+      {/* Service Settings iOS Sheet Modal */}
       {isServicesOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-0 sm:p-4">
-          <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl max-h-[85vh] flex flex-col shadow-xl animate-in fade-in duration-200">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-base font-bold text-slate-900">
-                {t('serviceSettingsModalTitle', language)}
-              </h2>
+        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center bg-black/40 backdrop-blur-xs animate-backdrop p-0 sm:p-4">
+          <div className="bg-slate-50 w-full h-full sm:h-[85vh] sm:max-w-md sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden animate-sheet-up">
+            {/* iOS Top Navigation Bar */}
+            <div className="px-4 py-3 bg-white border-b border-slate-200/90 flex items-center justify-between shrink-0 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setIsServicesOpen(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                className="flex items-center gap-0.5 text-blue-600 hover:text-blue-700 active:opacity-60 -ml-1 py-1 px-2 font-medium text-sm rounded-lg transition-colors cursor-pointer"
               >
-                <X size={18} strokeWidth={1.75} />
+                <ChevronLeft size={20} strokeWidth={2.2} />
+                <span>{t('back', language)}</span>
               </button>
+
+              <h2 className="text-sm font-bold text-slate-900 leading-tight">
+                {t('serviceSettingsModalTitle', language)}
+              </h2>
+
+              <div className="w-12" />
             </div>
-            <div className="p-4 overflow-y-auto space-y-3">
+
+            {/* Service Cards List */}
+            <div className="p-4 overflow-y-auto flex-1 space-y-3">
               {churchState.services.map((svc) => (
-                <div key={svc.id} className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5 text-xs">
+                <div
+                  key={svc.id}
+                  className="p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs space-y-2.5"
+                >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">{svc.name}</span>
-                    <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                    <span className="font-bold text-sm text-slate-900">{svc.name}</span>
+                    <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
                       {svc.time}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 text-slate-500">
-                    <Clock size={12} strokeWidth={1.75} />
-                    <span>{t('rehearsalTime', language)}: {svc.rehearsalTime}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-slate-500">
-                    <MapPin size={12} strokeWidth={1.75} />
-                    <span>{t('venue', language)}: {svc.venue}</span>
+
+                  <div className="space-y-1.5 text-xs text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <Clock size={13} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+                      <span>
+                        <strong className="font-semibold text-slate-700">{t('rehearsalTime', language)}:</strong>{' '}
+                        {svc.rehearsalTime}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin size={13} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+                      <span>
+                        <strong className="font-semibold text-slate-700">{t('venue', language)}:</strong>{' '}
+                        {svc.venue}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

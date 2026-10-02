@@ -32,6 +32,7 @@ export interface Coworker {
   qualifiedRoleIds: string[];
   notes?: string;
   active: boolean;
+  avatar?: string; // base64 or URL
 }
 
 export interface ServiceRoster {

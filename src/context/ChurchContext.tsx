@@ -34,6 +34,7 @@ interface ChurchContextType {
   removeSpecialEvent: (eventName: string, customDate?: string, customServiceId?: string) => void;
   addCoworker: (coworker: Omit<Coworker, 'id'>) => void;
   updateCoworker: (coworker: Coworker) => void;
+  updateCurrentUserAvatar: (avatarDataUrl: string) => void;
   deleteCoworker: (id: string) => void;
   getCoworkerConflictRoles: (coworkerId: string, customDate?: string, customServiceId?: string) => string[];
   exportBackup: () => void;
@@ -356,6 +357,11 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }));
   };
 
+  const updateCurrentUserAvatar = (avatarDataUrl: string) => {
+    if (!currentUser) return;
+    updateCoworker({ ...currentUser, avatar: avatarDataUrl });
+  };
+
   const deleteCoworker = (id: string) => {
     setChurchState((prev) => ({
       ...prev,
@@ -441,6 +447,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         removeSpecialEvent,
         addCoworker,
         updateCoworker,
+        updateCurrentUserAvatar,
         deleteCoworker,
         getCoworkerConflictRoles,
         exportBackup,
