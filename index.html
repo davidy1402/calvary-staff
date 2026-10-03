@@ -12,8 +12,21 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" href="/icon-192.png" />
     <title>新山加略山社区教会 CCCJB | 服事排班看板</title>
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('calvary_theme');
+          var isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#020617');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-slate-100/70 antialiased selection:bg-blue-100 selection:text-blue-900">
+  <body class="bg-slate-100/70 dark:bg-slate-950 antialiased selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

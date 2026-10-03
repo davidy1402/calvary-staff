@@ -47,34 +47,34 @@ export const AddToHomeCard: React.FC = () => {
   if (dismissed) return null;
 
   return (
-    <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs mb-4 animate-in fade-in duration-200">
+    <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200/90 dark:border-slate-800 shadow-xs mb-4 animate-in fade-in duration-200">
       <div className="flex items-start gap-2.5">
-        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+        <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
           <Smartphone size={18} strokeWidth={1.75} />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-bold text-slate-900 leading-snug">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug">
             {t('addToHomeTitle', language)}
           </h3>
-          <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
             {t('addToHomeDesc', language)}
           </p>
 
           {showIosSteps && (
-            <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200/80 text-xs text-slate-700 space-y-2 animate-in fade-in duration-150">
+            <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-lg border border-slate-200/80 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 space-y-2 animate-in fade-in duration-150">
               <div className="flex items-start gap-2">
-                <span className="font-bold text-slate-900 w-4">1.</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100 w-4">1.</span>
                 <span>
                   {t('iosStep1', language)}{' '}
-                  <Share size={13} strokeWidth={2} className="inline text-blue-600 align-middle -mt-0.5" />
+                  <Share size={13} strokeWidth={2} className="inline text-blue-600 dark:text-blue-400 align-middle -mt-0.5" />
                 </span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="font-bold text-slate-900 w-4">2.</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100 w-4">2.</span>
                 <span>{t('iosStep2', language)}</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="font-bold text-slate-900 w-4">3.</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100 w-4">3.</span>
                 <span>{t('iosStep3', language)}</span>
               </div>
             </div>
@@ -84,7 +84,7 @@ export const AddToHomeCard: React.FC = () => {
             <button
               type="button"
               onClick={handleDismiss}
-              className="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+              className="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors active:scale-95"
             >
               {t('dismissPrompt', language)}
             </button>

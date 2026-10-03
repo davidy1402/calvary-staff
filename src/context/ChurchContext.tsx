@@ -32,6 +32,8 @@ interface ChurchContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 
   // Role and Permission Modes (Member Read-Only vs Editor Mode)
   userMode: UserMode;
@@ -183,6 +185,33 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const toggleLanguage = () => {
     setLanguage(language === 'zh' ? 'en' : 'zh');
   };
+
+  // Dark Mode State
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('calvary_theme');
+      if (saved === 'dark') return true;
+      if (saved === 'light') return false;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('calvary_theme', 'dark');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', '#020617');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('calvary_theme', 'light');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', '#1e3a8a');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   // User Mode (Member Read-Only vs Editor Mode)
   const [userMode, setUserModeState] = useState<UserMode>(() => {
@@ -707,6 +736,8 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         language,
         setLanguage,
         toggleLanguage,
+        isDarkMode,
+        toggleDarkMode,
         userMode,
         setUserMode,
         toggleUserMode,

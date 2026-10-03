@@ -84,104 +84,104 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-white" maxHeight="88vh">
+    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-white dark:bg-slate-900" maxHeight="88vh">
       {/* Sheet Title */}
-      <div className="px-4 pb-2.5 pt-0.5 bg-white border-b border-slate-100 text-center shrink-0">
-        <h2 className="text-sm font-bold text-slate-900 leading-tight">
+      <div className="px-4 pb-2.5 pt-0.5 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 text-center shrink-0">
+        <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">
           {t('whatsappNotification', language)}
         </h2>
-        <p className="text-[10px] text-slate-400 font-medium">
+        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
           {targetService.name}
         </p>
       </div>
 
-        {/* Service & Date Pickers */}
-        <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200/70 shrink-0">
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                {t('serviceSelector', language)}
-              </label>
-              <select
-                value={selectedServiceId}
-                onChange={(e) => {
-                  const newId = e.target.value;
-                  setSelectedServiceId(newId);
-                  const newSvc = churchState.services.find((s) => s.id === newId);
-                  if (newSvc) {
-                    setSelectedDateStr(getUpcomingServiceDate(newSvc.weekday, 0));
-                  }
-                }}
-                className="w-full text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
-              >
-                {churchState.services.map((svc) => (
-                  <option key={svc.id} value={svc.id}>
-                    {svc.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+      {/* Service & Date Pickers */}
+      <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-850 dark:bg-slate-800/60 border-b border-slate-200/70 dark:border-slate-800 shrink-0">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+              {t('serviceSelector', language)}
+            </label>
+            <select
+              value={selectedServiceId}
+              onChange={(e) => {
+                const newId = e.target.value;
+                setSelectedServiceId(newId);
+                const newSvc = churchState.services.find((s) => s.id === newId);
+                if (newSvc) {
+                  setSelectedDateStr(getUpcomingServiceDate(newSvc.weekday, 0));
+                }
+              }}
+              className="w-full text-xs font-semibold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
+            >
+              {churchState.services.map((svc) => (
+                <option key={svc.id} value={svc.id} className="dark:bg-slate-800 dark:text-slate-100">
+                  {svc.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                {t('dateSelector', language)}
-              </label>
-              <select
-                value={selectedDateStr}
-                onChange={(e) => setSelectedDateStr(e.target.value)}
-                className="w-full text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
-              >
-                {dateOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+              {t('dateSelector', language)}
+            </label>
+            <select
+              value={selectedDateStr}
+              onChange={(e) => setSelectedDateStr(e.target.value)}
+              className="w-full text-xs font-semibold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
+            >
+              {dateOptions.map((opt) => (
+                <option key={opt.value} value={opt.value} className="dark:bg-slate-800 dark:text-slate-100">
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
+      </div>
 
-        {/* Text Preview Box */}
-        <div className="p-4 overflow-y-auto flex-1">
-          <div className="bg-slate-900 text-emerald-400 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all shadow-inner border border-slate-800">
-            {formattedText}
-          </div>
+      {/* Text Preview Box */}
+      <div className="p-4 overflow-y-auto flex-1">
+        <div className="bg-slate-900 text-emerald-400 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all shadow-inner border border-slate-800">
+          {formattedText}
         </div>
+      </div>
 
-        {/* Action Buttons */}
-        <div className="p-4 bg-white border-t border-slate-100 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs pb-8 sm:pb-4">
-          <button
-            type="button"
-            onClick={handleCopy}
-            className={`flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
-              copied
-                ? 'bg-emerald-600 text-white'
-                : 'bg-slate-900 text-white hover:bg-slate-800'
-            }`}
-          >
-            {copied ? (
-              <>
-                <Check size={14} strokeWidth={2.5} />
-                <span>{t('copiedAll', language)}</span>
-              </>
-            ) : (
-              <>
-                <Copy size={14} strokeWidth={1.75} />
-                <span>{t('copyAllText', language)}</span>
-              </>
-            )}
-          </button>
+      {/* Action Buttons */}
+      <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs pb-8 sm:pb-4">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={`flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
+            copied
+              ? 'bg-emerald-600 text-white'
+              : 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700'
+          }`}
+        >
+          {copied ? (
+            <>
+              <Check size={14} strokeWidth={2.5} />
+              <span>{t('copiedAll', language)}</span>
+            </>
+          ) : (
+            <>
+              <Copy size={14} strokeWidth={1.75} />
+              <span>{t('copyAllText', language)}</span>
+            </>
+          )}
+        </button>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs cursor-pointer active:scale-95"
-          >
-            <Send size={14} strokeWidth={1.75} />
-            <span>{t('openWhatsApp', language)}</span>
-          </a>
-        </div>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs cursor-pointer active:scale-95"
+        >
+          <Send size={14} strokeWidth={1.75} />
+          <span>{t('openWhatsApp', language)}</span>
+        </a>
+      </div>
     </BottomSheet>
   );
 };
