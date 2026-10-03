@@ -21,6 +21,7 @@ import { ChurchLogo } from './ChurchLogo';
 import { CURRENT_VERSION } from '../data/updates';
 import { compressAvatarImage } from '../utils/imageUtils';
 import { t } from '../utils/i18n';
+import { BottomPullEasterEgg } from './BottomPullEasterEgg';
 
 interface ProfileScreenProps {
   onOpenUpdates?: () => void;
@@ -445,6 +446,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
         <p className="text-xs text-slate-400 dark:text-zinc-500 font-medium">{t('churchFooterName', language)}</p>
         <p className="text-[10px] text-slate-300 dark:text-zinc-600">v{CURRENT_VERSION.version} ({CURRENT_VERSION.releaseDate})</p>
       </div>
+
+      {/* Secret Pull-Down Bottom Easter Egg */}
+      <BottomPullEasterEgg language={language} />
 
       {/* WhatsApp Bottom Sheet Modal */}
       {isWhatsAppOpen && (
