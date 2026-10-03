@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
-import { Music, Plus, Trash2, Check, X, ChevronDown, ChevronUp, Play, ExternalLink, Video } from 'lucide-react';
+import { Music, Plus, Trash2, Check, X, ChevronDown, ChevronUp, Play, Video } from 'lucide-react';
 import type { WorshipSong } from '../types';
 
 interface WorshipSongSectionProps {
@@ -159,11 +159,10 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
                         title="在 YouTube 试听官方练习曲或 MV"
-                        className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
+                        aria-label="在 YouTube 试听"
+                        className="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-700 active:scale-95 text-white flex items-center justify-center shrink-0 shadow-2xs transition-all cursor-pointer"
                       >
-                        <Play size={10} className="fill-current" />
-                        <span>YouTube 试听</span>
-                        <ExternalLink size={10} strokeWidth={2.2} />
+                        <Play size={11} className="fill-current ml-0.5" />
                       </a>
                     ) : isEditMode ? (
                       <button
@@ -174,9 +173,11 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                             addSong({ ...song, youtubeUrl: url.trim() }, date, serviceId);
                           }
                         }}
-                        className="text-[11px] font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-zinc-800 hover:bg-red-100 px-2 py-1 rounded-lg border border-red-200 dark:border-zinc-700 transition-colors cursor-pointer"
+                        title="添加 YouTube 试听链接"
+                        aria-label="添加 YouTube 试听链接"
+                        className="w-7 h-7 rounded-lg bg-red-50 dark:bg-zinc-800 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-zinc-700 flex items-center justify-center border border-red-200 dark:border-zinc-700 transition-colors cursor-pointer"
                       >
-                        + YouTube
+                        <Plus size={13} strokeWidth={2.5} />
                       </button>
                     ) : null}
 

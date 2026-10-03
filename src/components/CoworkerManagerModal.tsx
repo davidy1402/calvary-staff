@@ -99,53 +99,52 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-slate-50 dark:bg-black" maxHeight="88vh">
-      {/* Top Bar with Title and Add Action */}
-      <div className="px-5 pb-3 pt-1 bg-white dark:bg-zinc-900 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between shrink-0 shadow-2xs">
-        <div className="text-left">
-          <h2 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 leading-tight">
-            {t('coworkerDirectoryTitle', language)}
-          </h2>
-          <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
-            {filteredCoworkers.length} {t('coworker', language)}
-          </p>
+      {/* Fluid Header Area with Seamless Integrated Search */}
+      <div className="px-5 pt-2 pb-3 space-y-3 shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h2 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 leading-tight">
+              {t('coworkerDirectoryTitle', language)}
+            </h2>
+            <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
+              {filteredCoworkers.length} {t('coworker', language)}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (isFormOpen) {
+                resetForm();
+              } else {
+                handleStartAdd();
+              }
+            }}
+            title={isFormOpen ? t('cancel', language) : '添加同工'}
+            aria-label={isFormOpen ? t('cancel', language) : '添加同工'}
+            className="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white flex items-center justify-center shadow-2xs transition-all cursor-pointer"
+          >
+            {isFormOpen ? (
+              <X size={16} strokeWidth={2.2} />
+            ) : (
+              <UserPlus size={16} strokeWidth={2.2} />
+            )}
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            if (isFormOpen) {
-              resetForm();
-            } else {
-              handleStartAdd();
-            }
-          }}
-          className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 active:scale-95 py-1.5 px-3 bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
-        >
-          {isFormOpen ? (
-            <span>{t('cancel', language)}</span>
-          ) : (
-            <>
-              <UserPlus size={14} strokeWidth={2.2} />
-              <span>+ 添加同工</span>
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Search Bar */}
-      <div className="px-4 py-2.5 bg-white dark:bg-zinc-900 border-b border-slate-200/70 dark:border-zinc-800 shrink-0">
+        {/* Seamless Floating Search Bar */}
         <div className="relative">
           <Search
             size={15}
             strokeWidth={2}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none"
           />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('searchCoworker', language)}
-            className="w-full pl-9 pr-8 py-2 bg-slate-100 dark:bg-zinc-800 text-xs text-slate-800 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 rounded-xl border border-transparent focus:border-blue-500/30 focus:outline-none"
+            className="w-full pl-9 pr-8 py-2 bg-slate-200/70 dark:bg-zinc-800/80 text-xs text-slate-800 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 rounded-xl border border-transparent focus:border-blue-500/40 focus:bg-white dark:focus:bg-zinc-800 focus:outline-none transition-all"
           />
           {search && (
             <button
@@ -225,12 +224,12 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
               />
             </div>
 
-            {/* Group Selector Chips (职青 / 大专 / 青少年 / 牧者 / 同工) */}
+            {/* Group Selector Chips (职青 / 大专 / 青少年 / 牧者 / 同工) + Direct Tag Editing */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1.5">
                 所属分组
               </label>
-              <div className="flex items-center gap-1.5 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-wrap mb-2">
                 {CHURCH_GROUPS.map((grp) => {
                   const isSelected = cellGroup === grp;
                   return (
@@ -249,6 +248,13 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                   );
                 })}
               </div>
+              <input
+                type="text"
+                value={cellGroup}
+                onChange={(e) => setCellGroup(e.target.value)}
+                placeholder="点击上方快捷选择，或直接输入修改分组"
+                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
             </div>
 
             {/* Qualified Roles */}

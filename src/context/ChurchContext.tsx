@@ -118,15 +118,16 @@ interface ChurchContextType {
   resetToDefault: () => void;
 }
 
-const STORAGE_KEY = 'calvary_staff_roster_data_v8';
+const STORAGE_KEY = 'calvary_staff_roster_data_v9';
 
 const normalizeGroup = (grp: string): string => {
+  if (!grp) return '同工';
   if (grp.includes('牧者') || grp.includes('教牧')) return '牧者';
   if (grp.includes('职青') || grp.includes('社青') || grp.includes('约书亚') || grp.includes('大卫')) return '职青';
-  if (grp.includes('大专') || grp.includes('Fire4J')) return '大专';
+  if (grp.includes('大专') || grp.includes('Fire4J') || grp.includes('Ignite') || grp.includes('青年')) return '大专';
   if (grp.includes('青少')) return '青少年';
-  if (grp.includes('同工') || grp.includes('敬拜') || grp.includes('影音') || grp.includes('宣教')) return '同工';
-  return grp || '同工';
+  if (grp.includes('同工') || grp.includes('敬拜') || grp.includes('影音') || grp.includes('宣教') || grp.includes('保罗')) return '同工';
+  return '同工';
 };
 
 const normalizeSongs = (songs?: WorshipSong[]): WorshipSong[] | undefined => {
@@ -173,18 +174,21 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     }
   }
 
-  // Ensure all initial coworkers exist and normalize group names to 职青/大专/青少年/牧者/同工
+  // Ensure all initial coworkers exist, purge legacy mock demo ids (cw_01 to cw_12), and strictly normalize groups
+  const isLegacyMockId = (id: string) => /^cw_\d{2}$/.test(id);
   const initialCoworkerMap = new Map(INITIAL_COWORKERS.map((c) => [c.id, c]));
-  const mergedCoworkers = saved.coworkers.map((cw) => {
-    const init = initialCoworkerMap.get(cw.id);
-    const newGroup = init ? init.cellGroup : normalizeGroup(cw.cellGroup);
-    const cleanQualified = (cw.qualifiedRoleIds || []).filter((rId) => rId !== 'presider');
-    return {
-      ...cw,
-      cellGroup: newGroup,
-      qualifiedRoleIds: cleanQualified,
-    };
-  });
+  const mergedCoworkers = saved.coworkers
+    .filter((cw) => !isLegacyMockId(cw.id))
+    .map((cw) => {
+      const init = initialCoworkerMap.get(cw.id);
+      const newGroup = init ? init.cellGroup : normalizeGroup(cw.cellGroup);
+      const cleanQualified = (cw.qualifiedRoleIds || []).filter((rId) => rId !== 'presider');
+      return {
+        ...cw,
+        cellGroup: newGroup,
+        qualifiedRoleIds: cleanQualified,
+      };
+    });
 
   const existingCoworkerIds = new Set(mergedCoworkers.map((c) => c.id));
   for (const c of INITIAL_COWORKERS) {
@@ -192,6 +196,22 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
       mergedCoworkers.push(c);
     }
   }
+
+  // Map legacy mock IDs in roster assignments to real CCCJB members
+  const legacyIdRemap: Record<string, string> = {
+    cw_01: 'cw_david',
+    cw_02: 'cw_pastor_huang',
+    cw_03: 'cw_qiuyi',
+    cw_04: 'cw_wentian',
+    cw_05: 'cw_yongyi',
+    cw_06: 'cw_diana',
+    cw_07: 'cw_selena',
+    cw_08: 'cw_zongyan',
+    cw_09: 'cw_wenhui',
+    cw_10: 'cw_jiakai',
+    cw_11: 'cw_baozhen',
+    cw_12: 'cw_diana',
+  };
 
   // Ensure all initial services have updated categories and normalized names (Fire4J)
   const mergedServices = INITIAL_SERVICES.map((initSvc) => {
@@ -217,9 +237,17 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
   // Normalize song categories, clean placeholder notes, strip presider, and ensure YouTube links
   const cleanedSavedRosters: Record<string, ServiceRoster> = {};
   for (const [key, roster] of Object.entries(saved.rosters || {})) {
-    // Remove presider assignment
-    const assignments = { ...roster.assignments };
-    delete assignments['presider'];
+    // Remove presider assignment and remap legacy mock IDs
+    const assignments: Record<string, string[]> = {};
+    for (const [rId, ids] of Object.entries(roster.assignments || {})) {
+      if (rId === 'presider') continue;
+      const remappedIds = ids
+        .map((id) => legacyIdRemap[id] || id)
+        .filter((id) => existingCoworkerIds.has(id));
+      if (remappedIds.length > 0) {
+        assignments[rId] = remappedIds;
+      }
+    }
 
     // Enrich songs with YouTube URLs from INITIAL_ROSTERS
     const initRoster = INITIAL_ROSTERS[key];
@@ -364,7 +392,11 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   );
 
   const [currentUserId, setCurrentUserId] = useState<string>(() => {
-    return localStorage.getItem('calvary_current_user_id') || 'cw_selena';
+    const savedId = localStorage.getItem('calvary_current_user_id');
+    if (savedId && !savedId.startsWith('cw_0')) {
+      return savedId;
+    }
+    return 'cw_selena';
   });
 
   const activeService =
@@ -845,6 +877,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (window.confirm('确定要恢复初始示例数据吗？本地已录入的更改将被替换。')) {
       setChurchState(INITIAL_STATE);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('calvary_staff_roster_data_v8');
       localStorage.removeItem('calvary_staff_roster_data_v7');
       localStorage.removeItem('calvary_staff_roster_data_v6');
       localStorage.removeItem('calvary_staff_roster_data_v5');

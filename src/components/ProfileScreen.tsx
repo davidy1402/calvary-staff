@@ -5,15 +5,10 @@ import {
   Users,
   Calendar,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
   Languages,
   Camera,
   RotateCcw,
   ShieldCheck,
-  KeyRound,
-  CheckCircle2,
-  Lock,
   Sun,
   Moon,
 } from 'lucide-react';
@@ -41,7 +36,6 @@ export const ProfileScreen: React.FC = () => {
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
   const [isCoworkersOpen, setIsCoworkersOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
-  const [isPermissionsGuideOpen, setIsPermissionsGuideOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -167,13 +161,15 @@ export const ProfileScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Switch Identity Dropdown */}
+        {/* Switch Identity Dropdown (Testing simulation before backend auth) */}
         <div className="pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
-          <span className="font-medium text-slate-600 dark:text-zinc-300">{t('switchCoworkerIdentity', language)}:</span>
+          <span className="font-medium text-slate-600 dark:text-zinc-300">
+            {language === 'zh' ? '模拟身份 (测试用):' : t('switchCoworkerIdentity', language)}
+          </span>
           <select
             value={currentUserId}
             onChange={(e) => setCurrentUserId(e.target.value)}
-            className="text-xs font-semibold text-slate-800 dark:text-zinc-200 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer max-w-[190px] truncate"
+            className="text-xs font-semibold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer max-w-[190px] truncate"
           >
             {churchState.coworkers.map((cw) => (
               <option key={cw.id} value={cw.id} className="dark:bg-zinc-800 dark:text-zinc-100">
@@ -241,170 +237,6 @@ export const ProfileScreen: React.FC = () => {
             </p>
           </button>
         </div>
-      </div>
-
-      {/* Identity & Permission Architecture Guide (CCCJB Standards) */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs overflow-hidden transition-all">
-        <button
-          type="button"
-          onClick={() => setIsPermissionsGuideOpen(!isPermissionsGuideOpen)}
-          className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-zinc-800 text-indigo-700 dark:text-indigo-400 flex items-center justify-center shrink-0">
-              <KeyRound size={17} strokeWidth={2} />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
-                <span>{language === 'zh' ? '身份体系与权限说明' : 'Identities & Permissions Guide'}</span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700">
-                  {language === 'zh' ? '权限清单' : 'Matrix'}
-                </span>
-              </h3>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
-                {language === 'zh'
-                  ? '查看普通同工(只读)与统筹管理员(编辑)的权限划分'
-                  : 'View permission differences between Member and Editor'}
-              </p>
-            </div>
-          </div>
-          <div className="shrink-0 text-slate-400 dark:text-zinc-500 pl-2">
-            {isPermissionsGuideOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </div>
-        </button>
-
-        {isPermissionsGuideOpen && (
-          <div className="px-4 pb-4 pt-1 border-t border-slate-100 dark:border-zinc-800 space-y-3.5 text-xs text-slate-600 dark:text-zinc-400">
-            {/* 1. Operation Modes */}
-            <div className="space-y-2 pt-2">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500 block">
-                {language === 'zh' ? '一、系统操作权限矩阵' : '1. System Access Modes'}
-              </span>
-
-              {/* Editor Mode Card */}
-              <div className="p-3 rounded-xl bg-blue-50/70 dark:bg-zinc-800/80 border border-blue-200/70 dark:border-zinc-700 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-blue-900 dark:text-blue-300 flex items-center gap-1.5 text-xs">
-                    <CheckCircle2 size={14} className="text-blue-600 dark:text-blue-400" />
-                    <span>{language === 'zh' ? '统筹管理员 (Editor / Admin)' : 'Editor / Admin'}</span>
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-200/80 dark:bg-blue-900/60 text-blue-900 dark:text-blue-200">
-                    {language === 'zh' ? '全部编排特权' : 'Full Access'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-600 dark:text-zinc-300">
-                  {language === 'zh'
-                    ? '适用人员：敬拜团负责人、影音主管、事工部长与传道牧者（Selena、凯曰、David等）'
-                    : 'Target: Worship leaders, AV directors, ministry heads, and pastors'}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] pt-1">
-                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                    <span>排班编排调度与多部门撞期拦截</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                    <span>自定义4堂崇拜与祷告会时间地点</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                    <span>敬拜歌单录入、Key调号与YouTube绑定</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                    <span>聚会主题、当天讲员与圣餐服装标签</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                    <span>同工名录新增、信息编辑与岗位资格</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                    <span>系统完整数据备份导出与恢复</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Member Mode Card */}
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5 text-xs">
-                    <Lock size={13} className="text-slate-500 dark:text-zinc-400" />
-                    <span>{language === 'zh' ? '普通同工 / 会友 (Member / Read-Only)' : 'Member / Read-Only'}</span>
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200/80 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300">
-                    {language === 'zh' ? '只读防误触' : 'Read-Only'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                  {language === 'zh'
-                    ? '适用人员：所有服事人员日常查阅、团员会友、教会长辈（默认模式）'
-                    : 'Target: General congregation, volunteers, and senior members for safe browsing'}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] pt-1">
-                  <div className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    <span>查看完整排班表与「我的本月服事」</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    <span>歌单红底 YouTube 按钮在线视听练习</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    <span>查看同工名录电话与所属群体</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    <span>WhatsApp 文本一键生成与复制发群</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
-                    <span>锁定排班指派（防止误触调动他人）</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
-                    <span>锁定歌单与堂次设置（保障数据安全）</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Cell Groups */}
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500 block">
-                {language === 'zh' ? '二、加略山 5 大群体分类' : '2. CCCJB 5 Cell Groups'}
-              </span>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-zinc-800 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-100 dark:border-zinc-700">
-                  牧者 (教牧与传道)
-                </span>
-                <span className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-300 font-bold text-xs border border-blue-100 dark:border-zinc-700">
-                  职青 (青年在职主力)
-                </span>
-                <span className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-zinc-800 text-amber-700 dark:text-amber-300 font-bold text-xs border border-amber-100 dark:border-zinc-700">
-                  大专 (大专院校骨干)
-                </span>
-                <span className="px-2.5 py-1 rounded-lg bg-cyan-50 dark:bg-zinc-800 text-cyan-700 dark:text-cyan-300 font-bold text-xs border border-cyan-100 dark:border-zinc-700">
-                  青少年 (青年梯队)
-                </span>
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-zinc-800 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-100 dark:border-zinc-700">
-                  同工 (跨部门义工关怀)
-                </span>
-              </div>
-            </div>
-
-            {/* 3. Departments */}
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500 block">
-                {language === 'zh' ? '三、6 大服事事工部门' : '3. 6 Ministries Covered'}
-              </span>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-                讲台与报告 (讲员/报告/读经)、敬拜赞美团 (领唱/伴唱/司琴/吉他/贝司/鼓/铃鼓)、影音多媒体 (总监/PA音响/PPT电脑/OBS直播/CAM拍摄/灯光)、主日学儿童事工 (主教/助教)、守望代祷事工 (聚前代祷/守望)、接待与关怀 (招待长/迎宾/奉献点数)。
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Ministry & Coordination Tools */}
