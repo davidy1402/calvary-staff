@@ -46,7 +46,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
   return (
     <div className="min-h-full">
       {/* Centered AppBar with Church Logo & Name */}
-      <header className="app-header-safe bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-800 px-4 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
+      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200 dark:border-zinc-800 px-4 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <ChurchLogo className="w-8 h-8 object-contain shrink-0" />
           <div className="text-left">

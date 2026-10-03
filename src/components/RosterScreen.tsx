@@ -190,7 +190,7 @@ export const RosterScreen: React.FC = () => {
   return (
     <div className="min-h-full">
       {/* Centered AppBar with Permission & Mode Switcher */}
-      <header className="app-header-safe bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-800 px-4 pb-0 sticky top-0 z-30 shadow-2xs">
+      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200 dark:border-zinc-800 px-4 pb-0 sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center justify-between pb-1">
           {/* Title & Mode Status Indicator */}
           <div className="flex items-center gap-2">

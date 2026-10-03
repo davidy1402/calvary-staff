@@ -346,17 +346,16 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
 
   useEffect(() => {
+    const themeColor = isDarkMode ? '#000000' : '#ffffff';
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('calvary_theme', 'dark');
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', '#000000');
     } else {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('calvary_theme', 'light');
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', '#ffffff');
     }
+    const metas = document.querySelectorAll('meta[name="theme-color"]');
+    metas.forEach((meta) => meta.setAttribute('content', themeColor));
   }, [isDarkMode]);
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);

@@ -76,7 +76,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
   return (
     <div className="min-h-full pb-8">
       {/* Centered AppBar */}
-      <header className="app-header-safe bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-zinc-800 px-4 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
+      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200/80 dark:border-zinc-800 px-4 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ChurchLogo className="w-7 h-7 object-contain shrink-0" />
           <h1 className="text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
