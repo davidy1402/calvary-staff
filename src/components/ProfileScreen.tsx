@@ -180,10 +180,10 @@ export const ProfileScreen: React.FC = () => {
           </div>
           <div>
             <h3 className="text-xs font-bold text-slate-900">
-              {language === 'zh' ? '排班权限与操作模式' : 'Mode & Permission'}
+              {language === 'zh' ? '操作模式' : 'Mode'}
             </h3>
             <p className="text-[11px] text-slate-500">
-              {language === 'zh' ? '普通同工防误触只读，主责人开启编辑' : 'Control assignment and editing permissions'}
+              {language === 'zh' ? '只读防误触，开启后可安排服事' : 'Toggle read-only or edit access'}
             </p>
           </div>
         </div>
@@ -200,12 +200,12 @@ export const ProfileScreen: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-bold">
-                {language === 'zh' ? '同工查阅 (只读)' : 'Volunteer View'}
+                {language === 'zh' ? '只读模式' : 'Read-only'}
               </span>
               {userMode === 'member' && <span className="w-2 h-2 rounded-full bg-blue-600" />}
             </div>
             <p className="text-[10px] text-slate-500 leading-relaxed">
-              {language === 'zh' ? '仅查阅服事，锁定指派与删除' : 'Read-only view, safe from accidental changes'}
+              {language === 'zh' ? '仅查看服事安排，防止误触' : 'Read-only view, safe from accidental changes'}
             </p>
           </button>
 
@@ -220,12 +220,12 @@ export const ProfileScreen: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-bold">
-                {language === 'zh' ? '排班统筹模式' : 'Editor Mode'}
+                {language === 'zh' ? '编辑模式' : 'Editor Mode'}
               </span>
               {userMode === 'editor' && <span className="w-2 h-2 rounded-full bg-blue-600" />}
             </div>
             <p className="text-[10px] text-slate-500 leading-relaxed">
-              {language === 'zh' ? '可指派人员、修改主题与调整排班' : 'Full access to assign roles and edit theme'}
+              {language === 'zh' ? '可安排人员与修改聚会主题' : 'Assign members and edit themes'}
             </p>
           </button>
         </div>

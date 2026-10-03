@@ -47,7 +47,7 @@ export const TRANSLATIONS = {
     conflict: '兼任',
 
     // Roster Filters
-    filterAll: '全部岗位',
+    filterAll: '全部',
     filterMyDuties: '我的服事',
     filterPulpit: '讲台报告',
     filterWorship: '敬拜赞美',
@@ -57,12 +57,12 @@ export const TRANSLATIONS = {
     filterHospitality: '接待关怀',
 
     // Permission and Modes
-    modeMember: '同工查阅 (只读)',
-    modeEditor: '排班统筹模式',
-    switchToEditor: '开启排班编辑',
-    switchToMember: '完成并锁定只读',
-    clashAlert: '跨部门撞期',
-    dutyNotes: '服事备注',
+    modeMember: '只读',
+    modeEditor: '编辑模式',
+    switchToEditor: '编辑',
+    switchToMember: '完成',
+    clashAlert: '时间撞了',
+    dutyNotes: '备注',
 
     // Settings Screen
     settingsTitle: '设置与个人中心',
@@ -77,7 +77,7 @@ export const TRANSLATIONS = {
     shareWhatsAppTitle: 'WhatsApp 服事表分享',
     shareWhatsAppDesc: '预览、一键复制或直接唤醒 WhatsApp 发送',
     coworkerDirectoryTitle: '服侍人员名单',
-    coworkerDirectoryDesc: '录入、修改服侍人员电话与常用服事岗位',
+    coworkerDirectoryDesc: '录入、修改服侍人员电话与服事专长',
     serviceSettingsTitle: '聚会设定',
     serviceSettingsDesc: '检视各堂会聚会时间、彩排与场地',
     backupRestoreTitle: '数据备份与还原',
@@ -94,7 +94,7 @@ export const TRANSLATIONS = {
     systemVersion: '系统版本',
 
     // Modals & Actions
-    assignRole: '指派岗位',
+    assignRole: '安排服事人员',
     searchCoworker: '搜索服侍人员姓名、英文名或小组...',
     noCoworkerFound: '没有找到符合条件的服侍人员',
     todayAssigned: '本日已排',

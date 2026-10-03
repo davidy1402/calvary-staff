@@ -180,7 +180,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
 
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 mb-1.5">
-                  可服事岗位（可多选）
+                  服事专长（可多选）
                 </label>
                 <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-200">
                   {churchState.roles.map((r) => {

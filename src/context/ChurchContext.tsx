@@ -97,7 +97,7 @@ interface ChurchContextType {
   resetToDefault: () => void;
 }
 
-const STORAGE_KEY = 'calvary_staff_roster_data_v2';
+const STORAGE_KEY = 'calvary_staff_roster_data_v3';
 
 const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
   // Ensure all initial roles exist

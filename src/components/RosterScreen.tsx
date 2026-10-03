@@ -13,6 +13,8 @@ import {
   FileText,
   Lock,
   MessageSquare,
+  Music,
+  ExternalLink,
 } from 'lucide-react';
 import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
@@ -143,18 +145,18 @@ export const RosterScreen: React.FC = () => {
               {userMode === 'editor' ? (
                 <>
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-                  <span>{language === 'zh' ? '排班编辑中' : 'Editing Mode'}</span>
+                  <span>{language === 'zh' ? '编辑中' : 'Editing'}</span>
                 </>
               ) : (
                 <>
                   <Lock size={10} strokeWidth={2.5} className="text-slate-400" />
-                  <span>{language === 'zh' ? '只读查阅' : 'View Only'}</span>
+                  <span>{language === 'zh' ? '只读' : 'Read-only'}</span>
                 </>
               )}
             </span>
           </div>
 
-          {/* Mode Switch Action (Diana & Selena's permission protection) */}
+          {/* Mode Switch Action */}
           <div>
             {isEditMode ? (
               <button
@@ -169,20 +171,12 @@ export const RosterScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  if (
-                    window.confirm(
-                      language === 'zh'
-                        ? '开启排班统筹模式？你可以指派、修改与调整所有同工排班。'
-                        : 'Switch to Roster Editor mode to assign volunteers?'
-                    )
-                  ) {
-                    setUserMode('editor');
-                  }
+                  setUserMode('editor');
                 }}
                 className="text-xs font-semibold text-slate-600 hover:text-blue-700 bg-slate-50 hover:bg-blue-50 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer border border-slate-200/80"
               >
                 <Edit2 size={13} strokeWidth={2} />
-                <span>{language === 'zh' ? '排班编辑' : 'Edit Mode'}</span>
+                <span>{language === 'zh' ? '编辑' : 'Edit'}</span>
               </button>
             )}
           </div>
@@ -392,6 +386,33 @@ export const RosterScreen: React.FC = () => {
                       )}
                     </div>
 
+                    {/* Worship Links Bar (Direct access to songlist & roster sheets) */}
+                    {activeService.categoryIds.includes('worship') && (
+                      <div className="flex items-center gap-2 flex-wrap mb-3 px-0.5">
+                        <a
+                          href="https://docs.google.com/spreadsheets/d/1IeoHz5D_K5iTZpkHLHlXF-eS0CdCQQms/edit?usp=drivesdk&ouid=106515987748236848222&rtpof=true&sd=true"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-850 border border-emerald-200/80 hover:bg-emerald-100 transition-colors shadow-2xs"
+                        >
+                          <Music size={13} strokeWidth={2} className="text-emerald-700" />
+                          <span>{language === 'zh' ? '每周敬拜歌单' : 'Worship Songs'}</span>
+                          <ExternalLink size={11} strokeWidth={2} className="text-emerald-600" />
+                        </a>
+
+                        <a
+                          href="https://docs.google.com/spreadsheets/d/119wpiD2d4kIonF0XI2wXfvkXogOge0P_Fu4SFSzmXzw/edit?usp=drivesdk"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-900 border border-blue-200/80 hover:bg-blue-100 transition-colors shadow-2xs"
+                        >
+                          <CalendarDays size={13} strokeWidth={2} className="text-blue-700" />
+                          <span>{language === 'zh' ? '敬拜团总表' : 'Worship Master Sheet'}</span>
+                          <ExternalLink size={11} strokeWidth={2} className="text-blue-600" />
+                        </a>
+                      </div>
+                    )}
+
                     {/* Special Event Tags Management in Edit Mode */}
                     {isEditMode && (
                       <div className="py-2 px-3 flex items-center gap-1.5 flex-wrap bg-slate-50/50 rounded-xl border border-slate-100 mb-3">
@@ -504,7 +525,7 @@ export const RosterScreen: React.FC = () => {
                                               type="text"
                                               value={noteInput}
                                               onChange={(e) => setNoteInput(e.target.value)}
-                                              placeholder={language === 'zh' ? '输入岗位备注（如彩排时间、代班等）...' : 'Add note for this duty...'}
+                                              placeholder={language === 'zh' ? '输入服事备注（如彩排时间、代班等）...' : 'Add note for this duty...'}
                                               className="text-xs px-2 py-1 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1"
                                               autoFocus
                                             />
@@ -553,14 +574,14 @@ export const RosterScreen: React.FC = () => {
                                                 >
                                                   <span>{cw.name}</span>
 
-                                                  {/* Cross-Department Conflict Radar Warning */}
+                                                  {/* Conflict Warning */}
                                                   {hasConflict && (
                                                     <span
-                                                      title={`跨部门撞期: 当天同时服事 ${dateConflicts.map((c) => `[${c.serviceName} ${c.roleName}]`).join('、')}`}
-                                                      className="inline-flex items-center gap-0.5 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full bg-amber-200/90 text-amber-900 border border-amber-300"
+                                                      title={`时间撞了: 当天同时服事 ${dateConflicts.map((c) => `[${c.serviceName} ${c.roleName}]`).join('、')}`}
+                                                      className="inline-flex items-center gap-1 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300"
                                                     >
-                                                      <AlertTriangle size={10} strokeWidth={2.5} />
-                                                      <span>撞期 {dateConflicts.length} 岗</span>
+                                                      <AlertTriangle size={10} strokeWidth={2.5} className="text-amber-700" />
+                                                      <span>撞期</span>
                                                     </span>
                                                   )}
 

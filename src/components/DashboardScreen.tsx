@@ -147,7 +147,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                       {roles.length > 1 && (
                         <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full">
                           <AlertTriangle size={10} strokeWidth={2.5} className="text-amber-700" />
-                          <span>兼任 {roles.length} 岗位</span>
+                          <span>同时有 {roles.length} 项服事</span>
                         </span>
                       )}
                     </div>
