@@ -113,42 +113,46 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                   key={song.id}
                   className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 flex items-center justify-between gap-3 shadow-2xs hover:border-slate-300 dark:hover:border-zinc-700 transition-colors"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1 flex-wrap sm:flex-nowrap">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <span className="text-xs font-mono font-bold text-slate-400 dark:text-zinc-500 w-4 text-center shrink-0">
                       {idx + 1}
                     </span>
 
-                    <span className="text-sm font-bold text-slate-900 dark:text-zinc-100 truncate">
-                      {song.title}
-                    </span>
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="text-sm font-bold text-slate-900 dark:text-zinc-100 truncate">
+                        {song.title}
+                      </div>
 
-                    {song.key && (
-                      <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-zinc-800 text-blue-900 dark:text-blue-300 border border-blue-200/80 dark:border-zinc-700 shrink-0">
-                        Key {song.key}
-                      </span>
-                    )}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {song.key && (
+                          <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-zinc-800 text-blue-900 dark:text-blue-300 border border-blue-200/80 dark:border-zinc-700">
+                            Key {song.key}
+                          </span>
+                        )}
 
-                    {song.category && (
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${
-                          song.category === '快歌'
-                            ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-900/50'
-                            : song.category === '慢歌'
-                            ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200/70 dark:border-sky-900/50'
-                            : song.category === '回应'
-                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-900/50'
-                            : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border-slate-200/80 dark:border-zinc-700'
-                        }`}
-                      >
-                        {song.category}
-                      </span>
-                    )}
+                        {song.category && (
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                              song.category === '快歌'
+                                ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-900/50'
+                                : song.category === '慢歌'
+                                ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200/70 dark:border-sky-900/50'
+                                : song.category === '回应'
+                                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-900/50'
+                                : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border-slate-200/80 dark:border-zinc-700'
+                            }`}
+                          >
+                            {song.category}
+                          </span>
+                        )}
 
-                    {song.notes && (
-                      <span className="text-[11px] text-slate-400 dark:text-zinc-500 truncate hidden sm:inline">
-                        ({song.notes})
-                      </span>
-                    )}
+                        {song.notes && (
+                          <span className="text-[10px] text-slate-400 dark:text-zinc-500 truncate">
+                            ({song.notes})
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
@@ -160,9 +164,9 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                         onClick={(e) => e.stopPropagation()}
                         title="在 YouTube 试听官方练习曲或 MV"
                         aria-label="在 YouTube 试听"
-                        className="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-700 active:scale-95 text-white flex items-center justify-center shrink-0 shadow-2xs transition-all cursor-pointer"
+                        className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-red-50 dark:hover:bg-zinc-700 active:scale-95 text-red-600 dark:text-red-400 border border-slate-200 dark:border-zinc-700 flex items-center justify-center shrink-0 shadow-2xs transition-all cursor-pointer"
                       >
-                        <Play size={11} className="fill-current ml-0.5" />
+                        <Play size={12} className="fill-current ml-0.5" />
                       </a>
                     ) : isEditMode ? (
                       <button

@@ -257,11 +257,6 @@ export const ServiceManagerModal: React.FC<ServiceManagerModalProps> = ({
                   <div>
                     <h3 className="font-extrabold text-sm text-slate-900 dark:text-zinc-100 flex items-center gap-2">
                       <span>{svc.name}</span>
-                      {svc.shortName !== svc.name && (
-                        <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-normal">
-                          ({svc.shortName})
-                        </span>
-                      )}
                     </h3>
                   </div>
 

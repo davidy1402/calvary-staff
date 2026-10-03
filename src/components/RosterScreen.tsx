@@ -350,7 +350,7 @@ export const RosterScreen: React.FC = () => {
                           roster.specialEvents.map((ev) => (
                             <span
                               key={ev}
-                              className="text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 px-1.5 py-0.2 rounded"
+                              className="text-[10px] font-semibold text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-1.5 py-0.5 rounded-md"
                             >
                               {ev}
                             </span>
@@ -458,13 +458,13 @@ export const RosterScreen: React.FC = () => {
                           roster.specialEvents.map((ev) => (
                             <span
                               key={ev}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 px-2 py-0.5 rounded-lg"
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-2 py-0.5 rounded-lg"
                             >
                               <span>{ev}</span>
                               <button
                                 type="button"
                                 onClick={() => removeSpecialEvent(ev, roster.date, roster.serviceId)}
-                                className="text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 cursor-pointer ml-0.5"
+                                className="text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 cursor-pointer ml-0.5"
                               >
                                 <X size={12} strokeWidth={2.5} />
                               </button>
