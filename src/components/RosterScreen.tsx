@@ -736,18 +736,6 @@ export const RosterScreen: React.FC = () => {
           })}
         </div>
       )}
-
-      {/* Spiritual Anchor for Serving Together */}
-      <div className="pt-4 pb-8 text-center px-4">
-        <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium italic [text-wrap:pretty]">
-          {language === 'zh'
-            ? '「全身都靠他联络得合式，百节各按各职，照着各体的功用彼此相助，便叫身体渐渐增长，在爱中建立自己。」'
-            : '"From him the whole body, joined and held together by every supporting ligament, grows and builds itself up in love, as each part does its work."'}
-        </p>
-        <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-semibold mt-1">
-          {language === 'zh' ? '以弗所书 4:16 · 和合本' : 'Ephesians 4:16 · NIV'}
-        </p>
-      </div>
       </div>
 
       {/* Role Assignment Modal */}
