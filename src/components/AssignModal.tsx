@@ -36,7 +36,9 @@ export const AssignModal: React.FC<AssignModalProps> = ({
   const rosterKey = `${effectiveDate}_${effectiveServiceId}`;
   const targetRoster = churchState.rosters[rosterKey];
 
-  const assignedIds = targetRoster?.assignments?.[role.id] || [];
+  const assignedIds = useMemo(() => {
+    return targetRoster?.assignments?.[role.id] || [];
+  }, [targetRoster?.assignments, role.id]);
 
   const filteredCoworkers = useMemo(() => {
     return churchState.coworkers.filter((cw) => {

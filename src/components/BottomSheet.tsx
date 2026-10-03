@@ -37,14 +37,16 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setIsRendered(true);
+      if (!isRendered) {
+        setIsRendered(true);
+      }
       setIsClosing(false);
       setDragY(0);
       document.body.style.overflow = 'hidden';
     } else if (isRendered) {
       triggerClose();
     }
-  }, [isOpen, triggerClose]);
+  }, [isOpen, isRendered, triggerClose]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);

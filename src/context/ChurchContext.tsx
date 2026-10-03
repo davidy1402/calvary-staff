@@ -100,7 +100,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // When active service changes, update date to the next occurrence of that service's weekday
   useEffect(() => {
     setSelectedDate(getUpcomingServiceDate(activeService.weekday));
-  }, [activeServiceId]);
+  }, [activeServiceId, activeService.weekday]);
 
   // Persist state to LocalStorage
   useEffect(() => {

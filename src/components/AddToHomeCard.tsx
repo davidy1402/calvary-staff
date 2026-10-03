@@ -10,14 +10,13 @@ interface BeforeInstallPromptEvent extends Event {
 
 export const AddToHomeCard: React.FC = () => {
   const { language } = useChurch();
-  const [dismissed, setDismissed] = useState<boolean>(true);
+  const [dismissed, setDismissed] = useState<boolean>(() => {
+    return localStorage.getItem('calvary_add_to_home_dismissed') === 'true';
+  });
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIosSteps, setShowIosSteps] = useState(false);
 
   useEffect(() => {
-    const isDismissed = localStorage.getItem('calvary_add_to_home_dismissed') === 'true';
-    setDismissed(isDismissed);
-
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
