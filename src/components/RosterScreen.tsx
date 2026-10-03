@@ -15,10 +15,13 @@ import {
   MessageSquare,
   Sun,
   Moon,
+  Clock,
+  MapPin,
 } from 'lucide-react';
 import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
 import { WorshipSongSection } from './WorshipSongSection';
+import { ServiceManagerModal } from './ServiceManagerModal';
 import { t } from '../utils/i18n';
 import type { RoleDefinition, ServiceRoster, RoleCategoryId } from '../types';
 
@@ -56,6 +59,9 @@ export const RosterScreen: React.FC = () => {
 
   // Active filter chip
   const [filterType, setFilterType] = useState<string>('all');
+
+  // Service Edit Modal
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
 
   // Accordion state: dates that are expanded (default first one open)
   const serviceRosters = getRostersForService(activeServiceId);
@@ -226,6 +232,31 @@ export const RosterScreen: React.FC = () => {
               </button>
             );
           })}
+        </div>
+ 
+        {/* Service Timing & Venue Subheader with Edit Trigger */}
+        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-zinc-400 px-1 pt-1.5 pb-0.5">
+          <div className="flex items-center gap-2.5 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
+            <span className="flex items-center gap-1 font-semibold text-slate-700 dark:text-zinc-300 shrink-0">
+              <Clock size={11} strokeWidth={2} className="text-blue-600 dark:text-blue-400" />
+              <span>{activeService.time}</span>
+            </span>
+            <span className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 truncate">
+              <MapPin size={11} strokeWidth={1.75} className="shrink-0" />
+              <span className="truncate">{activeService.venue}</span>
+            </span>
+          </div>
+
+          {isEditMode && (
+            <button
+              type="button"
+              onClick={() => setIsServiceModalOpen(true)}
+              className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 shrink-0 ml-2 cursor-pointer hover:underline"
+            >
+              <Edit2 size={11} strokeWidth={2} />
+              <span>{language === 'zh' ? '编辑堂次' : 'Edit'}</span>
+            </button>
+          )}
         </div>
 
         {/* Fast Filter Chips Row (High Ergonomics for Selena) */}
@@ -678,6 +709,15 @@ export const RosterScreen: React.FC = () => {
           initialRoster={whatsAppModalRoster}
           isOpen={Boolean(whatsAppModalRoster)}
           onClose={() => setWhatsAppModalRoster(null)}
+        />
+      )}
+
+      {/* Service Manager Modal */}
+      {isServiceModalOpen && (
+        <ServiceManagerModal
+          isOpen={true}
+          onClose={() => setIsServiceModalOpen(false)}
+          initialEditingServiceId={activeServiceId}
         />
       )}
     </div>

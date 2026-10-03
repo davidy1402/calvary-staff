@@ -76,7 +76,7 @@ export function generateWhatsAppRosterText(
     return lines.join('\n');
   }
 
-  // 2. 主日崇拜 / 青年崇拜排班表
+  // 2. 主日崇拜 / Fire4J 排班表
   const shortDate = formatShortDate(roster?.date);
   const fullDateLabel = roster?.date ? formatDateLabel(roster.date) : '待定日期';
 

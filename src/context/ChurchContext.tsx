@@ -111,12 +111,14 @@ interface ChurchContextType {
     customServiceId?: string
   ) => string[];
 
+  updateService: (service: ServiceDefinition) => void;
+
   exportBackup: () => void;
   importBackup: (jsonText: string) => boolean;
   resetToDefault: () => void;
 }
 
-const STORAGE_KEY = 'calvary_staff_roster_data_v7';
+const STORAGE_KEY = 'calvary_staff_roster_data_v8';
 
 const normalizeGroup = (grp: string): string => {
   if (grp.includes('牧者') || grp.includes('教牧')) return '牧者';
@@ -191,10 +193,25 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     }
   }
 
-  // Ensure all initial services have updated categories
+  // Ensure all initial services have updated categories and normalized names (Fire4J)
   const mergedServices = INITIAL_SERVICES.map((initSvc) => {
-    const found = saved.services.find((s) => s.id === initSvc.id);
-    return found ? { ...initSvc, ...found, categoryIds: initSvc.categoryIds } : initSvc;
+    const found = saved.services?.find((s) => s.id === initSvc.id);
+    if (found) {
+      let name = found.name;
+      let shortName = found.shortName;
+      if (name.includes('青年崇拜') || name.includes('Ignite')) {
+        name = 'Fire4J';
+        shortName = 'Fire4J';
+      }
+      return {
+        ...initSvc,
+        ...found,
+        name,
+        shortName,
+        categoryIds: initSvc.categoryIds,
+      };
+    }
+    return initSvc;
   });
 
   // Normalize song categories, clean placeholder notes, strip presider, and ensure YouTube links
@@ -815,10 +832,20 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return false;
   };
 
+  const updateService = (updatedService: ServiceDefinition) => {
+    setChurchState((prev) => ({
+      ...prev,
+      services: prev.services.map((svc) =>
+        svc.id === updatedService.id ? updatedService : svc
+      ),
+    }));
+  };
+
   const resetToDefault = () => {
     if (window.confirm('确定要恢复初始示例数据吗？本地已录入的更改将被替换。')) {
       setChurchState(INITIAL_STATE);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('calvary_staff_roster_data_v7');
       localStorage.removeItem('calvary_staff_roster_data_v6');
       localStorage.removeItem('calvary_staff_roster_data_v5');
       localStorage.removeItem('calvary_staff_roster_data_v4');
@@ -865,6 +892,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateCoworker,
         updateCurrentUserAvatar,
         deleteCoworker,
+        updateService,
         getCoworkerDateConflicts,
         getCoworkerConflictRoles,
         exportBackup,

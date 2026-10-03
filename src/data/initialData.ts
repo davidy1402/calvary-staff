@@ -13,7 +13,7 @@ export const INITIAL_SERVICES: ServiceDefinition[] = [
   },
   {
     id: 'sat_youth',
-    name: 'Fire4J 青年崇拜',
+    name: 'Fire4J',
     shortName: 'Fire4J',
     weekday: 6, // Saturday
     time: '7:30 PM',

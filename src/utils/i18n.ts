@@ -131,10 +131,12 @@ export const TRANSLATIONS = {
     sun_mandarin_short: '主日华语',
     sun_english: '主日英语崇拜 (English Service)',
     sun_english_short: '主日英语',
-    sat_youth: 'Fire4J 青年崇拜',
+    sat_youth: 'Fire4J',
     sat_youth_short: 'Fire4J',
-    wed_prayer: '全教会守望祷告会',
-    wed_prayer_short: '守望祷告会',
+    fri_prayer: '实体祷告会 @hall 2',
+    fri_prayer_short: '实体祷告会',
+    wed_prayer: '实体祷告会 @hall 2',
+    wed_prayer_short: '实体祷告会',
 
     // Weekdays
     sun: '日',
@@ -275,9 +277,11 @@ export const TRANSLATIONS = {
     sun_mandarin_short: 'Mandarin',
     sun_english: 'Sunday English Service',
     sun_english_short: 'English',
-    sat_youth: 'Fire4J Youth Service',
+    sat_youth: 'Fire4J',
     sat_youth_short: 'Fire4J',
-    wed_prayer: 'Watchmen Prayer Meeting',
+    fri_prayer: 'Prayer Meeting @hall 2',
+    fri_prayer_short: 'Prayer',
+    wed_prayer: 'Prayer Meeting @hall 2',
     wed_prayer_short: 'Prayer',
 
     // Weekdays
