@@ -46,6 +46,7 @@ body {
 }
 
 .app-header-safe {
+  padding-top: 16px;
   padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 10px));
 }
 

@@ -355,7 +355,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       document.documentElement.classList.remove('dark');
       localStorage.setItem('calvary_theme', 'light');
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', '#1e3a8a');
+      if (meta) meta.setAttribute('content', '#ffffff');
     }
   }, [isDarkMode]);
 
