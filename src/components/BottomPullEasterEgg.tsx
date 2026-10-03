@@ -7,13 +7,14 @@ interface BottomPullEasterEggProps {
 
 export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ language }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [pullProgress, setPullProgress] = useState(0); // 0 to 5
+  const [pullProgress, setPullProgress] = useState(0); // 0 to 5 dots
   const [dragNudge, setDragNudge] = useState(0);
 
   const startYRef = useRef<number | null>(null);
   const isPullingRef = useRef(false);
-  const pullCountRef = useRef(0);
-  const pullTimerRef = useRef<number | null>(null);
+  const holdTimerRef = useRef<number | null>(null);
+  const progressIntervalRef = useRef<number | null>(null);
+  const isHoldingRef = useRef(false);
 
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<number | null>(null);
@@ -23,16 +24,54 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     const scrollY = window.scrollY || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const docHeight = document.documentElement.scrollHeight;
-    return scrollY + windowHeight >= docHeight - 20;
+    return scrollY + windowHeight >= docHeight - 25;
+  }, []);
+
+  const clearHold = useCallback(() => {
+    if (holdTimerRef.current) {
+      window.clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    if (progressIntervalRef.current) {
+      window.clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+    isHoldingRef.current = false;
+    setPullProgress(0);
+    setDragNudge(0);
   }, []);
 
   const triggerEasterEgg = useCallback(() => {
+    clearHold();
     setIsModalOpen(true);
-    pullCountRef.current = 0;
-    setPullProgress(0);
-    setDragNudge(0);
-    tapCountRef.current = 0;
-  }, []);
+  }, [clearHold]);
+
+  const startHold = useCallback(() => {
+    if (isHoldingRef.current) return;
+    isHoldingRef.current = true;
+    setPullProgress(1);
+
+    try {
+      if ('vibrate' in navigator) navigator.vibrate(15);
+    } catch {
+      // ignore
+    }
+
+    let currentStep = 1;
+    progressIntervalRef.current = window.setInterval(() => {
+      currentStep += 1;
+      setPullProgress(Math.min(5, currentStep));
+      try {
+        if ('vibrate' in navigator) navigator.vibrate(12);
+      } catch {
+        // ignore
+      }
+    }, 220); // 220ms * 5 ≈ 1.1s
+
+    holdTimerRef.current = window.setTimeout(() => {
+      triggerEasterEgg();
+    }, 1150);
+  }, [triggerEasterEgg]);
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
@@ -42,120 +81,91 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
       } else {
         startYRef.current = null;
         isPullingRef.current = false;
+        clearHold();
       }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!isPullingRef.current || startYRef.current === null) return;
       if (!isAtBottom()) {
-        setDragNudge(0);
+        clearHold();
         return;
       }
-      const dy = Math.max(0, startYRef.current - e.touches[0].clientY);
-      setDragNudge(Math.min(12, Math.pow(dy, 0.75)));
+
+      const currentY = e.touches[0].clientY;
+      const dy = Math.max(0, startYRef.current - currentY); // pulling up past bottom
+
+      setDragNudge(Math.min(14, Math.pow(dy, 0.72)));
+
+      // When user pulls past 45px height and holds
+      if (dy >= 45) {
+        startHold();
+      } else if (dy < 30) {
+        clearHold();
+      }
     };
 
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (!isPullingRef.current || startYRef.current === null) return;
-      setDragNudge(0);
-
-      if (!isAtBottom()) {
-        isPullingRef.current = false;
-        startYRef.current = null;
-        return;
-      }
-
-      const endY = e.changedTouches[0]?.clientY ?? startYRef.current;
-      const dy = startYRef.current - endY; // positive when dragged UP past bottom
-
-      // Substantial deliberate pull
-      if (dy > 70) {
-        pullCountRef.current += 1;
-        setPullProgress(pullCountRef.current);
-
-        // Subtle haptic tick for each successful pull
-        try {
-          if ('vibrate' in navigator) navigator.vibrate(15);
-        } catch {
-          // ignore
-        }
-
-        if (pullTimerRef.current) window.clearTimeout(pullTimerRef.current);
-        pullTimerRef.current = window.setTimeout(() => {
-          pullCountRef.current = 0;
-          setPullProgress(0);
-        }, 2800);
-
-        // Require pulling hard 5 times at bottom within 2.8 seconds
-        if (pullCountRef.current >= 5) {
-          triggerEasterEgg();
-        }
-      }
-
+    const handleTouchEnd = () => {
+      clearHold();
       isPullingRef.current = false;
       startYRef.current = null;
     };
 
-    // Desktop trackpad / mouse wheel
-    let wheelAccumulator = 0;
-    let wheelTimer: number | null = null;
-
+    // Desktop trackpad / wheel hold
+    let wheelHoldTimer: number | null = null;
     const handleWheel = (e: WheelEvent) => {
       if (!isAtBottom()) {
-        wheelAccumulator = 0;
+        clearHold();
         return;
       }
 
       if (e.deltaY > 0) {
-        wheelAccumulator += e.deltaY;
-        setPullProgress(Math.min(4, Math.floor(wheelAccumulator / 90)));
-
-        if (wheelTimer) window.clearTimeout(wheelTimer);
-        wheelTimer = window.setTimeout(() => {
-          if (wheelAccumulator > 380) {
-            triggerEasterEgg();
-          }
-          wheelAccumulator = 0;
-          setPullProgress(0);
-        }, 320);
+        startHold();
+        if (wheelHoldTimer) window.clearTimeout(wheelHoldTimer);
+        wheelHoldTimer = window.setTimeout(() => {
+          clearHold();
+        }, 400);
       }
     };
 
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('touchcancel', handleTouchEnd, { passive: true });
     window.addEventListener('wheel', handleWheel, { passive: true });
 
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
       window.removeEventListener('wheel', handleWheel);
-      if (wheelTimer) window.clearTimeout(wheelTimer);
-      if (pullTimerRef.current) window.clearTimeout(pullTimerRef.current);
+      clearHold();
+      if (wheelHoldTimer) window.clearTimeout(wheelHoldTimer);
     };
-  }, [isAtBottom, triggerEasterEgg]);
+  }, [isAtBottom, startHold, clearHold]);
 
-  // Discrete fallback: 10 rapid taps on bottom area
+  // Discrete fallback: tap 6 times on footer
   const handleFooterTap = () => {
     tapCountRef.current += 1;
-    setPullProgress(Math.min(5, Math.floor(tapCountRef.current / 2)));
+    setPullProgress(Math.min(5, tapCountRef.current));
 
     if (tapTimerRef.current) window.clearTimeout(tapTimerRef.current);
 
-    if (tapCountRef.current >= 10) {
+    if (tapCountRef.current >= 6) {
       triggerEasterEgg();
+      tapCountRef.current = 0;
     } else {
       tapTimerRef.current = window.setTimeout(() => {
         tapCountRef.current = 0;
         setPullProgress(0);
-      }, 1800);
+      }, 1500);
     }
   };
 
   return (
     <>
-      {/* Subtle, non-obvious micro hint: tiny discrete dots */}
+      {/* Subtle micro hint: 5 tiny dots that quietly charge up while holding */}
       <div
         onClick={handleFooterTap}
         className="w-full flex items-center justify-center py-2 select-none cursor-pointer"
@@ -166,16 +176,16 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
         aria-hidden="true"
       >
         <div
-          className="flex items-center gap-1.5 transition-opacity duration-300"
+          className="flex items-center gap-1.5 transition-opacity duration-200"
           style={{
-            opacity: pullProgress > 0 ? 0.35 : 0.1,
+            opacity: pullProgress > 0 ? 0.45 : 0.1,
           }}
         >
-          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 1 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
-          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 2 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
-          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 3 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
-          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 4 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
-          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 5 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 1 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 2 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 3 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 4 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 5 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
         </div>
       </div>
 
