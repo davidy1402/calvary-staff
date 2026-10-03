@@ -46,7 +46,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
   return (
     <div className="space-y-4 animate-slide-up">
       {/* Centered AppBar with Church Logo & Name */}
-      <div className="bg-white/95 dark:bg-black/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800 -mx-4 -mt-4 px-4 py-2.5 mb-4 sticky top-0 z-20 shadow-2xs flex items-center justify-between">
+      <div className="bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-800 -mx-4 -mt-4 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 mb-4 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <ChurchLogo className="w-8 h-8 object-contain shrink-0" />
           <div className="text-left">

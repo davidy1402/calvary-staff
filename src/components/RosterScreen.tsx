@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import {
   CalendarDays,
@@ -135,10 +135,62 @@ export const RosterScreen: React.FC = () => {
     { id: 'hospitality', label: t('filterHospitality', language) },
   ];
 
+  // Touch swipe gesture handling for category switching (Selena & David's HCI request)
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const deltaX = endX - touchStartX.current;
+    const deltaY = endY - touchStartY.current;
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+
+    // Detect predominantly horizontal swipe (minimum 40px, deltaX > 1.3 * deltaY)
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+      const currentIndex = filterChips.findIndex((c) => c.id === filterType);
+      if (currentIndex === -1) return;
+
+      if (deltaX < 0) {
+        // Swiped LEFT: advance to next category
+        if (currentIndex < filterChips.length - 1) {
+          const nextChip = filterChips[currentIndex + 1];
+          setFilterType(nextChip.id);
+          document.getElementById(`chip-${nextChip.id}`)?.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest',
+          });
+        }
+      } else {
+        // Swiped RIGHT: go back to previous category
+        if (currentIndex > 0) {
+          const prevChip = filterChips[currentIndex - 1];
+          setFilterType(prevChip.id);
+          document.getElementById(`chip-${prevChip.id}`)?.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest',
+          });
+        }
+      }
+    }
+  };
+
   return (
     <div className="space-y-3 animate-slide-up">
       {/* Centered AppBar with Permission & Mode Switcher */}
-      <div className="bg-white/95 dark:bg-black/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800 -mx-4 -mt-4 px-4 pt-3.5 pb-0 sticky top-0 z-20 shadow-2xs">
+      <div className="bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-800 -mx-4 -mt-4 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-0 sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center justify-between pb-1">
           {/* Title & Mode Status Indicator */}
           <div className="flex items-center gap-2">
@@ -266,6 +318,7 @@ export const RosterScreen: React.FC = () => {
             return (
               <button
                 key={chip.id}
+                id={`chip-${chip.id}`}
                 type="button"
                 onClick={() => setFilterType(chip.id)}
                 className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-150 cursor-pointer active:scale-95 ${
@@ -281,9 +334,14 @@ export const RosterScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Roster Cards List */}
-      {serviceRosters.length === 0 ? (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-slate-200 dark:border-zinc-800 text-center text-slate-500 dark:text-zinc-400 animate-slide-up">
+      {/* Swipeable Content Area (Left/Right swipe switches category tabs) */}
+      <div
+        className="space-y-4 touch-pan-y min-h-[50vh]"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {serviceRosters.length === 0 ? (
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-slate-200 dark:border-zinc-800 text-center text-slate-500 dark:text-zinc-400 animate-slide-up">
           <CalendarDays size={36} strokeWidth={1.5} className="mx-auto text-slate-300 dark:text-zinc-600 mb-2" />
           <p className="text-base font-bold text-slate-800 dark:text-zinc-200">{t('noRosterData', language)}</p>
           <p className="text-xs text-slate-400 dark:text-zinc-500 mt-1">
@@ -691,6 +749,7 @@ export const RosterScreen: React.FC = () => {
           })}
         </div>
       )}
+      </div>
 
       {/* Role Assignment Modal */}
       {selectedRoleForAssign && (

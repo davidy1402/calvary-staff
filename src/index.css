@@ -3,6 +3,16 @@
 
 :root {
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "HarmonyOS Sans", "Microsoft YaHei", sans-serif;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
+.pt-safe-top {
+  padding-top: max(0.875rem, env(safe-area-inset-top, 0px));
+}
+
+.pb-safe-bottom {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
 }
 
 body {
