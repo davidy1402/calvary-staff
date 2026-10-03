@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { AddToHomeCard } from './AddToHomeCard';
-import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin } from 'lucide-react';
+import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle } from 'lucide-react';
 import { t } from '../utils/i18n';
 
 interface DashboardScreenProps {
@@ -134,15 +134,22 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                     </div>
 
                     {/* Assigned Roles Pills */}
-                    <div className="flex items-center gap-1 flex-wrap mt-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
                       {roles.map((rName) => (
                         <span
                           key={rName}
-                          className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200/60 font-bold text-xs"
+                          className="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-900 border border-blue-200/80 font-extrabold text-xs shadow-2xs"
                         >
                           {rName}
                         </span>
                       ))}
+
+                      {roles.length > 1 && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full">
+                          <AlertTriangle size={10} strokeWidth={2.5} className="text-amber-700" />
+                          <span>兼任 {roles.length} 岗位</span>
+                        </span>
+                      )}
                     </div>
 
                     {/* Timing & Venue Metadata */}

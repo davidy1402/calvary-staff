@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
-import { Search, Star, User } from 'lucide-react';
+import { Search, Star, User, AlertTriangle } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 
@@ -174,8 +174,9 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                       </div>
 
                       {conflictRoles.length > 0 && (
-                        <div className="text-[10px] text-amber-600 font-medium mt-0.5">
-                          {t('todayAssigned', language)}: {conflictRoles.join(', ')}
+                        <div className="inline-flex items-center gap-1 text-[11px] text-amber-900 font-bold mt-1 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded-md">
+                          <AlertTriangle size={11} strokeWidth={2.5} className="shrink-0 text-amber-700" />
+                          <span>{t('clashAlert', language)}: {conflictRoles.join('、')}</span>
                         </div>
                       )}
                     </div>

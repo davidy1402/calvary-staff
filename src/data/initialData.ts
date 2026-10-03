@@ -9,7 +9,7 @@ export const INITIAL_SERVICES: ServiceDefinition[] = [
     time: '8:30 AM / 11:00 AM',
     rehearsalTime: '7:45 AM 彩排调音',
     venue: '主堂 Main Sanctuary',
-    categoryIds: ['pulpit', 'worship', 'media', 'hospitality'],
+    categoryIds: ['pulpit', 'worship', 'media', 'sundayschool', 'prayer', 'hospitality'],
   },
   {
     id: 'sun_english',
@@ -39,29 +39,39 @@ export const INITIAL_SERVICES: ServiceDefinition[] = [
     time: '8:00 PM',
     rehearsalTime: '7:30 PM 预备',
     venue: '祷告厅 Prayer Hall',
-    categoryIds: ['pulpit', 'worship', 'media'],
+    categoryIds: ['pulpit', 'worship', 'media', 'prayer'],
   },
 ];
 
 export const INITIAL_ROLES: RoleDefinition[] = [
-  // 讲台与主理
-  { id: 'presider', name: '主席 / 司会', shortName: '主席', category: 'pulpit', description: '主持聚会流程与家事报告' },
+  // 讲台与报告
+  { id: 'presider', name: '主席 / 司会', shortName: '主席', category: 'pulpit', description: '主持聚会流程' },
   { id: 'speaker', name: '当周讲员', shortName: '讲员', category: 'pulpit', description: '传讲信息' },
+  { id: 'announcements', name: '家事报告', shortName: '家事报告', category: 'pulpit', description: '宣讲教会家事报告与代祷事项' },
   { id: 'scripture', name: '读经 / 公祷', shortName: '读经公祷', category: 'pulpit', description: '带领读经与代祷' },
 
   // 敬拜赞美团
   { id: 'worship_leader', name: '敬拜主领', shortName: '主领', category: 'worship', description: '选歌与主导赞美流程' },
+  { id: 'vocals', name: '伴唱同工', shortName: '伴唱', category: 'worship', description: '二部和音与配唱' },
   { id: 'keyboard', name: '键盘 / 司琴', shortName: '键盘', category: 'worship', description: '和弦伴奏与过渡' },
   { id: 'acoustic_guitar', name: '木吉他', shortName: '木吉他', category: 'worship', description: '节奏与弹唱' },
+  { id: 'electric_guitar', name: '电吉他', shortName: '电吉他', category: 'worship', description: '旋律色彩与主音' },
   { id: 'bass', name: '贝斯', shortName: '贝斯', category: 'worship', description: '低音铺底与律动' },
   { id: 'drums', name: '爵士鼓', shortName: '爵士鼓', category: 'worship', description: '节奏主干' },
-  { id: 'vocals', name: '伴唱同工', shortName: '伴唱', category: 'worship', description: '二部和音与配唱' },
 
   // 影音多媒体
   { id: 'sound_pa', name: '音响调音 (PA)', shortName: '音响PA', category: 'media', description: '调音台混音与麦克风监听' },
   { id: 'ppt_lyrics', name: '投影 / 歌词 PPT', shortName: '电脑投影', category: 'media', description: '主控诗歌与讲道投影片' },
   { id: 'livestream', name: '现场导播 / 摄像', shortName: '导播摄像', category: 'media', description: '线上直播推流与机位切换' },
   { id: 'lighting', name: '灯光操控', shortName: '灯光', category: 'media', description: '现场气氛与聚会灯光模式' },
+
+  // 主日学
+  { id: 'sunday_school_leader', name: '主日学主领 / 主教', shortName: '主日学主教', category: 'sundayschool', description: '带领儿童崇拜与圣经真理教学' },
+  { id: 'sunday_school_helper', name: '主日学助教 / 伴读', shortName: '主日学助教', category: 'sundayschool', description: '协助关怀儿童、手作活动与现场安全' },
+
+  // 守望代祷
+  { id: 'prayer_leader', name: '崇拜前代祷主领', shortName: '代祷主领', category: 'prayer', description: '带领聚会前同工同心合意代祷' },
+  { id: 'intercessor', name: '守望代祷同工', shortName: '守望同工', category: 'prayer', description: '在守望室为聚会全程专注守望祷告' },
 
   // 接待与关怀
   { id: 'chief_usher', name: '招待队长', shortName: '招待长', category: 'hospitality', description: '统筹招待动线与突发状况' },
@@ -80,6 +90,42 @@ export const INITIAL_COWORKERS: Coworker[] = [
     active: true,
   },
   {
+    id: 'cw_selena',
+    name: 'Selena',
+    englishName: 'Selena Yong',
+    phone: '012-9988112',
+    cellGroup: '加略山青年/社青',
+    qualifiedRoleIds: ['worship_leader', 'sunday_school_leader', 'announcements', 'vocals', 'chief_usher'],
+    active: true,
+  },
+  {
+    id: 'cw_diana',
+    name: 'Diana',
+    englishName: 'Diana Yong',
+    phone: '017-3322110',
+    cellGroup: '青年牧区 Ignite',
+    qualifiedRoleIds: ['sound_pa', 'ppt_lyrics', 'sunday_school_helper', 'intercessor'],
+    active: true,
+  },
+  {
+    id: 'cw_yongyi',
+    name: '永益',
+    englishName: 'Yong Yi',
+    phone: '016-7788990',
+    cellGroup: '约书亚牧区',
+    qualifiedRoleIds: ['chief_usher', 'greeter', 'offering', 'prayer_leader'],
+    active: true,
+  },
+  {
+    id: 'cw_zongyan',
+    name: '宗晏',
+    englishName: 'Zong Yan',
+    phone: '018-4455667',
+    cellGroup: '青年牧区 Ignite',
+    qualifiedRoleIds: ['bass', 'drums', 'livestream', 'lighting'],
+    active: true,
+  },
+  {
     id: 'cw_02',
     name: '黄志强',
     englishName: 'Pastor Jason Wong',
@@ -94,7 +140,7 @@ export const INITIAL_COWORKERS: Coworker[] = [
     englishName: 'Mary Tan',
     phone: '012-3456789',
     cellGroup: '大卫牧区',
-    qualifiedRoleIds: ['presider', 'scripture', 'chief_usher'],
+    qualifiedRoleIds: ['presider', 'scripture', 'chief_usher', 'announcements'],
     active: true,
   },
   {
@@ -103,7 +149,7 @@ export const INITIAL_COWORKERS: Coworker[] = [
     englishName: 'Ken Lim',
     phone: '017-2233445',
     cellGroup: '约书亚牧区',
-    qualifiedRoleIds: ['worship_leader', 'acoustic_guitar', 'vocals'],
+    qualifiedRoleIds: ['worship_leader', 'acoustic_guitar', 'vocals', 'prayer_leader'],
     active: true,
   },
   {
@@ -112,7 +158,7 @@ export const INITIAL_COWORKERS: Coworker[] = [
     englishName: 'Grace Teo',
     phone: '019-3344556',
     cellGroup: '大卫牧区',
-    qualifiedRoleIds: ['keyboard', 'vocals'],
+    qualifiedRoleIds: ['keyboard', 'vocals', 'sunday_school_leader'],
     active: true,
   },
   {
@@ -130,7 +176,7 @@ export const INITIAL_COWORKERS: Coworker[] = [
     englishName: 'Esther Ong',
     phone: '016-5544332',
     cellGroup: '保罗牧区',
-    qualifiedRoleIds: ['ppt_lyrics', 'livestream', 'lighting'],
+    qualifiedRoleIds: ['ppt_lyrics', 'livestream', 'lighting', 'sunday_school_helper'],
     active: true,
   },
   {
@@ -166,7 +212,7 @@ export const INITIAL_COWORKERS: Coworker[] = [
     englishName: 'Sister Sharon Low',
     phone: '016-1122334',
     cellGroup: '保罗牧区',
-    qualifiedRoleIds: ['greeter', 'offering'],
+    qualifiedRoleIds: ['greeter', 'offering', 'intercessor'],
     active: true,
   },
   {
@@ -191,19 +237,29 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     assignments: {
       speaker: ['cw_02'],
       presider: ['cw_03'],
+      announcements: ['cw_selena'],
       scripture: ['cw_03'],
-      worship_leader: ['cw_04'],
+      worship_leader: ['cw_selena'], // Selena multi-department clash showcase!
       keyboard: ['cw_05'],
       acoustic_guitar: ['cw_01'],
-      bass: ['cw_08'],
+      electric_guitar: ['cw_08'],
+      bass: ['cw_zongyan'],
       drums: ['cw_06'],
       vocals: ['cw_05'],
       sound_pa: ['cw_10'],
-      ppt_lyrics: ['cw_07'],
+      ppt_lyrics: ['cw_diana'],
       livestream: ['cw_10'],
-      chief_usher: ['cw_03'],
+      sunday_school_leader: ['cw_selena'], // Selena clash!
+      sunday_school_helper: ['cw_07'],
+      prayer_leader: ['cw_yongyi'],
+      intercessor: ['cw_11'],
+      chief_usher: ['cw_yongyi'],
       greeter: ['cw_09', 'cw_11'],
       offering: ['cw_09', 'cw_11'],
+    },
+    dutyNotes: {
+      worship_leader: '提前 7:40 AM 与敬拜团同心祷告，带 3 首诗歌',
+      sound_pa: '检查主领无线麦电量与录音通道',
     },
     updatedAt: '2026-10-02T12:00:00.000Z',
   },
@@ -215,13 +271,17 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     speaker: '客座讲员',
     assignments: {
       presider: ['cw_02'],
+      announcements: ['cw_03'],
       worship_leader: ['cw_01'],
       keyboard: ['cw_05'],
       drums: ['cw_12'],
       sound_pa: ['cw_06'],
-      ppt_lyrics: ['cw_07'],
+      ppt_lyrics: ['cw_diana'],
+      sunday_school_leader: ['cw_selena'],
+      sunday_school_helper: ['cw_07'],
+      prayer_leader: ['cw_04'],
       chief_usher: ['cw_09'],
-      greeter: ['cw_09'],
+      greeter: ['cw_yongyi'],
     },
     updatedAt: '2026-10-02T12:00:00.000Z',
   },
@@ -253,9 +313,9 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     assignments: {
       worship_leader: ['cw_01'],
       acoustic_guitar: ['cw_01'],
-      bass: ['cw_08'],
+      bass: ['cw_zongyan'],
       drums: ['cw_06'],
-      sound_pa: ['cw_06'],
+      sound_pa: ['cw_diana'],
       ppt_lyrics: ['cw_12'],
     },
     updatedAt: '2026-10-02T12:00:00.000Z',
@@ -270,7 +330,8 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
       worship_leader: ['cw_04'],
       keyboard: ['cw_05'],
       sound_pa: ['cw_06'],
-      ppt_lyrics: ['cw_07'],
+      ppt_lyrics: ['cw_diana'],
+      intercessor: ['cw_selena', 'cw_11'],
     },
     updatedAt: '2026-10-02T12:00:00.000Z',
   },
@@ -284,4 +345,3 @@ export const INITIAL_STATE: ChurchState = {
   coworkers: INITIAL_COWORKERS,
   rosters: INITIAL_ROSTERS,
 };
-

@@ -48,10 +48,21 @@ export const TRANSLATIONS = {
 
     // Roster Filters
     filterAll: '全部岗位',
-    filterMyDuties: '只看我的',
+    filterMyDuties: '我的服事',
+    filterPulpit: '讲台报告',
     filterWorship: '敬拜赞美',
     filterMedia: '影音多媒体',
+    filterSundaySchool: '主日学',
+    filterPrayer: '守望代祷',
     filterHospitality: '接待关怀',
+
+    // Permission and Modes
+    modeMember: '同工查阅 (只读)',
+    modeEditor: '排班统筹模式',
+    switchToEditor: '开启排班编辑',
+    switchToMember: '完成并锁定只读',
+    clashAlert: '跨部门撞期',
+    dutyNotes: '服事备注',
 
     // Settings Screen
     settingsTitle: '设置与个人中心',
@@ -181,10 +192,21 @@ export const TRANSLATIONS = {
 
     // Roster Filters
     filterAll: 'All Roles',
-    filterMyDuties: 'My Duties Only',
+    filterMyDuties: 'My Duties',
+    filterPulpit: 'Pulpit',
     filterWorship: 'Worship',
     filterMedia: 'Media & AV',
+    filterSundaySchool: 'Sunday School',
+    filterPrayer: 'Prayer',
     filterHospitality: 'Hospitality',
+
+    // Permission and Modes
+    modeMember: 'Member View (Read-Only)',
+    modeEditor: 'Editor Mode',
+    switchToEditor: 'Enable Editing',
+    switchToMember: 'Lock & Finish',
+    clashAlert: 'Clash Alert',
+    dutyNotes: 'Notes',
 
     // Settings Screen
     settingsTitle: 'Settings & Hub',

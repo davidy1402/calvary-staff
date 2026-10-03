@@ -10,6 +10,7 @@ import {
   Languages,
   Camera,
   RotateCcw,
+  ShieldCheck,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
@@ -23,6 +24,8 @@ export const ProfileScreen: React.FC = () => {
     currentUser,
     currentUserId,
     setCurrentUserId,
+    userMode,
+    setUserMode,
     updateCurrentUserAvatar,
     language,
     setLanguage,
@@ -166,6 +169,65 @@ export const ProfileScreen: React.FC = () => {
               </option>
             ))}
           </select>
+        </div>
+      </div>
+
+      {/* Mode & Permission Card (Diana & Selena's permission protection) */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 space-y-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+            <ShieldCheck size={18} strokeWidth={2} />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-slate-900">
+              {language === 'zh' ? '排班权限与操作模式' : 'Mode & Permission'}
+            </h3>
+            <p className="text-[11px] text-slate-500">
+              {language === 'zh' ? '普通同工防误触只读，主责人开启编辑' : 'Control assignment and editing permissions'}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => setUserMode('member')}
+            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+              userMode === 'member'
+                ? 'bg-blue-50/80 border-blue-600 text-blue-950 shadow-2xs'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold">
+                {language === 'zh' ? '同工查阅 (只读)' : 'Volunteer View'}
+              </span>
+              {userMode === 'member' && <span className="w-2 h-2 rounded-full bg-blue-600" />}
+            </div>
+            <p className="text-[10px] text-slate-500 leading-relaxed">
+              {language === 'zh' ? '仅查阅服事，锁定指派与删除' : 'Read-only view, safe from accidental changes'}
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setUserMode('editor')}
+            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+              userMode === 'editor'
+                ? 'bg-blue-50/80 border-blue-600 text-blue-950 shadow-2xs'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold">
+                {language === 'zh' ? '排班统筹模式' : 'Editor Mode'}
+              </span>
+              {userMode === 'editor' && <span className="w-2 h-2 rounded-full bg-blue-600" />}
+            </div>
+            <p className="text-[10px] text-slate-500 leading-relaxed">
+              {language === 'zh' ? '可指派人员、修改主题与调整排班' : 'Full access to assign roles and edit theme'}
+            </p>
+          </button>
         </div>
       </div>
 
