@@ -44,9 +44,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
   };
 
   return (
-    <div className="space-y-4 animate-slide-up">
+    <div className="min-h-full">
       {/* Centered AppBar with Church Logo & Name */}
-      <div className="bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-800 -mx-4 -mt-4 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 mb-4 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
+      <header className="app-header-safe bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-800 px-4 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <ChurchLogo className="w-8 h-8 object-contain shrink-0" />
           <div className="text-left">
@@ -72,7 +72,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
             {t('home', language)}
           </span>
         </div>
-      </div>
+      </header>
+
+      {/* Screen Body Content */}
+      <div className="px-4 pt-4 space-y-4 animate-slide-up">
 
       {/* Greeting Card with Volunteer Status */}
       <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-xs flex items-center justify-between gap-3">
@@ -205,6 +208,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
             <ChevronRight size={14} strokeWidth={1.75} />
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

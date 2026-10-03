@@ -74,16 +74,19 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
   };
 
   return (
-    <div className="space-y-4 animate-slide-up pb-8">
+    <div className="min-h-full pb-8">
       {/* Centered AppBar */}
-      <div className="bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-zinc-800 -mx-4 -mt-4 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 mb-2 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
+      <header className="app-header-safe bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-zinc-800 px-4 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ChurchLogo className="w-7 h-7 object-contain shrink-0" />
           <h1 className="text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
             CCCJB {t('settingsTitle', language)}
           </h1>
         </div>
-      </div>
+      </header>
+
+      {/* Screen Body Content */}
+      <div className="px-4 pt-4 space-y-4 animate-slide-up">
 
       {/* Volunteer Identity Card */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-slate-200/90 dark:border-zinc-800 shadow-2xs space-y-3.5">
@@ -462,6 +465,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           onClose={() => setIsUpdatesOpen(false)}
         />
       )}
+      </div>
     </div>
   );
 };

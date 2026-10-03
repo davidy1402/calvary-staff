@@ -188,9 +188,9 @@ export const RosterScreen: React.FC = () => {
   };
 
   return (
-    <div className="space-y-3 animate-slide-up">
+    <div className="min-h-full">
       {/* Centered AppBar with Permission & Mode Switcher */}
-      <div className="bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-800 -mx-4 -mt-4 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-0 sticky top-0 z-30 shadow-2xs">
+      <header className="app-header-safe bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-slate-200 dark:border-zinc-800 px-4 pb-0 sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center justify-between pb-1">
           {/* Title & Mode Status Indicator */}
           <div className="flex items-center gap-2">
@@ -332,11 +332,11 @@ export const RosterScreen: React.FC = () => {
             );
           })}
         </div>
-      </div>
+      </header>
 
       {/* Swipeable Content Area (Left/Right swipe switches category tabs) */}
       <div
-        className="space-y-4 touch-pan-y min-h-[50vh]"
+        className="px-4 pt-3 space-y-4 touch-pan-y min-h-[50vh] animate-slide-up"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
