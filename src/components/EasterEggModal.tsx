@@ -45,7 +45,7 @@ export const EasterEggModal: React.FC<EasterEggModalProps> = ({ isOpen, onClose,
 
         {/* Title */}
         <h3 className="text-lg font-black text-slate-900 dark:text-zinc-100 tracking-tight">
-          {language === 'zh' ? '平时服事辛苦啦' : 'Thank You for Serving'}
+          {language === 'zh' ? '你怎么会发现这里有个彩蛋？' : 'How did you even find this?'}
         </h3>
 
         {/* Content with natural line breaks */}
@@ -64,7 +64,7 @@ export const EasterEggModal: React.FC<EasterEggModalProps> = ({ isOpen, onClose,
           ) : (
             <>
               <p className="font-semibold text-slate-800 dark:text-zinc-200">
-                You must be really patient to scroll all the way down here.
+                You must be really patient to keep pulling all the way down here.
               </p>
               <p>
                 Whether you serve on stage or behind the scenes,
