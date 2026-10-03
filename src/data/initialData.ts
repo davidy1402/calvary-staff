@@ -127,6 +127,11 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     theme: '敬牧月',
     specialEvents: ['服装要求: 白黑'],
     speaker: '凯曰',
+    songs: [
+      { id: 's1', title: '献上感恩', key: 'G', category: '赞美', notes: '轻快进门' },
+      { id: 's2', title: '十字架的传人', key: 'A', category: '敬拜', notes: '渐强祷告' },
+      { id: 's3', title: '一生一世', key: 'C', category: '回应', notes: '配合呼召' },
+    ],
     assignments: {
       lead_vocal: ['cw_qiuyi', 'cw_wentian'],
       backing_vocal: ['cw_yunqing', 'cw_selena'],
@@ -148,7 +153,7 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
       offering: ['cw_diana'],
     },
     dutyNotes: {
-      lead_vocal: '领诗注意！请提前将歌单更新至链接，并在前一周发群',
+      lead_vocal: '领诗注意！提前更新歌单，前一周发群',
       keyboard: '7:45 AM 调音准时就绪',
     },
     updatedAt: '2026-10-03T12:00:00.000Z',
@@ -162,6 +167,11 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     theme: '敬牧月',
     specialEvents: ['服装要求: 黑白'],
     speaker: '讲员',
+    songs: [
+      { id: 's11', title: '满有能力', key: 'C', category: '赞美' },
+      { id: 's12', title: '祢是配得', key: 'G', category: '敬拜' },
+      { id: 's13', title: '活出爱', key: 'F', category: '回应' },
+    ],
     assignments: {
       lead_vocal: ['cw_baozhen', 'cw_youxiang'],
       backing_vocal: ['cw_wenhui', 'cw_liping'],
@@ -176,7 +186,7 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
       camera: ['cw_youxiang'], // 有祥 撞期: 领唱 + CAM拍摄
     },
     dutyNotes: {
-      tambourine: '请提早 15 分钟配合鼓手对节拍',
+      tambourine: '提早 15 分钟配合鼓手对节拍',
     },
     updatedAt: '2026-10-03T12:00:00.000Z',
   },
@@ -188,6 +198,11 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     date: '2026-10-18',
     theme: '敬牧月',
     specialEvents: ['服装要求: 全黑'],
+    songs: [
+      { id: 's21', title: '喜乐泉源', key: 'D', category: '赞美' },
+      { id: 's22', title: '恩典之路', key: 'G', category: '敬拜' },
+      { id: 's23', title: '因祢爱的大能', key: 'G', category: '回应' },
+    ],
     assignments: {
       lead_vocal: ['cw_boo', 'cw_yongyi'],
       backing_vocal: ['cw_winnie', 'cw_baohui'],
@@ -212,6 +227,11 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     date: '2026-10-25',
     theme: '敬牧月',
     specialEvents: ['服装要求: 蓝白'],
+    songs: [
+      { id: 's31', title: '耶和华行了大事', key: 'C', category: '赞美' },
+      { id: 's32', title: '这是圣洁之地', key: 'F', category: '敬拜' },
+      { id: 's33', title: '主我敬拜祢', key: 'E', category: '回应' },
+    ],
     assignments: {
       lead_vocal: ['cw_meifang', 'cw_qiaoen'],
       backing_vocal: ['cw_baohui', 'cw_yunqing'],
@@ -235,6 +255,11 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     serviceId: 'sat_youth',
     date: '2026-10-03',
     theme: 'Fire4J: 全心赞美',
+    songs: [
+      { id: 'sy1', title: '开双眼 (Open Eyes)', key: 'E', category: '赞美' },
+      { id: 'sy2', title: '一千个理由 (10,000 Reasons)', key: 'G', category: '敬拜' },
+      { id: 'sy3', title: '全心全意', key: 'D', category: '回应' },
+    ],
     assignments: {
       lead_vocal: ['cw_david'],
       guitar: ['cw_david'],

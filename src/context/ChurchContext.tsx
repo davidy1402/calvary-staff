@@ -6,6 +6,7 @@ import type {
   Coworker,
   UserMode,
   ConflictItem,
+  WorshipSong,
 } from '../types';
 import {
   INITIAL_STATE,
@@ -76,6 +77,22 @@ interface ChurchContextType {
   ) => void;
   removeSpecialEvent: (
     event: string,
+    customDate?: string,
+    customServiceId?: string
+  ) => void;
+  addSong: (
+    song: Omit<WorshipSong, 'id'>,
+    customDate?: string,
+    customServiceId?: string
+  ) => void;
+  updateSong: (
+    songId: string,
+    updates: Partial<WorshipSong>,
+    customDate?: string,
+    customServiceId?: string
+  ) => void;
+  removeSong: (
+    songId: string,
     customDate?: string,
     customServiceId?: string
   ) => void;
@@ -487,6 +504,91 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
   };
 
+  const addSong = (
+    song: Omit<WorshipSong, 'id'>,
+    customDate?: string,
+    customServiceId?: string
+  ) => {
+    setChurchState((prev) => {
+      const targetDate = customDate || selectedDate;
+      const targetSvcId = customServiceId || activeServiceId;
+      const { state, roster, key } = ensureRoster(prev, targetDate, targetSvcId);
+
+      const existingSongs = roster.songs || [];
+      const newSong: WorshipSong = {
+        ...song,
+        id: `song_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      };
+
+      const updatedRoster: ServiceRoster = {
+        ...roster,
+        songs: [...existingSongs, newSong],
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        ...state,
+        rosters: {
+          ...state.rosters,
+          [key]: updatedRoster,
+        },
+      };
+    });
+  };
+
+  const updateSong = (
+    songId: string,
+    updates: Partial<WorshipSong>,
+    customDate?: string,
+    customServiceId?: string
+  ) => {
+    setChurchState((prev) => {
+      const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
+      const roster = prev.rosters[key];
+      if (!roster || !roster.songs) return prev;
+
+      const updatedRoster: ServiceRoster = {
+        ...roster,
+        songs: roster.songs.map((s) => (s.id === songId ? { ...s, ...updates } : s)),
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        ...prev,
+        rosters: {
+          ...prev.rosters,
+          [key]: updatedRoster,
+        },
+      };
+    });
+  };
+
+  const removeSong = (
+    songId: string,
+    customDate?: string,
+    customServiceId?: string
+  ) => {
+    setChurchState((prev) => {
+      const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
+      const roster = prev.rosters[key];
+      if (!roster || !roster.songs) return prev;
+
+      const updatedRoster: ServiceRoster = {
+        ...roster,
+        songs: roster.songs.filter((s) => s.id !== songId),
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        ...prev,
+        rosters: {
+          ...prev.rosters,
+          [key]: updatedRoster,
+        },
+      };
+    });
+  };
+
   const addCoworker = (coworkerData: Omit<Coworker, 'id'>) => {
     const newCoworker: Coworker = {
       ...coworkerData,
@@ -553,7 +655,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   ): string[] => {
     const targetDate = customDate || selectedDate;
     const dateConflicts = getCoworkerDateConflicts(coworkerId, targetDate);
-    return dateConflicts.map((c) => `${c.serviceName} · ${c.roleName}`);
+    return dateConflicts.map((c) => `${c.serviceName} / ${c.roleName}`);
   };
 
   const exportBackup = () => {
@@ -619,6 +721,9 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateDutyNote,
         addSpecialEvent,
         removeSpecialEvent,
+        addSong,
+        updateSong,
+        removeSong,
         addCoworker,
         updateCoworker,
         updateCurrentUserAvatar,

@@ -53,6 +53,14 @@ export interface Coworker {
   avatar?: string; // base64 or URL
 }
 
+export interface WorshipSong {
+  id: string;
+  title: string;
+  key?: string; // e.g. G, C, D, Em
+  category?: string; // e.g. 赞美 / 敬拜 / 回应
+  notes?: string;
+}
+
 export interface ServiceRoster {
   id: string; // `${date}_${serviceId}`
   serviceId: string;
@@ -60,6 +68,7 @@ export interface ServiceRoster {
   theme?: string; // 主题或经文
   specialEvents?: string[]; // 特别聚会标签，例如：圣餐主日、洗礼主日
   speaker?: string; // 讲员（可直接手填或从同工选）
+  songs?: WorshipSong[]; // 敬拜赞美歌单
   assignments: Record<string, string[]>; // roleId -> coworkerIds
   dutyNotes?: Record<string, string>; // roleId -> specific duty notes
   notes?: string;

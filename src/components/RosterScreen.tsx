@@ -13,11 +13,10 @@ import {
   FileText,
   Lock,
   MessageSquare,
-  Music,
-  ExternalLink,
 } from 'lucide-react';
 import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
+import { WorshipSongSection } from './WorshipSongSection';
 import { t } from '../utils/i18n';
 import type { RoleDefinition, ServiceRoster, RoleCategoryId } from '../types';
 
@@ -281,18 +280,23 @@ export const RosterScreen: React.FC = () => {
                         <span className="text-base font-extrabold text-slate-900 leading-snug">
                           {dateTitle}
                         </span>
-                        {/* Staffing Health Pill */}
-                        <span
-                          className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                            isFullyStaffed
-                              ? 'text-emerald-800 bg-emerald-50 border border-emerald-200'
-                              : 'text-blue-800 bg-blue-50 border border-blue-200'
-                          }`}
-                        >
-                          {isFullyStaffed
-                            ? (language === 'zh' ? '全员就绪' : 'Fully Staffed')
-                            : (language === 'zh' ? `${assignedCount}/${totalRoles} 已排` : `${assignedCount}/${totalRoles} Staffed`)}
-                        </span>
+                        {/* Graphical Staffing Progress Meter */}
+                        <div className="flex items-center gap-1.5 bg-slate-100/90 px-2 py-0.5 rounded-full border border-slate-200/60">
+                          <div className="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden shrink-0">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                isFullyStaffed ? 'bg-emerald-500' : 'bg-blue-600'
+                              }`}
+                              style={{ width: `${Math.round((assignedCount / Math.max(totalRoles, 1)) * 100)}%` }}
+                            />
+                          </div>
+                          <span className={`text-[10px] font-mono font-bold ${isFullyStaffed ? 'text-emerald-700' : 'text-slate-600'}`}>
+                            {assignedCount}/{totalRoles}
+                          </span>
+                          {isFullyStaffed && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          )}
+                        </div>
 
                         {roster.specialEvents &&
                           roster.specialEvents.map((ev) => (
@@ -387,31 +391,13 @@ export const RosterScreen: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Worship Links Bar (Direct access to songlist & roster sheets) */}
+                    {/* Natively Integrated Worship Song List (No Google Sheets required) */}
                     {activeService.categoryIds.includes('worship') && (
-                      <div className="flex items-center gap-2 flex-wrap mb-3 px-0.5">
-                        <a
-                          href="https://docs.google.com/spreadsheets/d/1IeoHz5D_K5iTZpkHLHlXF-eS0CdCQQms/edit?usp=drivesdk&ouid=106515987748236848222&rtpof=true&sd=true"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-850 border border-emerald-200/80 hover:bg-emerald-100 transition-colors shadow-2xs"
-                        >
-                          <Music size={13} strokeWidth={2} className="text-emerald-700" />
-                          <span>{language === 'zh' ? '每周敬拜歌单' : 'Worship Songs'}</span>
-                          <ExternalLink size={11} strokeWidth={2} className="text-emerald-600" />
-                        </a>
-
-                        <a
-                          href="https://docs.google.com/spreadsheets/d/119wpiD2d4kIonF0XI2wXfvkXogOge0P_Fu4SFSzmXzw/edit?usp=drivesdk"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-900 border border-blue-200/80 hover:bg-blue-100 transition-colors shadow-2xs"
-                        >
-                          <CalendarDays size={13} strokeWidth={2} className="text-blue-700" />
-                          <span>{language === 'zh' ? '敬拜团总表' : 'Worship Master Sheet'}</span>
-                          <ExternalLink size={11} strokeWidth={2} className="text-blue-600" />
-                        </a>
-                      </div>
+                      <WorshipSongSection
+                        date={roster.date}
+                        serviceId={roster.serviceId}
+                        songs={roster.songs}
+                      />
                     )}
 
                     {/* Special Event Tags Management in Edit Mode */}
@@ -475,18 +461,27 @@ export const RosterScreen: React.FC = () => {
 
                           if (catRoles.length === 0) return null;
 
+                          const catAssignedCount = catRoles.filter(
+                            (r) => (roster.assignments[r.id]?.length ?? 0) > 0
+                          ).length;
+
                           return (
-                            <div key={cat.id} className="space-y-2">
-                              {/* Department Subheader Badge */}
-                              <div className="flex items-center gap-2 pt-1 pb-0.5">
-                                <span className={`text-xs font-extrabold px-2.5 py-0.5 rounded-md ${cat.accentBg} ${cat.accentText}`}>
+                            <div
+                              key={cat.id}
+                              className="bg-slate-50/70 rounded-xl border border-slate-200/80 overflow-hidden shadow-2xs"
+                            >
+                              {/* Department Header with visual fill count */}
+                              <div className={`px-3.5 py-2 flex items-center justify-between border-b border-slate-200/70 ${cat.accentBg}`}>
+                                <span className={`text-xs font-black tracking-tight ${cat.accentText}`}>
                                   {language === 'zh' ? cat.nameZh : cat.nameEn}
                                 </span>
-                                <div className="flex-1 h-[1px] bg-slate-100" />
+                                <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/90 border border-slate-200/60 shadow-2xs ${cat.accentText}`}>
+                                  {catAssignedCount}/{catRoles.length}
+                                </span>
                               </div>
 
-                              {/* Duty Rows: Tight, Large Font, No Gap (Selena's Fix) */}
-                              <div className="space-y-1.5">
+                              {/* Department Roster Rows: High Readability, No Grey Clutter */}
+                              <div className="divide-y divide-slate-100 bg-white">
                                 {catRoles.map((role) => {
                                   const assignedIds = roster.assignments[role.id] || [];
                                   const assignedCoworkers = assignedIds
@@ -498,64 +493,58 @@ export const RosterScreen: React.FC = () => {
                                   return (
                                     <div
                                       key={role.id}
-                                      className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-100 hover:border-slate-200 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                                      className="p-2.5 sm:px-3.5 flex items-center justify-between gap-3 hover:bg-slate-50/60 transition-colors"
                                     >
-                                      {/* Left: Role Name & Note */}
-                                      <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                          <span className="text-sm font-bold text-slate-800">
-                                            {role.name}
+                                      {/* Left: Role Pill with fixed optical min-width */}
+                                      <div className="flex items-center gap-1.5 shrink-0">
+                                        <span className="text-xs font-bold text-slate-700 bg-slate-100/90 border border-slate-200/80 px-2 py-0.5 rounded-md min-w-[3.5rem] text-center shrink-0">
+                                          {role.name}
+                                        </span>
+
+                                        {dutyNote && !isNoteEditing && (
+                                          <span
+                                            title={dutyNote}
+                                            className="text-amber-600 hover:text-amber-800 cursor-help"
+                                          >
+                                            <MessageSquare size={13} strokeWidth={2} />
                                           </span>
-
-                                          {/* Duty Note Display */}
-                                          {dutyNote && !isNoteEditing && (
-                                            <span
-                                              title={dutyNote}
-                                              className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md max-w-xs truncate"
-                                            >
-                                              <MessageSquare size={10} strokeWidth={2.5} className="shrink-0 text-amber-600" />
-                                              <span>{dutyNote}</span>
-                                            </span>
-                                          )}
-                                        </div>
-
-                                        {/* Inline Note Editor in Edit Mode */}
-                                        {isNoteEditing && (
-                                          <div className="flex items-center gap-1.5 mt-1.5">
-                                            <input
-                                              type="text"
-                                              value={noteInput}
-                                              onChange={(e) => setNoteInput(e.target.value)}
-                                              placeholder={language === 'zh' ? '输入服事备注（如彩排时间、代班等）...' : 'Add note for this duty...'}
-                                              className="text-xs px-2 py-1 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1"
-                                              autoFocus
-                                            />
-                                            <button
-                                              type="button"
-                                              onClick={() => {
-                                                updateDutyNote(role.id, noteInput, roster.date, roster.serviceId);
-                                                setEditingNoteKey(null);
-                                              }}
-                                              className="px-2 py-1 bg-blue-600 text-white font-bold text-xs rounded-md"
-                                            >
-                                              {t('save', language)}
-                                            </button>
-                                            <button
-                                              type="button"
-                                              onClick={() => setEditingNoteKey(null)}
-                                              className="px-1.5 py-1 text-slate-400 hover:text-slate-600 text-xs"
-                                            >
-                                              ✕
-                                            </button>
-                                          </div>
                                         )}
                                       </div>
 
-                                      {/* Right: Assigned Volunteers with High-Contrast Large Text */}
-                                      <div className="flex items-center justify-between sm:justify-end gap-2 flex-wrap shrink-0">
-                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                      {/* Inline Note Editor in Edit Mode */}
+                                      {isNoteEditing ? (
+                                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                          <input
+                                            type="text"
+                                            value={noteInput}
+                                            onChange={(e) => setNoteInput(e.target.value)}
+                                            placeholder={language === 'zh' ? '输入服事备注...' : 'Add note...'}
+                                            className="text-xs px-2 py-1 bg-white border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 min-w-0"
+                                            autoFocus
+                                          />
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              updateDutyNote(role.id, noteInput, roster.date, roster.serviceId);
+                                              setEditingNoteKey(null);
+                                            }}
+                                            className="px-2 py-1 bg-blue-600 text-white font-bold text-xs rounded-md shrink-0"
+                                          >
+                                            {t('save', language)}
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditingNoteKey(null)}
+                                            className="px-1 text-slate-400 hover:text-slate-600 text-xs shrink-0"
+                                          >
+                                            ✕
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        /* Center/Right: Assigned Coworkers (Large bold font for readability) */
+                                        <div className="flex-1 flex items-center justify-end gap-1.5 flex-wrap min-w-0">
                                           {assignedCoworkers.length === 0 ? (
-                                            <span className="text-xs font-semibold text-slate-400 italic bg-white px-2.5 py-1 rounded-lg border border-dashed border-slate-200">
+                                            <span className="text-xs font-semibold text-slate-400 italic">
                                               {t('pending', language)}
                                             </span>
                                           ) : (
@@ -567,10 +556,10 @@ export const RosterScreen: React.FC = () => {
                                               return (
                                                 <div
                                                   key={cw.id}
-                                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-black shadow-2xs ${
+                                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-black shadow-2xs ${
                                                     hasConflict
                                                       ? 'bg-amber-50 text-amber-950 border border-amber-300'
-                                                      : 'bg-white text-slate-900 border border-slate-200/90'
+                                                      : 'bg-slate-50/90 text-slate-900 border border-slate-200/90'
                                                   }`}
                                                 >
                                                   <span>{cw.name}</span>
@@ -579,10 +568,9 @@ export const RosterScreen: React.FC = () => {
                                                   {hasConflict && (
                                                     <span
                                                       title={`时间撞了: 当天同时服事 ${dateConflicts.map((c) => `[${c.serviceName} ${c.roleName}]`).join('、')}`}
-                                                      className="inline-flex items-center gap-1 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300"
+                                                      className="text-amber-700"
                                                     >
-                                                      <AlertTriangle size={10} strokeWidth={2.5} className="text-amber-700" />
-                                                      <span>撞期</span>
+                                                      <AlertTriangle size={12} strokeWidth={2.5} />
                                                     </span>
                                                   )}
 
@@ -599,51 +587,47 @@ export const RosterScreen: React.FC = () => {
                                                       }
                                                       className="text-slate-400 hover:text-rose-600 ml-0.5 cursor-pointer"
                                                     >
-                                                      <X size={13} strokeWidth={2.5} />
+                                                      <X size={12} strokeWidth={2.5} />
                                                     </button>
                                                   )}
                                                 </div>
                                               );
                                             })
                                           )}
+
+                                          {/* Actions in Edit Mode: Assign & Add Note */}
+                                          {isEditMode && (
+                                            <div className="flex items-center gap-0.5 ml-1 shrink-0">
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  setNoteInput(dutyNote || '');
+                                                  setEditingNoteKey(`${roster.id}_${role.id}`);
+                                                }}
+                                                title="添加/编辑备注"
+                                                className="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                              >
+                                                <MessageSquare size={12} strokeWidth={2} />
+                                              </button>
+
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  setSelectedRoleForAssign({
+                                                    role,
+                                                    date: roster.date,
+                                                    serviceId: roster.serviceId,
+                                                  })
+                                                }
+                                                className="w-6 h-6 rounded flex items-center justify-center text-blue-700 hover:text-blue-900 hover:bg-blue-50 border border-blue-200/70 transition-colors active:scale-90"
+                                                title={assignedCoworkers.length === 0 ? t('assign', language) : t('change', language)}
+                                              >
+                                                <Plus size={12} strokeWidth={2.5} />
+                                              </button>
+                                            </div>
+                                          )}
                                         </div>
-
-                                        {/* Actions in Edit Mode: Assign & Add Note */}
-                                        {isEditMode && (
-                                          <div className="flex items-center gap-1">
-                                            <button
-                                              type="button"
-                                              onClick={() => {
-                                                setNoteInput(dutyNote || '');
-                                                setEditingNoteKey(`${roster.id}_${role.id}`);
-                                              }}
-                                              title="添加/编辑备注"
-                                              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                                            >
-                                              <MessageSquare size={13} strokeWidth={2} />
-                                            </button>
-
-                                            <button
-                                              type="button"
-                                              onClick={() =>
-                                                setSelectedRoleForAssign({
-                                                  role,
-                                                  date: roster.date,
-                                                  serviceId: roster.serviceId,
-                                                })
-                                              }
-                                              className="text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all active:scale-95 cursor-pointer shadow-2xs"
-                                            >
-                                              <Plus size={13} strokeWidth={2.5} />
-                                              <span>
-                                                {assignedCoworkers.length === 0
-                                                  ? t('assign', language)
-                                                  : t('change', language)}
-                                              </span>
-                                            </button>
-                                          </div>
-                                        )}
-                                      </div>
+                                      )}
                                     </div>
                                   );
                                 })}
