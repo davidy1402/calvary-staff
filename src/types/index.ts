@@ -57,7 +57,7 @@ export interface WorshipSong {
   id: string;
   title: string;
   key?: string; // e.g. G, C, D, Em
-  category?: string; // e.g. 赞美 / 敬拜 / 回应
+  category?: string; // e.g. 快歌 / 慢歌 / 回应
   notes?: string;
 }
 

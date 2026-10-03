@@ -128,9 +128,9 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     specialEvents: ['服装要求: 白黑'],
     speaker: '凯曰',
     songs: [
-      { id: 's1', title: '献上感恩', key: 'G', category: '赞美', notes: '轻快进门' },
-      { id: 's2', title: '十字架的传人', key: 'A', category: '敬拜', notes: '渐强祷告' },
-      { id: 's3', title: '一生一世', key: 'C', category: '回应', notes: '配合呼召' },
+      { id: 's1', title: '献上感恩', key: 'G', category: '快歌' },
+      { id: 's2', title: '十字架的传人', key: 'A', category: '慢歌' },
+      { id: 's3', title: '一生一世', key: 'C', category: '回应' },
     ],
     assignments: {
       lead_vocal: ['cw_qiuyi', 'cw_wentian'],
@@ -168,8 +168,8 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     specialEvents: ['服装要求: 黑白'],
     speaker: '讲员',
     songs: [
-      { id: 's11', title: '满有能力', key: 'C', category: '赞美' },
-      { id: 's12', title: '祢是配得', key: 'G', category: '敬拜' },
+      { id: 's11', title: '满有能力', key: 'C', category: '快歌' },
+      { id: 's12', title: '祢是配得', key: 'G', category: '慢歌' },
       { id: 's13', title: '活出爱', key: 'F', category: '回应' },
     ],
     assignments: {
@@ -199,8 +199,8 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     theme: '敬牧月',
     specialEvents: ['服装要求: 全黑'],
     songs: [
-      { id: 's21', title: '喜乐泉源', key: 'D', category: '赞美' },
-      { id: 's22', title: '恩典之路', key: 'G', category: '敬拜' },
+      { id: 's21', title: '喜乐泉源', key: 'D', category: '快歌' },
+      { id: 's22', title: '恩典之路', key: 'G', category: '慢歌' },
       { id: 's23', title: '因祢爱的大能', key: 'G', category: '回应' },
     ],
     assignments: {
@@ -228,8 +228,8 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     theme: '敬牧月',
     specialEvents: ['服装要求: 蓝白'],
     songs: [
-      { id: 's31', title: '耶和华行了大事', key: 'C', category: '赞美' },
-      { id: 's32', title: '这是圣洁之地', key: 'F', category: '敬拜' },
+      { id: 's31', title: '耶和华行了大事', key: 'C', category: '快歌' },
+      { id: 's32', title: '这是圣洁之地', key: 'F', category: '慢歌' },
       { id: 's33', title: '主我敬拜祢', key: 'E', category: '回应' },
     ],
     assignments: {
@@ -256,8 +256,8 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     date: '2026-10-03',
     theme: 'Fire4J: 全心赞美',
     songs: [
-      { id: 'sy1', title: '开双眼 (Open Eyes)', key: 'E', category: '赞美' },
-      { id: 'sy2', title: '一千个理由 (10,000 Reasons)', key: 'G', category: '敬拜' },
+      { id: 'sy1', title: '开双眼 (Open Eyes)', key: 'E', category: '快歌' },
+      { id: 'sy2', title: '一千个理由 (10,000 Reasons)', key: 'G', category: '慢歌' },
       { id: 'sy3', title: '全心全意', key: 'D', category: '回应' },
     ],
     assignments: {

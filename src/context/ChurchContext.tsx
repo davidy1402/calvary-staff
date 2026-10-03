@@ -116,7 +116,31 @@ interface ChurchContextType {
   resetToDefault: () => void;
 }
 
-const STORAGE_KEY = 'calvary_staff_roster_data_v4';
+const STORAGE_KEY = 'calvary_staff_roster_data_v5';
+
+const normalizeSongs = (songs?: WorshipSong[]): WorshipSong[] | undefined => {
+  if (!songs) return undefined;
+  return songs.map((s) => {
+    let newCategory = s.category;
+    if (s.category === '赞美') newCategory = '快歌';
+    if (s.category === '敬拜') newCategory = '慢歌';
+
+    let newNotes = s.notes;
+    if (
+      s.notes === '轻快进门' ||
+      s.notes === '渐强祷告' ||
+      s.notes === '配合呼召'
+    ) {
+      newNotes = undefined;
+    }
+
+    return {
+      ...s,
+      category: newCategory,
+      notes: newNotes,
+    };
+  });
+};
 
 const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
   // Ensure all initial roles exist
@@ -139,6 +163,15 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     return found ? { ...initSvc, ...found, categoryIds: initSvc.categoryIds } : initSvc;
   });
 
+  // Normalize song categories & clean placeholder notes in saved rosters
+  const cleanedSavedRosters: Record<string, ServiceRoster> = {};
+  for (const [key, roster] of Object.entries(saved.rosters || {})) {
+    cleanedSavedRosters[key] = {
+      ...roster,
+      songs: normalizeSongs(roster.songs),
+    };
+  }
+
   return {
     ...saved,
     churchName: INITIAL_STATE.churchName,
@@ -148,7 +181,7 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     coworkers: mergedCoworkers,
     rosters: {
       ...INITIAL_ROSTERS,
-      ...saved.rosters,
+      ...cleanedSavedRosters,
     },
   };
 };
@@ -161,6 +194,10 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         return mergeStateWithInitial(JSON.parse(stored));
+      }
+      const storedV4 = localStorage.getItem('calvary_staff_roster_data_v4');
+      if (storedV4) {
+        return mergeStateWithInitial(JSON.parse(storedV4));
       }
       // Also check v1 migration
       const storedV1 = localStorage.getItem('calvary_staff_roster_data_v1');
@@ -716,6 +753,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (window.confirm('确定要恢复初始示例数据吗？本地已录入的更改将被替换。')) {
       setChurchState(INITIAL_STATE);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('calvary_staff_roster_data_v4');
       localStorage.removeItem('calvary_staff_roster_data_v1');
     }
   };

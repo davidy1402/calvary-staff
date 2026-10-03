@@ -21,11 +21,11 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
   // New song form state
   const [title, setTitle] = useState('');
   const [key, setKey] = useState('G');
-  const [category, setCategory] = useState('赞美');
+  const [category, setCategory] = useState('快歌');
   const [notes, setNotes] = useState('');
 
   const keyPresets = ['C', 'D', 'E', 'F', 'G', 'A', 'Bb', 'Em'];
-  const categoryPresets = ['赞美', '敬拜', '回应'];
+  const categoryPresets = ['快歌', '慢歌', '回应'];
 
   const handleAddSong = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +126,17 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                     )}
 
                     {song.category && (
-                      <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0 ${
+                          song.category === '快歌'
+                            ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-900/50'
+                            : song.category === '慢歌'
+                            ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200/70 dark:border-sky-900/50'
+                            : song.category === '回应'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-900/50'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-slate-700'
+                        }`}
+                      >
                         {song.category}
                       </span>
                     )}
@@ -206,7 +216,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
               {/* Category Selector Chips */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">
-                  {language === 'zh' ? '环节' : 'Category'}
+                  {language === 'zh' ? '曲风 / 环节' : 'Category'}
                 </label>
                 <div className="flex items-center gap-1.5">
                   {categoryPresets.map((cat) => (
@@ -232,7 +242,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder={language === 'zh' ? '备注 (例如: 进门诗歌、轻快)' : 'Optional notes'}
+                  placeholder={language === 'zh' ? '备注 (选填)' : 'Optional notes'}
                   className="w-full text-xs px-2.5 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
                 />
               </div>
