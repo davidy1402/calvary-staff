@@ -172,6 +172,18 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           </div>
         </div>
 
+        {/* Heart of Service Stewardship Verse */}
+        <div className="pt-2 pb-0.5 border-t border-slate-100 dark:border-zinc-800 text-[11px] text-slate-500 dark:text-zinc-400">
+          <p className="italic [text-wrap:pretty]">
+            {language === 'zh'
+              ? '「各人要照所得的恩赐彼此服事，作神百般恩赐的好管家。」'
+              : '"Each of you should use whatever gift you have received to serve others, as faithful stewards of God\'s grace."'}
+          </p>
+          <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-semibold mt-0.5">
+            {language === 'zh' ? '彼得前书 4:10 · 和合本' : '1 Peter 4:10 · NIV'}
+          </p>
+        </div>
+
         {/* Switch Identity Dropdown (Testing simulation before backend auth) */}
         <div className="pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
           <span className="font-medium text-slate-600 dark:text-zinc-300">

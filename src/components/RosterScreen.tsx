@@ -13,8 +13,6 @@ import {
   FileText,
   Lock,
   MessageSquare,
-  Sun,
-  Moon,
   Clock,
   MapPin,
 } from 'lucide-react';
@@ -44,8 +42,6 @@ export const RosterScreen: React.FC = () => {
     removeSpecialEvent,
     getCoworkerDateConflicts,
     language,
-    isDarkMode,
-    toggleDarkMode,
   } = useChurch();
 
   // Selected role for AssignModal
@@ -219,17 +215,8 @@ export const RosterScreen: React.FC = () => {
             </span>
           </div>
 
-          {/* Right actions: Theme Toggle + Mode Switch Action */}
+          {/* Right actions: Mode Switch Action */}
           <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={toggleDarkMode}
-              aria-label={isDarkMode ? '切换为浅色模式' : '切换为深色模式'}
-              title={isDarkMode ? '浅色模式' : '深色模式'}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors active:scale-95 cursor-pointer"
-            >
-              {isDarkMode ? <Sun size={15} strokeWidth={1.75} /> : <Moon size={15} strokeWidth={1.75} />}
-            </button>
 
             {isEditMode ? (
               <button
@@ -749,6 +736,18 @@ export const RosterScreen: React.FC = () => {
           })}
         </div>
       )}
+
+      {/* Spiritual Anchor for Serving Together */}
+      <div className="pt-4 pb-8 text-center px-4">
+        <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium italic [text-wrap:pretty]">
+          {language === 'zh'
+            ? '「全身都靠他联络得合式，百节各按各职，照着各体的功用彼此相助，便叫身体渐渐增长，在爱中建立自己。」'
+            : '"From him the whole body, joined and held together by every supporting ligament, grows and builds itself up in love, as each part does its work."'}
+        </p>
+        <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-semibold mt-1">
+          {language === 'zh' ? '以弗所书 4:16 · 和合本' : 'Ephesians 4:16 · NIV'}
+        </p>
+      </div>
       </div>
 
       {/* Role Assignment Modal */}

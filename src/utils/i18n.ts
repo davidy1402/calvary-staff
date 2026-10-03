@@ -15,6 +15,15 @@ export const TRANSLATIONS = {
     noDutiesThisSeason: '本月暂无排到服事',
     noDutiesHint: '若有变动可联系干事或于服事表查看各周安排',
 
+    // Scripture
+    todaysScripture: '今日经文',
+    todaysScriptureBadge: "TODAY'S SCRIPTURE",
+    dailyReflection: '今日反思',
+    nextScripture: '换一节',
+    shareScripture: '分享经文',
+    copiedScripture: '已复制经文',
+    heartOfService: '服事心志',
+
     // Add To Home Card
     addToHomeTitle: '把这个网站加到手机桌面',
     addToHomeDesc: '桌面会多一个图标，之后点一下就能打开，不用再去 WhatsApp 找链接。',
@@ -160,6 +169,15 @@ export const TRANSLATIONS = {
     viewFullRoster: 'View Full Roster',
     noDutiesThisSeason: 'No duties assigned this season',
     noDutiesHint: 'Contact administrators if changes are needed or view full schedule in Roster',
+
+    // Scripture
+    todaysScripture: "Today's Scripture",
+    todaysScriptureBadge: "TODAY'S SCRIPTURE",
+    dailyReflection: 'Daily Reflection',
+    nextScripture: 'Next Verse',
+    shareScripture: 'Share Verse',
+    copiedScripture: 'Verse copied',
+    heartOfService: 'Heart of Service',
 
     // Add To Home Card
     addToHomeTitle: 'Add this site to Home Screen',

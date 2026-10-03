@@ -1,17 +1,17 @@
 import React from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { AddToHomeCard } from './AddToHomeCard';
-import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle, Sun, Moon } from 'lucide-react';
+import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle } from 'lucide-react';
 import { t } from '../utils/i18n';
+import { ChurchLogo } from './ChurchLogo';
+import { DailyScriptureCard } from './DailyScriptureCard';
 
 interface DashboardScreenProps {
   onNavigateToRoster: () => void;
 }
 
-import { ChurchLogo } from './ChurchLogo';
-
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRoster }) => {
-  const { currentUser, getUserSeasonAssignments, language, isDarkMode, toggleDarkMode } = useChurch();
+  const { currentUser, getUserSeasonAssignments, language } = useChurch();
 
   const userAssignments = getUserSeasonAssignments(currentUser?.id);
 
@@ -59,16 +59,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={toggleDarkMode}
-            aria-label={isDarkMode ? '切换为浅色模式' : '切换为深色模式'}
-            title={isDarkMode ? '浅色模式' : '深色模式'}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors active:scale-95 cursor-pointer"
-          >
-            {isDarkMode ? <Sun size={17} strokeWidth={1.75} /> : <Moon size={17} strokeWidth={1.75} />}
-          </button>
-          <span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-zinc-700">
+          <span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-zinc-700">
             {t('home', language)}
           </span>
         </div>
@@ -107,6 +98,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           </div>
         )}
       </div>
+
+      {/* Daily Scripture & Reflection Card */}
+      <DailyScriptureCard />
 
       {/* Add To Home Prompt Card */}
       <AddToHomeCard />
