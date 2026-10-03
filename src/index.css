@@ -15,8 +15,8 @@ body {
 }
 
 :root.dark body {
-  background-color: #020617;
-  color: #f8fafc;
+  background-color: #000000;
+  color: #f4f4f5;
 }
 
 /* Custom scrollbar for modern feel */

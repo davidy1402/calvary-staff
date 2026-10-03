@@ -32,13 +32,13 @@ export const INITIAL_SERVICES: ServiceDefinition[] = [
     categoryIds: ['worship', 'media', 'pulpit', 'hospitality'],
   },
   {
-    id: 'wed_prayer',
-    name: '全教会守望祷告会',
-    shortName: '守望祷告会',
-    weekday: 3, // Wednesday
+    id: 'fri_prayer',
+    name: '实体祷告会 @hall 2',
+    shortName: '实体祷告会',
+    weekday: 5, // Friday
     time: '8:00 PM',
-    rehearsalTime: '7:30 PM 预备',
-    venue: '祷告厅 Prayer Hall',
+    rehearsalTime: '7:45 PM 预备',
+    venue: '主日学 Hall 2',
     categoryIds: ['prayer', 'worship', 'media'],
   },
 ];
@@ -83,19 +83,23 @@ export const INITIAL_ROLES: RoleDefinition[] = [
 
 export const INITIAL_COWORKERS: Coworker[] = [
   // 教会牧者与长辈同工
-  { id: 'cw_kaiyue', name: '凯曰', englishName: 'Pastor Kai Yue', phone: '016-8889911', cellGroup: '教牧同工', qualifiedRoleIds: ['director', 'speaker', 'presider'], active: true },
+  { id: 'cw_kaiyue', name: '凯曰', englishName: 'Pastor Kai Yue', phone: '016-8889911', cellGroup: '教牧同工', qualifiedRoleIds: ['director', 'speaker', 'presider', 'lead_vocal', 'guitar', 'prayer_leader'], active: true },
+  { id: 'cw_pastor_huang', name: '黄牧师', englishName: 'Pastor Huang', phone: '', cellGroup: '教牧同工', qualifiedRoleIds: ['speaker', 'offering'], active: true },
+  { id: 'cw_pastor_su', name: '苏牧师', englishName: 'Pastor Su', phone: '', cellGroup: '教牧同工', qualifiedRoleIds: ['speaker'], active: true },
   { id: 'cw_wensen', name: '文森', englishName: 'Vincent', phone: '016-1122334', cellGroup: '教牧同工', qualifiedRoleIds: ['director', 'sound_pa'], active: true },
+  { id: 'cw_sam', name: 'Sam', englishName: 'Sam', phone: '', cellGroup: '宣教同工', qualifiedRoleIds: ['prayer_leader', 'lead_vocal'], active: true },
 
   // 核心家庭与服事团队
-  { id: 'cw_selena', name: 'Selena', englishName: 'Selena Yong', phone: '012-9988112', cellGroup: '青年社青', qualifiedRoleIds: ['backing_vocal', 'tambourine', 'lead_vocal', 'sunday_school_leader'], active: true },
+  { id: 'cw_selena', name: 'Selena', englishName: 'Selena Yong', phone: '012-9988112', cellGroup: '青年社青', qualifiedRoleIds: ['backing_vocal', 'tambourine', 'lead_vocal', 'sunday_school_leader', 'announcements', 'ppt'], active: true },
   { id: 'cw_yongyi', name: '永益', englishName: 'Yong Yi', phone: '016-7788990', cellGroup: '约书亚', qualifiedRoleIds: ['keyboard', 'lead_vocal', 'prayer_leader', 'chief_usher'], active: true },
   { id: 'cw_diana', name: 'Diana', englishName: 'Diana Yong', phone: '017-3322110', cellGroup: 'Fire4J', qualifiedRoleIds: ['ppt', 'sound_pa', 'greeter', 'offering'], active: true },
   { id: 'cw_zongyan', name: '宗晏', englishName: 'Zong Yan', phone: '018-4455667', cellGroup: 'Fire4J', qualifiedRoleIds: ['drums', 'bass', 'camera'], active: true },
   { id: 'cw_david', name: '杨家维', englishName: 'David Yong', phone: '012-7654321', cellGroup: 'Fire4J', qualifiedRoleIds: ['guitar', 'sound_pa', 'presider', 'announcements'], active: true },
+  { id: 'cw_jiakai', name: '嘉凯', englishName: 'Jia Kai', phone: '', cellGroup: '青年社青', qualifiedRoleIds: ['ppt'], active: true },
 
   // 敬拜团服事人员 (来自真实服事表)
   { id: 'cw_qiuyi', name: '秋仪', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['lead_vocal'], active: true },
-  { id: 'cw_wentian', name: '文添', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['lead_vocal', 'keyboard'], active: true },
+  { id: 'cw_wentian', name: '文添', englishName: 'Enoch', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['lead_vocal', 'keyboard'], active: true },
   { id: 'cw_yunqing', name: '云青', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['backing_vocal'], active: true },
   { id: 'cw_baozhen', name: '宝贞', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['lead_vocal'], active: true },
   { id: 'cw_youxiang', name: '有祥', englishName: '', phone: '', cellGroup: '敬拜团 / AV', qualifiedRoleIds: ['lead_vocal', 'camera'], active: true },
@@ -125,12 +129,53 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     serviceId: 'sun_mandarin',
     date: '2026-10-04',
     theme: '敬牧月',
-    specialEvents: ['服装要求: 白黑'],
-    speaker: '凯曰',
+    specialEvents: ['圣餐主日', '服装要求: 白黑'],
+    speaker: '黄牧师',
     songs: [
-      { id: 's1', title: '献上感恩', key: 'G', category: '快歌' },
-      { id: 's2', title: '十字架的传人', key: 'A', category: '慢歌' },
-      { id: 's3', title: '一生一世', key: 'C', category: '回应' },
+      {
+        id: 's1',
+        title: 'Yes Amen！ 是你的应许',
+        key: 'C-D',
+        category: '快歌',
+        youtubeUrl: 'https://youtu.be/yI3oZiUf22M?si=ATs91Ar_Mfvv6y5L',
+      },
+      {
+        id: 's2',
+        title: '大山为我挪开',
+        key: 'D-G',
+        category: '快歌',
+        youtubeUrl: 'https://youtu.be/_xJkYVZ50p0?si=nvei8L2GCj99lFQ9',
+      },
+      {
+        id: 's3',
+        title: '我在这',
+        key: 'Bb-C',
+        category: '慢歌',
+        youtubeUrl: 'https://youtu.be/rSziblE1JLg?si=SbzQfiLtQqRisW8J',
+      },
+      {
+        id: 's4',
+        title: '无价之宝',
+        key: 'C',
+        category: '慢歌',
+        youtubeUrl: 'https://youtu.be/foIAGgs8wOU?si=rfcnprbxML69r6qY',
+      },
+      {
+        id: 's5',
+        title: '我的一生在你手中',
+        key: 'Bb',
+        category: '回应',
+        youtubeUrl: 'https://youtu.be/42OMDPPBVJ8?si=_zA9PYl2vqvezheG',
+        notes: '黄牧讲道回应',
+      },
+      {
+        id: 's6',
+        title: '只为你国你名',
+        key: 'E',
+        category: '回应',
+        youtubeUrl: 'https://youtu.be/bkwVUUmcnT0?si=VhvLvTE3fpQOgw9B',
+        notes: 'Standby 回应诗',
+      },
     ],
     assignments: {
       lead_vocal: ['cw_qiuyi', 'cw_wentian'],
@@ -144,13 +189,13 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
       ppt: ['cw_leelian'],
       obs: ['cw_samuel'],
       camera: ['cw_jiayi'],
-      speaker: ['cw_kaiyue'],
-      presider: ['cw_david'],
-      announcements: ['cw_david'],
-      sunday_school_leader: ['cw_selena'], // Selena 撞期: 伴唱 + 主日学
-      prayer_leader: ['cw_yongyi'], // 永益 撞期: 琴 + 祷告
+      speaker: ['cw_pastor_huang'],
+      presider: ['cw_kaiyue'],
+      announcements: ['cw_selena'],
+      sunday_school_leader: ['cw_selena'], // Selena 撞期: 伴唱 + 主日学 + 报告
+      prayer_leader: ['cw_kaiyue'],
       greeter: ['cw_diana'],
-      offering: ['cw_diana'],
+      offering: ['cw_pastor_huang'],
     },
     dutyNotes: {
       lead_vocal: '领诗注意！提前更新歌单，前一周发群',
@@ -158,6 +203,7 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     },
     updatedAt: '2026-10-03T12:00:00.000Z',
   },
+
 
   // 2026年 10月11日 (第二周)
   '2026-10-11_sun_mandarin': {
@@ -269,6 +315,26 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
       ppt: ['cw_diana'],
     },
     updatedAt: '2026-10-03T12:00:00.000Z',
+  },
+
+  // 实体祷告会 @hall 2
+  '2026-10-02_fri_prayer': {
+    id: '2026-10-02_fri_prayer',
+    serviceId: 'fri_prayer',
+    date: '2026-10-02',
+    theme: '实体祷告会 @hall 2',
+    assignments: {
+      lead_vocal: ['cw_kaiyue'],
+      guitar: ['cw_kaiyue'],
+      keyboard: ['cw_qiaoen'],
+      ppt: ['cw_selena'],
+    },
+    dutyNotes: {
+      lead_vocal: '凯曰领 / 弹吉他',
+      keyboard: '巧恩姐司琴',
+      ppt: 'Selena 电脑 PPT',
+    },
+    updatedAt: '2026-10-01T17:54:00.000Z',
   },
 };
 

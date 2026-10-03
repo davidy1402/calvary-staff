@@ -116,7 +116,7 @@ interface ChurchContextType {
   resetToDefault: () => void;
 }
 
-const STORAGE_KEY = 'calvary_staff_roster_data_v5';
+const STORAGE_KEY = 'calvary_staff_roster_data_v6';
 
 const normalizeSongs = (songs?: WorshipSong[]): WorshipSong[] | undefined => {
   if (!songs) return undefined;
@@ -172,6 +172,18 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     };
   }
 
+  // If saved '2026-10-04_sun_mandarin' has no songs or empty songs, seed real songs with YouTube links
+  if (
+    INITIAL_ROSTERS['2026-10-04_sun_mandarin']?.songs &&
+    (!cleanedSavedRosters['2026-10-04_sun_mandarin']?.songs ||
+      cleanedSavedRosters['2026-10-04_sun_mandarin']?.songs?.length === 0)
+  ) {
+    if (cleanedSavedRosters['2026-10-04_sun_mandarin']) {
+      cleanedSavedRosters['2026-10-04_sun_mandarin'].songs =
+        INITIAL_ROSTERS['2026-10-04_sun_mandarin'].songs;
+    }
+  }
+
   return {
     ...saved,
     churchName: INITIAL_STATE.churchName,
@@ -194,6 +206,10 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         return mergeStateWithInitial(JSON.parse(stored));
+      }
+      const storedV5 = localStorage.getItem('calvary_staff_roster_data_v5');
+      if (storedV5) {
+        return mergeStateWithInitial(JSON.parse(storedV5));
       }
       const storedV4 = localStorage.getItem('calvary_staff_roster_data_v4');
       if (storedV4) {
@@ -239,7 +255,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       document.documentElement.classList.add('dark');
       localStorage.setItem('calvary_theme', 'dark');
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', '#020617');
+      if (meta) meta.setAttribute('content', '#000000');
     } else {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('calvary_theme', 'light');
@@ -753,6 +769,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (window.confirm('确定要恢复初始示例数据吗？本地已录入的更改将被替换。')) {
       setChurchState(INITIAL_STATE);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('calvary_staff_roster_data_v5');
       localStorage.removeItem('calvary_staff_roster_data_v4');
       localStorage.removeItem('calvary_staff_roster_data_v1');
     }

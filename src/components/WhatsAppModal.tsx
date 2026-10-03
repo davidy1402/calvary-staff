@@ -1,8 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
-import { generateWhatsAppRosterText } from '../utils/whatsappFormatter';
+import {
+  generateWhatsAppRosterText,
+  generateWhatsAppSetlistText,
+  generateWhatsAppRundownText,
+  type WhatsAppTemplateType,
+} from '../utils/whatsappFormatter';
 import { getUpcomingServiceDate, formatDateLabel } from '../utils/dateUtils';
-import { Copy, Check, Send } from 'lucide-react';
+import { Copy, Check, Send, Users, Music, Clock } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 import type { ServiceDefinition, ServiceRoster } from '../types';
@@ -22,6 +27,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
 }) => {
   const { churchState, activeService, language } = useChurch();
   const [copied, setCopied] = useState(false);
+  const [templateType, setTemplateType] = useState<WhatsAppTemplateType>('roster');
 
   // Allow selecting service and date dynamically inside modal
   const [selectedServiceId, setSelectedServiceId] = useState<string>(
@@ -52,24 +58,36 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
     return getUpcomingServiceDate(targetService.weekday, 0);
   });
 
-  if (!isOpen) return null;
-
   // Find roster or fallback to skeleton
   const rosterKey = `${selectedDateStr}_${targetService.id}`;
-  const targetRoster: ServiceRoster = churchState.rosters[rosterKey] || {
-    id: rosterKey,
-    serviceId: targetService.id,
-    date: selectedDateStr,
-    assignments: {},
-  };
+  const targetRoster: ServiceRoster = useMemo(() => {
+    return (
+      churchState.rosters[rosterKey] || {
+        id: rosterKey,
+        serviceId: targetService.id,
+        date: selectedDateStr,
+        assignments: {},
+      }
+    );
+  }, [churchState.rosters, rosterKey, targetService.id, selectedDateStr]);
 
-  const formattedText = generateWhatsAppRosterText(
-    churchState.churchName,
-    targetService,
-    targetRoster,
-    churchState.roles,
-    churchState.coworkers
-  );
+  const formattedText = useMemo(() => {
+    if (templateType === 'setlist') {
+      return generateWhatsAppSetlistText(churchState.churchName, targetService, targetRoster);
+    }
+    if (templateType === 'rundown') {
+      return generateWhatsAppRundownText(targetService, targetRoster, churchState.coworkers);
+    }
+    return generateWhatsAppRosterText(
+      churchState.churchName,
+      targetService,
+      targetRoster,
+      churchState.roles,
+      churchState.coworkers
+    );
+  }, [templateType, churchState, targetService, targetRoster]);
+
+  if (!isOpen) return null;
 
   const handleCopy = async () => {
     try {
@@ -83,23 +101,29 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
 
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
 
+  const templates: { id: WhatsAppTemplateType; label: string; icon: React.ReactNode }[] = [
+    { id: 'roster', label: language === 'zh' ? '服事人员' : 'Roster', icon: <Users size={12} strokeWidth={2} /> },
+    { id: 'setlist', label: language === 'zh' ? '赞美歌单' : 'Setlist', icon: <Music size={12} strokeWidth={2} /> },
+    { id: 'rundown', label: language === 'zh' ? '崇拜流程' : 'Rundown', icon: <Clock size={12} strokeWidth={2} /> },
+  ];
+
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-white dark:bg-slate-900" maxHeight="88vh">
+    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-white dark:bg-zinc-900" maxHeight="88vh">
       {/* Sheet Title */}
-      <div className="px-4 pb-2.5 pt-0.5 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 text-center shrink-0">
-        <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">
+      <div className="px-4 pb-2.5 pt-0.5 bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 text-center shrink-0">
+        <h2 className="text-sm font-bold text-slate-900 dark:text-zinc-100 leading-tight">
           {t('whatsappNotification', language)}
         </h2>
-        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+        <p className="text-[10px] text-slate-400 dark:text-zinc-400 font-medium">
           {targetService.name}
         </p>
       </div>
 
       {/* Service & Date Pickers */}
-      <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-850 dark:bg-slate-800/60 border-b border-slate-200/70 dark:border-slate-800 shrink-0">
-        <div className="grid grid-cols-2 gap-2">
+      <div className="px-4 py-2.5 bg-slate-50 dark:bg-zinc-850 dark:bg-zinc-800/60 border-b border-slate-200/70 dark:border-zinc-800 shrink-0">
+        <div className="grid grid-cols-2 gap-2 mb-2">
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1">
               {t('serviceSelector', language)}
             </label>
             <select
@@ -112,10 +136,10 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                   setSelectedDateStr(getUpcomingServiceDate(newSvc.weekday, 0));
                 }
               }}
-              className="w-full text-xs font-semibold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
+              className="w-full text-xs font-semibold text-slate-800 dark:text-zinc-100 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
             >
               {churchState.services.map((svc) => (
-                <option key={svc.id} value={svc.id} className="dark:bg-slate-800 dark:text-slate-100">
+                <option key={svc.id} value={svc.id} className="dark:bg-zinc-800 dark:text-zinc-100">
                   {svc.name}
                 </option>
               ))}
@@ -123,40 +147,64 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1">
               {t('dateSelector', language)}
             </label>
             <select
               value={selectedDateStr}
               onChange={(e) => setSelectedDateStr(e.target.value)}
-              className="w-full text-xs font-semibold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
+              className="w-full text-xs font-semibold text-slate-800 dark:text-zinc-100 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs"
             >
               {dateOptions.map((opt) => (
-                <option key={opt.value} value={opt.value} className="dark:bg-slate-800 dark:text-slate-100">
+                <option key={opt.value} value={opt.value} className="dark:bg-zinc-800 dark:text-zinc-100">
                   {opt.label}
                 </option>
               ))}
             </select>
           </div>
         </div>
+
+        {/* Template Segmented Tabs */}
+        <div>
+          <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1">
+            {language === 'zh' ? '消息模板 (对齐教会常用格式)' : 'Message Template'}
+          </label>
+          <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-200/70 dark:bg-zinc-800 rounded-xl border border-slate-300/50 dark:border-zinc-700">
+            {templates.map((tpl) => (
+              <button
+                key={tpl.id}
+                type="button"
+                onClick={() => setTemplateType(tpl.id)}
+                className={`flex items-center justify-center gap-1 py-1 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  templateType === tpl.id
+                    ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
+                }`}
+              >
+                {tpl.icon}
+                <span>{tpl.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Text Preview Box */}
       <div className="p-4 overflow-y-auto flex-1">
-        <div className="bg-slate-900 text-emerald-400 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all shadow-inner border border-slate-800">
+        <div className="bg-zinc-950 text-emerald-400 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all shadow-inner border border-zinc-800">
           {formattedText}
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs pb-8 sm:pb-4">
+      <div className="p-4 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs pb-8 sm:pb-4">
         <button
           type="button"
           onClick={handleCopy}
           className={`flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
             copied
               ? 'bg-emerald-600 text-white'
-              : 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700'
+              : 'bg-zinc-900 dark:bg-zinc-800 text-white hover:bg-zinc-800 dark:hover:bg-zinc-700 border border-transparent dark:border-zinc-700'
           }`}
         >
           {copied ? (

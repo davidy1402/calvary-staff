@@ -58,6 +58,7 @@ export interface WorshipSong {
   title: string;
   key?: string; // e.g. G, C, D, Em
   category?: string; // e.g. 快歌 / 慢歌 / 回应
+  youtubeUrl?: string; // YouTube 试听或伴奏链接
   notes?: string;
 }
 

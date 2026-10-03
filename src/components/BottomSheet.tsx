@@ -13,7 +13,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   isOpen,
   onClose,
   children,
-  className = 'bg-white dark:bg-slate-900',
+  className = 'bg-white dark:bg-zinc-900',
   maxHeight = '88vh',
 }) => {
   const [isRendered, setIsRendered] = useState(isOpen);
@@ -124,7 +124,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
           className="w-full pt-3 pb-2 flex justify-center bg-inherit shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
           title="向下拖拽关闭"
         >
-          <div className="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors" />
+          <div className="w-10 h-1 bg-slate-300 dark:bg-zinc-700 rounded-full hover:bg-slate-400 dark:hover:bg-zinc-600 transition-colors" />
         </div>
 
         {/* Content */}
