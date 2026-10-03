@@ -241,8 +241,7 @@ export function generateWhatsAppRundownText(
   const leadVocal = getNames('lead_vocal', '秋仪 文添');
   const speaker = roster?.speaker || getNames('speaker', '黄牧师');
   const announcements = getNames('announcements', 'Selena');
-  const presider = getNames('presider', '凯曰传道');
-  const prayerLeader = getNames('prayer_leader', presider);
+  const prayerLeader = getNames('prayer_leader', '凯曰传道');
 
   const isHolyCommunion = roster?.specialEvents?.some((e) => e.includes('圣餐')) ?? false;
 

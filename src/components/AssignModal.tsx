@@ -139,11 +139,11 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                     <img
                       src={cw.avatar}
                       alt={cw.name}
-                      className="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
+                      className="w-9 h-9 rounded-xl object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
                     />
                   ) : (
                     <div
-                      className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 ${
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-semibold shrink-0 ${
                         isAssigned
                           ? 'bg-blue-600 text-white'
                           : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'
@@ -163,12 +163,12 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                         </span>
                       )}
                       {isQualified && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.2 rounded border border-amber-200/60 dark:border-amber-800/60">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded-md border border-amber-200/60 dark:border-amber-800/60">
                           <Star size={10} strokeWidth={2} />
                           {t('regularRole', language)}
                         </span>
                       )}
-                      <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">
+                      <span className="text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-zinc-800 px-1.5 py-0.5 rounded-md border border-blue-100 dark:border-zinc-700">
                         {cw.cellGroup}
                       </span>
                     </div>
@@ -183,7 +183,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                   </div>
 
                   <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border transition-all ${
+                    className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border transition-all ${
                       isAssigned
                         ? 'bg-blue-600 border-blue-600 text-white'
                         : 'border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-800'

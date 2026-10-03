@@ -83,8 +83,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
             {t('welcomeBack', language)}, {displayName}!
           </h2>
           <div className="flex items-center gap-2 mt-3 text-xs text-blue-100">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-xs font-semibold">
-              {language === 'zh' ? '本季服事：' : 'Assigned: '}
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-white/15 backdrop-blur-xs font-semibold">
+              {language === 'zh' ? '本月服事：' : 'This Month: '}
               <strong className="text-white ml-1">{userAssignments.length}</strong>
               {language === 'zh' ? ' 堂' : ' services'}
             </span>

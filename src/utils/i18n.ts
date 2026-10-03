@@ -12,7 +12,7 @@ export const TRANSLATIONS = {
     welcomeBack: '欢迎回来',
     myDuties: '我的服事',
     viewFullRoster: '查看完整服事表',
-    noDutiesThisSeason: '本季暂无排到服事',
+    noDutiesThisSeason: '本月暂无排到服事',
     noDutiesHint: '若有变动可联系干事或于服事表查看各周安排',
 
     // Add To Home Card
@@ -67,7 +67,7 @@ export const TRANSLATIONS = {
     // Settings Screen
     settingsTitle: '设置与个人中心',
     personalCenter: '设置与个人中心',
-    sectionVolunteer: '服侍人员身份与牧区',
+    sectionVolunteer: '服侍人员身份与分组',
     sectionMinistry: '服事与协调工具',
     sectionSystem: '系统偏好设置',
     sectionAbout: '关于系统与数据',

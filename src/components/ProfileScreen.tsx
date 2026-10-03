@@ -139,10 +139,10 @@ export const ProfileScreen: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              <span className="text-[11px] font-semibold px-2 py-0.2 rounded-full bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-zinc-300 border border-blue-100 dark:border-zinc-700">
-                {currentUser?.cellGroup || 'Fire4J'}
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-zinc-700">
+                {currentUser?.cellGroup || '大专'}
               </span>
-              <span className="text-[11px] font-semibold px-2 py-0.2 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
                 {t('coworker', language)}
               </span>
             </div>

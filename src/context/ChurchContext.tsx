@@ -116,7 +116,16 @@ interface ChurchContextType {
   resetToDefault: () => void;
 }
 
-const STORAGE_KEY = 'calvary_staff_roster_data_v6';
+const STORAGE_KEY = 'calvary_staff_roster_data_v7';
+
+const normalizeGroup = (grp: string): string => {
+  if (grp.includes('牧者') || grp.includes('教牧')) return '牧者';
+  if (grp.includes('职青') || grp.includes('社青') || grp.includes('约书亚') || grp.includes('大卫')) return '职青';
+  if (grp.includes('大专') || grp.includes('Fire4J')) return '大专';
+  if (grp.includes('青少')) return '青少年';
+  if (grp.includes('同工') || grp.includes('敬拜') || grp.includes('影音') || grp.includes('宣教')) return '同工';
+  return grp || '同工';
+};
 
 const normalizeSongs = (songs?: WorshipSong[]): WorshipSong[] | undefined => {
   if (!songs) return undefined;
@@ -143,19 +152,44 @@ const normalizeSongs = (songs?: WorshipSong[]): WorshipSong[] | undefined => {
 };
 
 const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
-  // Ensure all initial roles exist
-  const existingRoleIds = new Set(saved.roles.map((r) => r.id));
-  const mergedRoles = [
-    ...saved.roles,
-    ...INITIAL_ROLES.filter((r) => !existingRoleIds.has(r.id)),
-  ];
+  // Ensure all initial roles exist, remove obsolete 'presider' (主席/司会), and update role titles
+  const initialRoleMap = new Map(INITIAL_ROLES.map((r) => [r.id, r]));
+  const mergedRoles = saved.roles
+    .filter((r) => r.id !== 'presider')
+    .map((r) => {
+      const init = initialRoleMap.get(r.id);
+      if (init) {
+        return { ...r, name: init.name, shortName: init.shortName };
+      }
+      return r;
+    });
 
-  // Ensure all initial coworkers exist
-  const existingCoworkerIds = new Set(saved.coworkers.map((c) => c.id));
-  const mergedCoworkers = [
-    ...saved.coworkers,
-    ...INITIAL_COWORKERS.filter((c) => !existingCoworkerIds.has(c.id)),
-  ];
+  const existingRoleIds = new Set(mergedRoles.map((r) => r.id));
+  for (const r of INITIAL_ROLES) {
+    if (!existingRoleIds.has(r.id)) {
+      mergedRoles.push(r);
+    }
+  }
+
+  // Ensure all initial coworkers exist and normalize group names to 职青/大专/青少年/牧者/同工
+  const initialCoworkerMap = new Map(INITIAL_COWORKERS.map((c) => [c.id, c]));
+  const mergedCoworkers = saved.coworkers.map((cw) => {
+    const init = initialCoworkerMap.get(cw.id);
+    const newGroup = init ? init.cellGroup : normalizeGroup(cw.cellGroup);
+    const cleanQualified = (cw.qualifiedRoleIds || []).filter((rId) => rId !== 'presider');
+    return {
+      ...cw,
+      cellGroup: newGroup,
+      qualifiedRoleIds: cleanQualified,
+    };
+  });
+
+  const existingCoworkerIds = new Set(mergedCoworkers.map((c) => c.id));
+  for (const c of INITIAL_COWORKERS) {
+    if (!existingCoworkerIds.has(c.id)) {
+      mergedCoworkers.push(c);
+    }
+  }
 
   // Ensure all initial services have updated categories
   const mergedServices = INITIAL_SERVICES.map((initSvc) => {
@@ -163,25 +197,37 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     return found ? { ...initSvc, ...found, categoryIds: initSvc.categoryIds } : initSvc;
   });
 
-  // Normalize song categories & clean placeholder notes in saved rosters
+  // Normalize song categories, clean placeholder notes, strip presider, and ensure YouTube links
   const cleanedSavedRosters: Record<string, ServiceRoster> = {};
   for (const [key, roster] of Object.entries(saved.rosters || {})) {
+    // Remove presider assignment
+    const assignments = { ...roster.assignments };
+    delete assignments['presider'];
+
+    // Enrich songs with YouTube URLs from INITIAL_ROSTERS
+    const initRoster = INITIAL_ROSTERS[key];
+    let songs = normalizeSongs(roster.songs);
+
+    if (initRoster?.songs && initRoster.songs.length > 0) {
+      const hasAnyYoutube = songs?.some((s) => !!s.youtubeUrl);
+      if (!hasAnyYoutube || !songs || songs.length === 0) {
+        songs = initRoster.songs;
+      } else {
+        // Match by title to inject youtubeUrl if missing
+        const titleToUrl = new Map(initRoster.songs.map((s) => [s.title, s.youtubeUrl]));
+        songs = songs.map((s) => ({
+          ...s,
+          youtubeUrl: s.youtubeUrl || titleToUrl.get(s.title),
+        }));
+      }
+    }
+
     cleanedSavedRosters[key] = {
       ...roster,
-      songs: normalizeSongs(roster.songs),
+      assignments,
+      songs,
+      speaker: roster.speaker === '讲员' ? '当天讲员' : roster.speaker,
     };
-  }
-
-  // If saved '2026-10-04_sun_mandarin' has no songs or empty songs, seed real songs with YouTube links
-  if (
-    INITIAL_ROSTERS['2026-10-04_sun_mandarin']?.songs &&
-    (!cleanedSavedRosters['2026-10-04_sun_mandarin']?.songs ||
-      cleanedSavedRosters['2026-10-04_sun_mandarin']?.songs?.length === 0)
-  ) {
-    if (cleanedSavedRosters['2026-10-04_sun_mandarin']) {
-      cleanedSavedRosters['2026-10-04_sun_mandarin'].songs =
-        INITIAL_ROSTERS['2026-10-04_sun_mandarin'].songs;
-    }
   }
 
   return {
@@ -206,6 +252,10 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         return mergeStateWithInitial(JSON.parse(stored));
+      }
+      const storedV6 = localStorage.getItem('calvary_staff_roster_data_v6');
+      if (storedV6) {
+        return mergeStateWithInitial(JSON.parse(storedV6));
       }
       const storedV5 = localStorage.getItem('calvary_staff_roster_data_v5');
       if (storedV5) {
@@ -769,6 +819,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (window.confirm('确定要恢复初始示例数据吗？本地已录入的更改将被替换。')) {
       setChurchState(INITIAL_STATE);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('calvary_staff_roster_data_v6');
       localStorage.removeItem('calvary_staff_roster_data_v5');
       localStorage.removeItem('calvary_staff_roster_data_v4');
       localStorage.removeItem('calvary_staff_roster_data_v1');

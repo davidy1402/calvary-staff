@@ -47,11 +47,11 @@ export const INITIAL_ROLES: RoleDefinition[] = [
   // 敬拜赞美团 (对齐教会真实服事表)
   { id: 'lead_vocal', name: '领唱', shortName: '领唱', category: 'worship', description: '带领会众进入敬拜赞美' },
   { id: 'backing_vocal', name: '伴唱', shortName: '伴唱', category: 'worship', description: '和声与配唱' },
-  { id: 'keyboard', name: '琴 (司琴)', shortName: '琴', category: 'worship', description: '和弦伴奏与音乐过渡' },
+  { id: 'keyboard', name: '司琴', shortName: '司琴', category: 'worship', description: '钢琴伴奏与音乐过渡' },
   { id: 'guitar', name: '吉他', shortName: '吉他', category: 'worship', description: '木吉他 / 电吉他弹奏' },
   { id: 'bass', name: '贝司', shortName: '贝司', category: 'worship', description: '低音节拍与铺底' },
   { id: 'drums', name: '鼓 (爵士鼓)', shortName: '鼓', category: 'worship', description: '律动主干' },
-  { id: 'tambourine', name: '铃 (铃鼓)', shortName: '铃', category: 'worship', description: '节奏点缀与节拍辅助' },
+  { id: 'tambourine', name: '铃鼓', shortName: '铃鼓', category: 'worship', description: '节奏点缀与节拍辅助' },
 
   // 影音多媒体 (对齐教会真实影音表)
   { id: 'director', name: 'DIRECTOR 总监', shortName: '总监', category: 'media', description: '影音流程与现场协调' },
@@ -62,9 +62,8 @@ export const INITIAL_ROLES: RoleDefinition[] = [
   { id: 'lighting', name: '灯光', shortName: '灯光', category: 'media', description: '现场聚会灯光模式' },
 
   // 讲台与报告
-  { id: 'speaker', name: '讲员', shortName: '讲员', category: 'pulpit', description: '传讲信息' },
-  { id: 'presider', name: '主席 / 司会', shortName: '主席', category: 'pulpit', description: '主持聚会' },
-  { id: 'announcements', name: '家事报告', shortName: '家事报告', category: 'pulpit', description: '家事报告与代祷' },
+  { id: 'speaker', name: '当天讲员', shortName: '讲员', category: 'pulpit', description: '传讲信息' },
+  { id: 'announcements', name: '报告', shortName: '报告', category: 'pulpit', description: '报告与代祷' },
   { id: 'scripture', name: '读经', shortName: '读经', category: 'pulpit', description: '带领读经' },
 
   // 主日学
@@ -82,44 +81,44 @@ export const INITIAL_ROLES: RoleDefinition[] = [
 ];
 
 export const INITIAL_COWORKERS: Coworker[] = [
-  // 教会牧者与长辈同工
-  { id: 'cw_kaiyue', name: '凯曰', englishName: 'Pastor Kai Yue', phone: '016-8889911', cellGroup: '教牧同工', qualifiedRoleIds: ['director', 'speaker', 'presider', 'lead_vocal', 'guitar', 'prayer_leader'], active: true },
-  { id: 'cw_pastor_huang', name: '黄牧师', englishName: 'Pastor Huang', phone: '', cellGroup: '教牧同工', qualifiedRoleIds: ['speaker', 'offering'], active: true },
-  { id: 'cw_pastor_su', name: '苏牧师', englishName: 'Pastor Su', phone: '', cellGroup: '教牧同工', qualifiedRoleIds: ['speaker'], active: true },
-  { id: 'cw_wensen', name: '文森', englishName: 'Vincent', phone: '016-1122334', cellGroup: '教牧同工', qualifiedRoleIds: ['director', 'sound_pa'], active: true },
-  { id: 'cw_sam', name: 'Sam', englishName: 'Sam', phone: '', cellGroup: '宣教同工', qualifiedRoleIds: ['prayer_leader', 'lead_vocal'], active: true },
+  // 牧者与传道
+  { id: 'cw_kaiyue', name: '凯曰', englishName: 'Pastor Kai Yue', phone: '016-8889911', cellGroup: '牧者', qualifiedRoleIds: ['director', 'speaker', 'lead_vocal', 'guitar', 'prayer_leader'], active: true },
+  { id: 'cw_pastor_huang', name: '黄牧师', englishName: 'Pastor Huang', phone: '', cellGroup: '牧者', qualifiedRoleIds: ['speaker', 'offering'], active: true },
+  { id: 'cw_pastor_su', name: '苏牧师', englishName: 'Pastor Su', phone: '', cellGroup: '牧者', qualifiedRoleIds: ['speaker'], active: true },
+  { id: 'cw_wensen', name: '文森', englishName: 'Vincent', phone: '016-1122334', cellGroup: '牧者', qualifiedRoleIds: ['director', 'sound_pa'], active: true },
+  { id: 'cw_sam', name: 'Sam', englishName: 'Sam', phone: '', cellGroup: '同工', qualifiedRoleIds: ['prayer_leader', 'lead_vocal'], active: true },
 
   // 核心家庭与服事团队
-  { id: 'cw_selena', name: 'Selena', englishName: 'Selena Yong', phone: '012-9988112', cellGroup: '青年社青', qualifiedRoleIds: ['backing_vocal', 'tambourine', 'lead_vocal', 'sunday_school_leader', 'announcements', 'ppt'], active: true },
-  { id: 'cw_yongyi', name: '永益', englishName: 'Yong Yi', phone: '016-7788990', cellGroup: '约书亚', qualifiedRoleIds: ['keyboard', 'lead_vocal', 'prayer_leader', 'chief_usher'], active: true },
-  { id: 'cw_diana', name: 'Diana', englishName: 'Diana Yong', phone: '017-3322110', cellGroup: 'Fire4J', qualifiedRoleIds: ['ppt', 'sound_pa', 'greeter', 'offering'], active: true },
-  { id: 'cw_zongyan', name: '宗晏', englishName: 'Zong Yan', phone: '018-4455667', cellGroup: 'Fire4J', qualifiedRoleIds: ['drums', 'bass', 'camera'], active: true },
-  { id: 'cw_david', name: '杨家维', englishName: 'David Yong', phone: '012-7654321', cellGroup: 'Fire4J', qualifiedRoleIds: ['guitar', 'sound_pa', 'presider', 'announcements'], active: true },
-  { id: 'cw_jiakai', name: '嘉凯', englishName: 'Jia Kai', phone: '', cellGroup: '青年社青', qualifiedRoleIds: ['ppt'], active: true },
+  { id: 'cw_selena', name: 'Selena', englishName: 'Selena Yong', phone: '012-9988112', cellGroup: '职青', qualifiedRoleIds: ['backing_vocal', 'tambourine', 'lead_vocal', 'sunday_school_leader', 'announcements', 'ppt'], active: true },
+  { id: 'cw_yongyi', name: '永益', englishName: 'Yong Yi', phone: '016-7788990', cellGroup: '职青', qualifiedRoleIds: ['keyboard', 'lead_vocal', 'prayer_leader', 'chief_usher'], active: true },
+  { id: 'cw_diana', name: 'Diana', englishName: 'Diana Yong', phone: '017-3322110', cellGroup: '大专', qualifiedRoleIds: ['ppt', 'sound_pa', 'greeter', 'offering'], active: true },
+  { id: 'cw_zongyan', name: '宗晏', englishName: 'Zong Yan', phone: '018-4455667', cellGroup: '大专', qualifiedRoleIds: ['drums', 'bass', 'camera'], active: true },
+  { id: 'cw_david', name: '杨家维', englishName: 'David Yong', phone: '012-7654321', cellGroup: '大专', qualifiedRoleIds: ['guitar', 'sound_pa', 'announcements'], active: true },
+  { id: 'cw_jiakai', name: '嘉凯', englishName: 'Jia Kai', phone: '', cellGroup: '职青', qualifiedRoleIds: ['ppt'], active: true },
 
-  // 敬拜团服事人员 (来自真实服事表)
-  { id: 'cw_qiuyi', name: '秋仪', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['lead_vocal'], active: true },
-  { id: 'cw_wentian', name: '文添', englishName: 'Enoch', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['lead_vocal', 'keyboard'], active: true },
-  { id: 'cw_yunqing', name: '云青', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['backing_vocal'], active: true },
-  { id: 'cw_baozhen', name: '宝贞', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['lead_vocal'], active: true },
-  { id: 'cw_youxiang', name: '有祥', englishName: '', phone: '', cellGroup: '敬拜团 / AV', qualifiedRoleIds: ['lead_vocal', 'camera'], active: true },
-  { id: 'cw_wenhui', name: '雯慧', englishName: '', phone: '', cellGroup: '敬拜团 / AV', qualifiedRoleIds: ['backing_vocal', 'ppt'], active: true },
-  { id: 'cw_liping', name: '丽萍', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['backing_vocal', 'tambourine'], active: true },
-  { id: 'cw_qiaoen', name: '巧恩', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['keyboard', 'lead_vocal'], active: true },
-  { id: 'cw_boo', name: 'Boo', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['bass', 'guitar', 'lead_vocal'], active: true },
-  { id: 'cw_jinlai', name: '锦来', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['drums', 'bass'], active: true },
-  { id: 'cw_yongwei', name: '永伟', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['drums'], active: true },
-  { id: 'cw_winnie', name: 'Winnie', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['backing_vocal', 'tambourine'], active: true },
-  { id: 'cw_baohui', name: '保辉', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['backing_vocal'], active: true },
-  { id: 'cw_meifang', name: '梅芳', englishName: '', phone: '', cellGroup: '敬拜团', qualifiedRoleIds: ['lead_vocal'], active: true },
+  // 敬拜团服事人员 (职青与同工)
+  { id: 'cw_qiuyi', name: '秋仪', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['lead_vocal'], active: true },
+  { id: 'cw_wentian', name: '文添', englishName: 'Enoch', phone: '', cellGroup: '职青', qualifiedRoleIds: ['lead_vocal', 'keyboard'], active: true },
+  { id: 'cw_yunqing', name: '云青', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['backing_vocal'], active: true },
+  { id: 'cw_baozhen', name: '宝贞', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['lead_vocal'], active: true },
+  { id: 'cw_youxiang', name: '有祥', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['lead_vocal', 'camera'], active: true },
+  { id: 'cw_wenhui', name: '雯慧', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['backing_vocal', 'ppt'], active: true },
+  { id: 'cw_liping', name: '丽萍', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['backing_vocal', 'tambourine'], active: true },
+  { id: 'cw_qiaoen', name: '巧恩', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['keyboard', 'lead_vocal'], active: true },
+  { id: 'cw_boo', name: 'Boo', englishName: '', phone: '', cellGroup: '同工', qualifiedRoleIds: ['bass', 'guitar', 'lead_vocal'], active: true },
+  { id: 'cw_jinlai', name: '锦来', englishName: '', phone: '', cellGroup: '同工', qualifiedRoleIds: ['drums', 'bass'], active: true },
+  { id: 'cw_yongwei', name: '永伟', englishName: '', phone: '', cellGroup: '同工', qualifiedRoleIds: ['drums'], active: true },
+  { id: 'cw_winnie', name: 'Winnie', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['backing_vocal', 'tambourine'], active: true },
+  { id: 'cw_baohui', name: '保辉', englishName: '', phone: '', cellGroup: '同工', qualifiedRoleIds: ['backing_vocal'], active: true },
+  { id: 'cw_meifang', name: '梅芳', englishName: '', phone: '', cellGroup: '同工', qualifiedRoleIds: ['lead_vocal'], active: true },
 
-  // 影音多媒体服事人员 (来自真实影音表)
-  { id: 'cw_josh', name: 'Josh', englishName: 'Josh', phone: '', cellGroup: '影音组', qualifiedRoleIds: ['sound_pa'], active: true },
-  { id: 'cw_leelian', name: 'LEELIAN', englishName: 'Leelian', phone: '', cellGroup: '影音组', qualifiedRoleIds: ['ppt'], active: true },
-  { id: 'cw_elleyna', name: 'ELLEYNA', englishName: 'Elleyna', phone: '', cellGroup: '影音组', qualifiedRoleIds: ['ppt'], active: true },
-  { id: 'cw_samuel', name: 'SAMUEL', englishName: 'Samuel', phone: '', cellGroup: '影音组', qualifiedRoleIds: ['obs'], active: true },
-  { id: 'cw_qihong', name: '启鸿', englishName: 'Qi Hong', phone: '', cellGroup: '影音组', qualifiedRoleIds: ['obs'], active: true },
-  { id: 'cw_jiayi', name: '家毅', englishName: 'Jia Yi', phone: '', cellGroup: '影音组', qualifiedRoleIds: ['camera'], active: true },
+  // 影音多媒体服事人员 (大专与青少年)
+  { id: 'cw_josh', name: 'Josh', englishName: 'Josh', phone: '', cellGroup: '大专', qualifiedRoleIds: ['sound_pa'], active: true },
+  { id: 'cw_leelian', name: 'LEELIAN', englishName: 'Leelian', phone: '', cellGroup: '大专', qualifiedRoleIds: ['ppt'], active: true },
+  { id: 'cw_elleyna', name: 'ELLEYNA', englishName: 'Elleyna', phone: '', cellGroup: '青少年', qualifiedRoleIds: ['ppt'], active: true },
+  { id: 'cw_samuel', name: 'SAMUEL', englishName: 'Samuel', phone: '', cellGroup: '大专', qualifiedRoleIds: ['obs'], active: true },
+  { id: 'cw_qihong', name: '启鸿', englishName: 'Qi Hong', phone: '', cellGroup: '大专', qualifiedRoleIds: ['obs'], active: true },
+  { id: 'cw_jiayi', name: '家毅', englishName: 'Jia Yi', phone: '', cellGroup: '大专', qualifiedRoleIds: ['camera'], active: true },
 ];
 
 export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
@@ -190,7 +189,6 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
       obs: ['cw_samuel'],
       camera: ['cw_jiayi'],
       speaker: ['cw_pastor_huang'],
-      presider: ['cw_kaiyue'],
       announcements: ['cw_selena'],
       sunday_school_leader: ['cw_selena'], // Selena 撞期: 伴唱 + 主日学 + 报告
       prayer_leader: ['cw_kaiyue'],
@@ -212,11 +210,11 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     date: '2026-10-11',
     theme: '敬牧月',
     specialEvents: ['服装要求: 黑白'],
-    speaker: '讲员',
+    speaker: '当天讲员',
     songs: [
-      { id: 's11', title: '满有能力', key: 'C', category: '快歌' },
-      { id: 's12', title: '祢是配得', key: 'G', category: '慢歌' },
-      { id: 's13', title: '活出爱', key: 'F', category: '回应' },
+      { id: 's11', title: '满有能力', key: 'C', category: '快歌', youtubeUrl: 'https://youtu.be/mFp7K8VbT7o' },
+      { id: 's12', title: '祢是配得', key: 'G', category: '慢歌', youtubeUrl: 'https://youtu.be/39d54e4E7X0' },
+      { id: 's13', title: '活出爱', key: 'F', category: '回应', youtubeUrl: 'https://youtu.be/3mE3XfJ9hR4' },
     ],
     assignments: {
       lead_vocal: ['cw_baozhen', 'cw_youxiang'],
@@ -244,10 +242,11 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     date: '2026-10-18',
     theme: '敬牧月',
     specialEvents: ['服装要求: 全黑'],
+    speaker: '当天讲员',
     songs: [
-      { id: 's21', title: '喜乐泉源', key: 'D', category: '快歌' },
-      { id: 's22', title: '恩典之路', key: 'G', category: '慢歌' },
-      { id: 's23', title: '因祢爱的大能', key: 'G', category: '回应' },
+      { id: 's21', title: '喜乐泉源', key: 'D', category: '快歌', youtubeUrl: 'https://youtu.be/Hk0xS82Hl10' },
+      { id: 's22', title: '恩典之路', key: 'G', category: '慢歌', youtubeUrl: 'https://youtu.be/V6Q5H7a0eQ4' },
+      { id: 's23', title: '因祢爱的大能', key: 'G', category: '回应', youtubeUrl: 'https://youtu.be/e7v12M9Y984' },
     ],
     assignments: {
       lead_vocal: ['cw_boo', 'cw_yongyi'],
@@ -273,10 +272,11 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     date: '2026-10-25',
     theme: '敬牧月',
     specialEvents: ['服装要求: 蓝白'],
+    speaker: '当天讲员',
     songs: [
-      { id: 's31', title: '耶和华行了大事', key: 'C', category: '快歌' },
-      { id: 's32', title: '这是圣洁之地', key: 'F', category: '慢歌' },
-      { id: 's33', title: '主我敬拜祢', key: 'E', category: '回应' },
+      { id: 's31', title: '耶和华行了大事', key: 'C', category: '快歌', youtubeUrl: 'https://youtu.be/jX0Y9y3R910' },
+      { id: 's32', title: '这是圣洁之地', key: 'F', category: '慢歌', youtubeUrl: 'https://youtu.be/fM1qN9Y8w34' },
+      { id: 's33', title: '主我敬拜祢', key: 'E', category: '回应', youtubeUrl: 'https://youtu.be/27vAkniVxFE' },
     ],
     assignments: {
       lead_vocal: ['cw_meifang', 'cw_qiaoen'],
@@ -302,9 +302,9 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     date: '2026-10-03',
     theme: 'Fire4J: 全心赞美',
     songs: [
-      { id: 'sy1', title: '开双眼 (Open Eyes)', key: 'E', category: '快歌' },
-      { id: 'sy2', title: '一千个理由 (10,000 Reasons)', key: 'G', category: '慢歌' },
-      { id: 'sy3', title: '全心全意', key: 'D', category: '回应' },
+      { id: 'sy1', title: '开双眼 (Open Eyes)', key: 'E', category: '快歌', youtubeUrl: 'https://youtu.be/V1zBw9K0v34' },
+      { id: 'sy2', title: '一千个理由 (10,000 Reasons)', key: 'G', category: '慢歌', youtubeUrl: 'https://youtu.be/DXDGE_lRI0E' },
+      { id: 'sy3', title: '全心全意', key: 'D', category: '回应', youtubeUrl: 'https://youtu.be/kY7R3x4Z910' },
     ],
     assignments: {
       lead_vocal: ['cw_david'],

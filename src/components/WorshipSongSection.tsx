@@ -107,14 +107,14 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
               )}
             </div>
           ) : (
-            <div className="space-y-1.5 pt-1">
+            <div className="space-y-2 pt-1">
               {songs.map((song, idx) => (
                 <div
                   key={song.id}
-                  className="p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200/70 dark:border-zinc-800 flex items-center justify-between gap-2 shadow-2xs hover:border-slate-300 dark:hover:border-zinc-700 transition-colors"
+                  className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 flex items-center justify-between gap-3 shadow-2xs hover:border-slate-300 dark:hover:border-zinc-700 transition-colors"
                 >
-                  <div className="flex items-center gap-2 min-w-0 flex-wrap sm:flex-nowrap">
-                    <span className="text-[11px] font-mono font-bold text-slate-400 dark:text-zinc-500 w-4 text-center shrink-0">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1 flex-wrap sm:flex-nowrap">
+                    <span className="text-xs font-mono font-bold text-slate-400 dark:text-zinc-500 w-4 text-center shrink-0">
                       {idx + 1}
                     </span>
 
@@ -123,14 +123,14 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                     </span>
 
                     {song.key && (
-                      <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-zinc-800 text-blue-900 dark:text-blue-300 border border-blue-200/80 dark:border-zinc-700 shrink-0">
+                      <span className="text-[10px] font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-zinc-800 text-blue-900 dark:text-blue-300 border border-blue-200/80 dark:border-zinc-700 shrink-0">
                         Key {song.key}
                       </span>
                     )}
 
                     {song.category && (
                       <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0 ${
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${
                           song.category === '快歌'
                             ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-900/50'
                             : song.category === '慢歌'
@@ -144,21 +144,6 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                       </span>
                     )}
 
-                    {song.youtubeUrl && (
-                      <a
-                        href={song.youtubeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        title="在 YouTube 试听或查看伴奏"
-                        className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-red-50 hover:bg-red-100 dark:bg-red-950/50 dark:hover:bg-red-900/70 text-red-600 dark:text-red-400 border border-red-200/80 dark:border-red-900/60 transition-colors shrink-0 active:scale-95 cursor-pointer shadow-2xs"
-                      >
-                        <Play size={9} className="fill-current" />
-                        <span>YouTube</span>
-                        <ExternalLink size={9} strokeWidth={2} />
-                      </a>
-                    )}
-
                     {song.notes && (
                       <span className="text-[11px] text-slate-400 dark:text-zinc-500 truncate hidden sm:inline">
                         ({song.notes})
@@ -166,16 +151,46 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                     )}
                   </div>
 
-                  {isEditMode && (
-                    <button
-                      type="button"
-                      onClick={() => removeSong(song.id, date, serviceId)}
-                      title="删除诗歌"
-                      className="text-slate-300 dark:text-zinc-600 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded transition-colors cursor-pointer shrink-0"
-                    >
-                      <Trash2 size={13} strokeWidth={2} />
-                    </button>
-                  )}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {song.youtubeUrl ? (
+                      <a
+                        href={song.youtubeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        title="在 YouTube 试听官方练习曲或 MV"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
+                      >
+                        <Play size={10} className="fill-current" />
+                        <span>YouTube 试听</span>
+                        <ExternalLink size={10} strokeWidth={2.2} />
+                      </a>
+                    ) : isEditMode ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const url = window.prompt(`为《${song.title}》输入 YouTube 链接:`, song.youtubeUrl || '');
+                          if (url !== null && url.trim()) {
+                            addSong({ ...song, youtubeUrl: url.trim() }, date, serviceId);
+                          }
+                        }}
+                        className="text-[11px] font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-zinc-800 hover:bg-red-100 px-2 py-1 rounded-lg border border-red-200 dark:border-zinc-700 transition-colors cursor-pointer"
+                      >
+                        + YouTube
+                      </button>
+                    ) : null}
+
+                    {isEditMode && (
+                      <button
+                        type="button"
+                        onClick={() => removeSong(song.id, date, serviceId)}
+                        title="删除诗歌"
+                        className="text-slate-300 dark:text-zinc-600 hover:text-rose-600 dark:hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                      >
+                        <Trash2 size={14} strokeWidth={2} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
