@@ -7,7 +7,7 @@ interface ChurchLogoProps {
 
 export const ChurchLogo: React.FC<ChurchLogoProps> = ({
   className = 'w-8 h-8 object-contain shrink-0',
-  alt = 'CCCJB Logo',
+  alt = 'CCCJB Connect Logo',
 }) => {
   const base = import.meta.env.BASE_URL || './';
   const logoLight = `${base}logo.png`;

@@ -46,8 +46,15 @@ body {
 }
 
 .app-header-safe {
-  padding-top: 16px;
-  padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 10px));
+  padding-top: 4.25rem;
+  padding-top: max(4.25rem, calc(env(safe-area-inset-top) + 0.875rem));
+  background-clip: padding-box;
+}
+
+@media (min-width: 768px) and (hover: hover) {
+  .app-header-safe {
+    padding-top: 1.25rem;
+  }
 }
 
 @keyframes slideUpFade {

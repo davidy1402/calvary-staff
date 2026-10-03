@@ -51,10 +51,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           <ChurchLogo className="w-8 h-8 object-contain shrink-0" />
           <div className="text-left">
             <h1 className="text-xs font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight leading-snug">
-              {language === 'zh' ? '新山加略山社区教会' : 'Calvary Community Church'}
+              {language === 'zh' ? '新山加略山社区教会' : 'CCCJB Connect'}
             </h1>
             <p className="text-[10px] font-bold text-blue-700 dark:text-blue-400 tracking-wider leading-none">
-              CCCJB
+              CCCJB Connect
             </p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
       <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-xs flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-xs text-blue-200 font-medium">
-            {currentUser?.cellGroup || (language === 'zh' ? '新山加略山社区教会' : 'Calvary Community Church Johor Bahru')}
+            {currentUser?.cellGroup || (language === 'zh' ? '新山加略山社区教会' : 'CCCJB Connect')}
           </p>
           <h2 className="text-2xl font-extrabold tracking-tight mt-1">
             {t('welcomeBack', language)}, {displayName}!

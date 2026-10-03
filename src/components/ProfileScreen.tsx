@@ -81,7 +81,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
         <div className="flex items-center gap-2">
           <ChurchLogo className="w-7 h-7 object-contain shrink-0" />
           <h1 className="text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
-            CCCJB {t('settingsTitle', language)}
+            CCCJB Connect {t('settingsTitle', language)}
           </h1>
         </div>
       </header>
@@ -141,7 +141,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
-                {currentUser?.name || (language === 'zh' ? 'CCCJB 服事同工' : 'CCCJB Volunteer')}
+                {currentUser?.name || (language === 'zh' ? 'CCCJB Connect 服事同工' : 'CCCJB Connect Volunteer')}
               </h2>
               {currentUser?.englishName && (
                 <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">({currentUser.englishName})</span>

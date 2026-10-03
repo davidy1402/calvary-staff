@@ -340,7 +340,7 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
 
 export const INITIAL_STATE: ChurchState = {
   churchName: '新山加略山社区教会',
-  shortName: 'CCCJB',
+  shortName: 'CCCJB Connect',
   services: INITIAL_SERVICES,
   roles: INITIAL_ROLES,
   coworkers: INITIAL_COWORKERS,

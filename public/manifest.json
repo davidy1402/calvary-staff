@@ -1,7 +1,7 @@
 {
-  "name": "新山加略山社区教会 CCCJB",
-  "short_name": "CCCJB 服事",
-  "description": "新山加略山社区教会 (Calvary Community Church Johor Bahru) 服事排班看板",
+  "name": "CCCJB Connect",
+  "short_name": "CCCJB Connect",
+  "description": "新山加略山社区教会 CCCJB Connect 服事排班看板与同工助手",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#000000",
