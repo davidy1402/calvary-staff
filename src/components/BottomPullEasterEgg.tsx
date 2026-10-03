@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { EasterEggModal } from './EasterEggModal';
-import { Sparkles, Gift } from 'lucide-react';
+import { PartyPopper } from 'lucide-react';
 
 interface BottomPullEasterEggProps {
   language: 'zh' | 'en';
@@ -8,7 +8,6 @@ interface BottomPullEasterEggProps {
 
 export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ language }) => {
   const [pullDistance, setPullDistance] = useState(0);
-  const [pullCount, setPullCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const startYRef = useRef<number | null>(null);
@@ -22,13 +21,12 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     const scrollY = window.scrollY || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const docHeight = document.documentElement.scrollHeight;
-    return scrollY + windowHeight >= docHeight - 35;
+    return scrollY + windowHeight >= docHeight - 30;
   }, []);
 
   const triggerEasterEgg = useCallback(() => {
     setIsModalOpen(true);
     setPullDistance(0);
-    setPullCount(0);
   }, []);
 
   useEffect(() => {
@@ -50,11 +48,11 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
       }
 
       const currentY = e.touches[0].clientY;
-      const dy = startYRef.current - currentY; // positive when pulling UP (trying to scroll past bottom)
+      const dy = startYRef.current - currentY; // positive when pulling UP past bottom
 
       if (dy > 0) {
-        // Apply resistance physics: square root dampening
-        const dampened = Math.min(120, Math.pow(dy, 0.85) * 2.2);
+        // Natural rubberband resistance physics
+        const dampened = Math.min(90, Math.pow(dy, 0.82) * 1.8);
         setPullDistance(dampened);
       } else {
         setPullDistance(0);
@@ -62,24 +60,15 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     };
 
     const handleTouchEnd = () => {
-      if (pullDistance > 65) {
+      if (pullDistance > 55) {
         triggerEasterEgg();
-      } else if (pullDistance > 25) {
-        setPullCount((prev) => {
-          const next = prev + 1;
-          if (next >= 3) {
-            triggerEasterEgg();
-            return 0;
-          }
-          return next;
-        });
       }
       setPullDistance(0);
       isPullingRef.current = false;
       startYRef.current = null;
     };
 
-    // Wheel event for desktop trackpad / mouse
+    // Desktop trackpad / mouse wheel support
     let wheelAccumulator = 0;
     let wheelTimer: number | null = null;
 
@@ -91,16 +80,16 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
 
       if (e.deltaY > 0) {
         wheelAccumulator += e.deltaY;
-        setPullDistance(Math.min(80, wheelAccumulator * 0.4));
+        setPullDistance(Math.min(75, wheelAccumulator * 0.35));
 
         if (wheelTimer) window.clearTimeout(wheelTimer);
         wheelTimer = window.setTimeout(() => {
-          if (wheelAccumulator > 120) {
+          if (wheelAccumulator > 100) {
             triggerEasterEgg();
           }
           wheelAccumulator = 0;
           setPullDistance(0);
-        }, 300);
+        }, 260);
       }
     };
 
@@ -118,7 +107,7 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     };
   }, [isAtBottom, pullDistance, triggerEasterEgg]);
 
-  // Fallback tap trigger: tap 5 times on bottom area
+  // Discrete fallback: tap 5 times on bottom area
   const handleFooterTap = () => {
     tapCountRef.current += 1;
     if (tapTimerRef.current) window.clearTimeout(tapTimerRef.current);
@@ -133,56 +122,38 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     }
   };
 
-  const isVisible = pullDistance > 8 || pullCount > 0;
+  const isTriggerReady = pullDistance > 55;
+  const scale = Math.min(1.25, 0.4 + (pullDistance / 55) * 0.65);
+  const opacity = Math.min(1, pullDistance / 25);
+  const rotation = Math.sin(pullDistance * 0.1) * 12;
 
   return (
     <>
-      {/* Interactive Bottom Pull Indicator */}
+      {/* Pure Tactile Rubberband Peek (Zero AI text banners) */}
       <div
         ref={containerRef}
         onClick={handleFooterTap}
-        className="text-center pt-2 pb-6 select-none cursor-pointer"
+        className="w-full flex flex-col items-center justify-center select-none cursor-pointer overflow-hidden transition-all duration-150"
         style={{
-          transform: `translateY(-${Math.min(pullDistance * 0.4, 25)}px)`,
-          transition: pullDistance === 0 ? 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'none',
+          height: `${Math.max(16, pullDistance)}px`,
         }}
+        aria-hidden="true"
       >
-        {/* Dynamic Pull Visualizer */}
         <div
-          className={`overflow-hidden transition-all duration-200 flex flex-col items-center justify-center ${
-            isVisible ? 'opacity-100' : 'opacity-0 h-0 pointer-events-none'
+          className={`flex items-center justify-center transition-colors duration-150 ${
+            isTriggerReady
+              ? 'text-amber-500 scale-110'
+              : 'text-slate-400 dark:text-zinc-500'
           }`}
-          style={{ height: isVisible ? `${Math.max(36, pullDistance * 0.85)}px` : '0px' }}
+          style={{
+            opacity: opacity,
+            transform: `scale(${scale}) rotate(${rotation}deg)`,
+            transition: pullDistance === 0 ? 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'none',
+          }}
         >
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-zinc-800 border border-blue-200 dark:border-zinc-700 text-blue-700 dark:text-blue-300 text-xs font-bold shadow-xs animate-pulse">
-            {pullDistance > 65 ? (
-              <>
-                <Sparkles size={14} className="text-amber-500 animate-spin" />
-                <span>{language === 'zh' ? '松开召唤彩蛋！🎉' : 'Release to unlock! 🎉'}</span>
-              </>
-            ) : pullCount > 0 ? (
-              <>
-                <Gift size={13} className="text-blue-600 dark:text-blue-400" />
-                <span>
-                  {language === 'zh'
-                    ? `再用力拉 ${3 - pullCount} 次... ✨`
-                    : `Pull ${3 - pullCount} more times... ✨`}
-                </span>
-              </>
-            ) : (
-              <>
-                <Gift size={13} className="text-blue-600 dark:text-blue-400" />
-                <span>{language === 'zh' ? '继续往下拉到底... 👀' : 'Keep pulling down... 👀'}</span>
-              </>
-            )}
+          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shadow-2xs">
+            <PartyPopper size={16} strokeWidth={isTriggerReady ? 2.2 : 1.75} />
           </div>
-        </div>
-
-        {/* Discrete hint dots */}
-        <div className="flex justify-center items-center gap-1 py-1 opacity-25 hover:opacity-70 transition-opacity">
-          <span className="w-1 h-1 rounded-full bg-slate-400 dark:bg-zinc-600" />
-          <span className="w-1 h-1 rounded-full bg-slate-400 dark:bg-zinc-600" />
-          <span className="w-1 h-1 rounded-full bg-slate-400 dark:bg-zinc-600" />
         </div>
       </div>
 
