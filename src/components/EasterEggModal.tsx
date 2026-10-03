@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Heart, PartyPopper, X } from 'lucide-react';
+import { PartyPopper } from 'lucide-react';
 import { fireConfetti } from '../utils/confetti';
 import { ChurchLogo } from './ChurchLogo';
 
@@ -12,11 +12,10 @@ interface EasterEggModalProps {
 export const EasterEggModal: React.FC<EasterEggModalProps> = ({ isOpen, onClose, language }) => {
   useEffect(() => {
     if (isOpen) {
-      // Fire celebratory confetti immediately upon trigger
       const cleanup = fireConfetti();
       try {
         if ('vibrate' in navigator) {
-          navigator.vibrate([40, 30, 80]);
+          navigator.vibrate([30, 20, 50]);
         }
       } catch {
         // ignore
@@ -28,71 +27,78 @@ export const EasterEggModal: React.FC<EasterEggModalProps> = ({ isOpen, onClose,
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-xs animate-fade-in"
+    >
       <div
         className="bg-white dark:bg-zinc-900 rounded-3xl max-w-sm w-full p-6 text-center border border-slate-200/90 dark:border-zinc-800 shadow-xl relative overflow-hidden animate-scale-up"
         role="dialog"
         aria-modal="true"
       >
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-zinc-500 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-          aria-label="关闭"
-        >
-          <X size={17} strokeWidth={2} />
-        </button>
-
-        {/* Subtle, Tasteful Icon Badge */}
-        <div className="mx-auto w-13 h-13 rounded-2xl bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-2xs mb-3.5">
-          <PartyPopper size={24} strokeWidth={2} />
+        {/* Subtle Icon Badge */}
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-2xs mb-3.5">
+          <PartyPopper size={22} strokeWidth={2} />
         </div>
 
-        {/* Clean, Human Title */}
+        {/* Title */}
         <h3 className="text-lg font-black text-slate-900 dark:text-zinc-100 tracking-tight">
-          {language === 'zh' ? '被你发现了 🤫' : 'You Found It!'}
+          {language === 'zh' ? '平时服事辛苦啦' : 'Thank You for Serving'}
         </h3>
 
-        {/* Sincere, Grounded Message */}
-        <div className="mt-2.5 space-y-2 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
-          <p className="font-semibold text-slate-800 dark:text-zinc-200">
-            {language === 'zh'
-              ? '平时在加略山服事辛苦了！'
-              : 'Thank you for serving faithfully at CCCJB!'}
-          </p>
-          <p>
-            {language === 'zh'
-              ? '不管是台上带领敬拜，还是在幕后看音响PA、按电脑PPT、带主日学或是招待，谢谢你每个礼拜的默默付出。'
-              : 'Whether leading on stage or serving quietly behind sound, slides, Sunday school, or ushering, every quiet effort matters.'}
-          </p>
+        {/* Content with natural line breaks */}
+        <div className="mt-3.5 space-y-2.5 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed text-center">
+          {language === 'zh' ? (
+            <>
+              <p className="font-semibold text-slate-800 dark:text-zinc-200">
+                能一直拉到最底下，证明你真的很有耐心。
+              </p>
+              <p>
+                不管是台上敬拜，还是幕后音响、电脑、招待和主日学，
+                <br />
+                谢谢你每个礼拜默默为教会的付出。
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-semibold text-slate-800 dark:text-zinc-200">
+                You must be really patient to scroll all the way down here.
+              </p>
+              <p>
+                Whether you serve on stage or behind the scenes,
+                <br />
+                thank you for faithfully giving your time each week.
+              </p>
+            </>
+          )}
         </div>
 
         {/* Clean Action Buttons */}
-        <div className="mt-5 flex flex-col gap-2">
+        <div className="mt-6 flex flex-col gap-2">
           <button
             type="button"
             onClick={() => {
               fireConfetti();
               try {
-                if ('vibrate' in navigator) navigator.vibrate([30, 20, 60]);
+                if ('vibrate' in navigator) navigator.vibrate([30, 20, 50]);
               } catch {
                 // ignore
               }
             }}
-            className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs active:scale-98 transition-all cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-2xs active:scale-98 transition-all cursor-pointer"
           >
             <PartyPopper size={14} strokeWidth={2} />
-            <span>{language === 'zh' ? '再放一次彩花 🎊' : 'Burst Confetti Again 🎊'}</span>
+            <span>{language === 'zh' ? '再放一次彩花' : 'Celebrate again'}</span>
           </button>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-98 transition-colors cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 font-semibold text-xs active:scale-98 transition-colors cursor-pointer"
           >
-            <Heart size={13} strokeWidth={2} className="text-rose-500 fill-rose-500" />
-            <span>{language === 'zh' ? '收下这份心意' : 'Got it'}</span>
+            {language === 'zh' ? '知道了' : 'Got it'}
           </button>
         </div>
 
