@@ -8,6 +8,8 @@ interface DashboardScreenProps {
   onNavigateToRoster: () => void;
 }
 
+import { ChurchLogo } from './ChurchLogo';
+
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRoster }) => {
   const { currentUser, getUserSeasonAssignments, language, isDarkMode, toggleDarkMode } = useChurch();
 
@@ -46,8 +48,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
       {/* Centered AppBar with Church Logo & Name */}
       <div className="bg-white/95 dark:bg-black/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800 -mx-4 -mt-4 px-4 py-2.5 mb-4 sticky top-0 z-20 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="CCCJB Logo" className="w-8 h-8 object-contain shrink-0 dark:hidden" />
-          <img src="/logo-white.png" alt="CCCJB Logo" className="w-8 h-8 object-contain shrink-0 hidden dark:block" />
+          <ChurchLogo className="w-8 h-8 object-contain shrink-0" />
           <div className="text-left">
             <h1 className="text-xs font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight leading-snug">
               {language === 'zh' ? '新山加略山社区教会' : 'Calvary Community Church'}

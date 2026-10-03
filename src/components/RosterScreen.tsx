@@ -22,6 +22,7 @@ import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
 import { WorshipSongSection } from './WorshipSongSection';
 import { ServiceManagerModal } from './ServiceManagerModal';
+import { ChurchLogo } from './ChurchLogo';
 import { t } from '../utils/i18n';
 import type { RoleDefinition, ServiceRoster, RoleCategoryId } from '../types';
 
@@ -141,8 +142,7 @@ export const RosterScreen: React.FC = () => {
         <div className="flex items-center justify-between pb-1">
           {/* Title & Mode Status Indicator */}
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="CCCJB" className="w-6 h-6 object-contain shrink-0 dark:hidden" />
-            <img src="/logo-white.png" alt="CCCJB" className="w-6 h-6 object-contain shrink-0 hidden dark:block" />
+            <ChurchLogo className="w-6 h-6 object-contain shrink-0" />
             <h1 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
               {isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
             </h1>

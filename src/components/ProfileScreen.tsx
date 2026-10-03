@@ -11,14 +11,22 @@ import {
   ShieldCheck,
   Sun,
   Moon,
+  Sparkles,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
 import { ServiceManagerModal } from './ServiceManagerModal';
+import { LatestUpdateModal } from './LatestUpdateModal';
+import { ChurchLogo } from './ChurchLogo';
+import { CURRENT_VERSION } from '../data/updates';
 import { compressAvatarImage } from '../utils/imageUtils';
 import { t } from '../utils/i18n';
 
-export const ProfileScreen: React.FC = () => {
+interface ProfileScreenProps {
+  onOpenUpdates?: () => void;
+}
+
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) => {
   const {
     churchState,
     currentUser,
@@ -36,6 +44,7 @@ export const ProfileScreen: React.FC = () => {
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
   const [isCoworkersOpen, setIsCoworkersOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isUpdatesOpen, setIsUpdatesOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,8 +78,7 @@ export const ProfileScreen: React.FC = () => {
       {/* Centered AppBar */}
       <div className="bg-white/95 dark:bg-black/90 backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800 -mx-4 -mt-4 px-4 py-2.5 mb-2 sticky top-0 z-20 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="CCCJB" className="w-7 h-7 object-contain shrink-0 dark:hidden" />
-          <img src="/logo-white.png" alt="CCCJB" className="w-7 h-7 object-contain shrink-0 hidden dark:block" />
+          <ChurchLogo className="w-7 h-7 object-contain shrink-0" />
           <h1 className="text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
             CCCJB {t('settingsTitle', language)}
           </h1>
@@ -303,6 +311,38 @@ export const ProfileScreen: React.FC = () => {
           </div>
           <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400 dark:text-zinc-500 shrink-0" />
         </div>
+
+        {/* Latest Updates & Changelog */}
+        <div
+          onClick={() => {
+            if (onOpenUpdates) {
+              onOpenUpdates();
+            } else {
+              setIsUpdatesOpen(true);
+            }
+          }}
+          className="p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <Sparkles size={17} strokeWidth={1.75} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                  {language === 'zh' ? '最新更新与版本说明' : 'Latest Updates'}
+                </h3>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-zinc-700">
+                  v{CURRENT_VERSION.version}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                {language === 'zh' ? '查看系统近期改动与新功能记录' : 'View recent changelog and new features'}
+              </p>
+            </div>
+          </div>
+          <ChevronRight size={16} strokeWidth={1.75} className="text-slate-400 dark:text-zinc-500 shrink-0" />
+        </div>
       </div>
 
       {/* Appearance / Dark Mode Card */}
@@ -388,7 +428,7 @@ export const ProfileScreen: React.FC = () => {
       {/* Subtle Warm Footnote */}
       <div className="text-center pt-3 space-y-1">
         <p className="text-xs text-slate-400 dark:text-zinc-500 font-medium">{t('churchFooterName', language)}</p>
-        <p className="text-[10px] text-slate-300 dark:text-zinc-600">v1.2</p>
+        <p className="text-[10px] text-slate-300 dark:text-zinc-600">v{CURRENT_VERSION.version} ({CURRENT_VERSION.releaseDate})</p>
       </div>
 
       {/* WhatsApp Bottom Sheet Modal */}
@@ -412,6 +452,14 @@ export const ProfileScreen: React.FC = () => {
         <ServiceManagerModal
           isOpen={true}
           onClose={() => setIsServicesOpen(false)}
+        />
+      )}
+
+      {/* Latest Updates Changelog Modal */}
+      {isUpdatesOpen && (
+        <LatestUpdateModal
+          isOpen={true}
+          onClose={() => setIsUpdatesOpen(false)}
         />
       )}
     </div>
