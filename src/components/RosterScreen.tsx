@@ -132,6 +132,7 @@ export const RosterScreen: React.FC = () => {
         <div className="flex items-center justify-between pb-1">
           {/* Title & Mode Status Indicator */}
           <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="CCCJB" className="w-6 h-6 rounded-md object-contain bg-black p-0.5 shadow-2xs shrink-0" />
             <h1 className="text-base font-extrabold text-slate-900 tracking-tight">
               {isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
             </h1>

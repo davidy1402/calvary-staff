@@ -18,7 +18,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   const [name, setName] = useState('');
   const [englishName, setEnglishName] = useState('');
   const [phone, setPhone] = useState('');
-  const [cellGroup, setCellGroup] = useState('青年牧区 Ignite');
+  const [cellGroup, setCellGroup] = useState('Fire4J');
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
   if (!isOpen) return null;
@@ -172,7 +172,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                     type="text"
                     value={cellGroup}
                     onChange={(e) => setCellGroup(e.target.value)}
-                    placeholder="例如：青年牧区 Ignite"
+                    placeholder="例如：Fire4J / 敬拜团 / 约书亚"
                     className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>

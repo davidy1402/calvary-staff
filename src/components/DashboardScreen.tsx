@@ -43,18 +43,29 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
 
   return (
     <div className="space-y-4 animate-slide-up">
-      {/* Centered AppBar */}
-      <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-3.5 mb-4 sticky top-0 z-20 shadow-2xs">
-        <h1 className="text-base font-bold text-slate-900 text-center">
+      {/* Centered AppBar with Church Logo & Name */}
+      <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-2.5 mb-4 sticky top-0 z-20 shadow-2xs flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="CCCJB Logo" className="w-8 h-8 rounded-lg object-contain bg-black p-0.5 shadow-xs" />
+          <div className="text-left">
+            <h1 className="text-xs font-extrabold text-slate-900 tracking-tight leading-snug">
+              {language === 'zh' ? '新山加略山社区教会' : 'Calvary Community Church'}
+            </h1>
+            <p className="text-[10px] font-bold text-blue-700 tracking-wider leading-none">
+              CCCJB
+            </p>
+          </div>
+        </div>
+        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
           {t('home', language)}
-        </h1>
+        </span>
       </div>
 
       {/* Greeting Card with Volunteer Status */}
       <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-xs flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-xs text-blue-200 font-medium">
-            {currentUser?.cellGroup || (language === 'zh' ? '加略山社区教会' : 'Calvary Community Church')}
+            {currentUser?.cellGroup || (language === 'zh' ? '新山加略山社区教会' : 'Calvary Community Church Johor Bahru')}
           </p>
           <h2 className="text-2xl font-extrabold tracking-tight mt-1">
             {t('welcomeBack', language)}, {displayName}!

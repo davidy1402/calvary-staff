@@ -65,10 +65,13 @@ export const ProfileScreen: React.FC = () => {
   return (
     <div className="space-y-4 animate-slide-up pb-8">
       {/* Centered AppBar */}
-      <div className="bg-white border-b border-slate-200/80 -mx-4 -mt-4 px-4 py-3.5 mb-2 sticky top-0 z-20 shadow-2xs">
-        <h1 className="text-base font-bold text-slate-900 text-center">
-          {t('settingsTitle', language)}
-        </h1>
+      <div className="bg-white border-b border-slate-200/80 -mx-4 -mt-4 px-4 py-2.5 mb-2 sticky top-0 z-20 shadow-2xs flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="CCCJB" className="w-7 h-7 rounded-md object-contain bg-black p-0.5 shadow-2xs" />
+          <h1 className="text-sm font-extrabold text-slate-900 tracking-tight">
+            CCCJB {t('settingsTitle', language)}
+          </h1>
+        </div>
       </div>
 
       {/* Volunteer Identity Card */}
@@ -123,7 +126,7 @@ export const ProfileScreen: React.FC = () => {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-bold text-slate-900">
-                {currentUser?.name || (language === 'zh' ? '加略山服侍人员' : 'Calvary Volunteer')}
+                {currentUser?.name || (language === 'zh' ? 'CCCJB 服事同工' : 'CCCJB Volunteer')}
               </h2>
               {currentUser?.englishName && (
                 <span className="text-xs text-slate-500 font-medium">({currentUser.englishName})</span>
@@ -132,7 +135,7 @@ export const ProfileScreen: React.FC = () => {
 
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               <span className="text-[11px] font-semibold px-2 py-0.2 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-                {currentUser?.cellGroup || '青年牧区'}
+                {currentUser?.cellGroup || 'Fire4J'}
               </span>
               <span className="text-[11px] font-semibold px-2 py-0.2 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
                 {t('coworker', language)}
