@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Languages,
   Camera,
-  RotateCcw,
   ShieldCheck,
   Sun,
   Moon,
@@ -75,13 +74,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-    }
-  };
-
-  const handleRemoveAvatar = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (window.confirm('确定要恢复默认文字头像吗？')) {
-      updateCurrentUserAvatar('');
     }
   };
 
@@ -168,19 +160,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
               </span>
             </div>
 
-            {/* Remove custom avatar action (only shown when custom photo exists) */}
-            {currentUser?.avatar && (
-              <div className="mt-1.5">
-                <button
-                  type="button"
-                  onClick={handleRemoveAvatar}
-                  className="text-[10px] font-medium text-slate-400 hover:text-rose-600 flex items-center gap-1 cursor-pointer"
-                >
-                  <RotateCcw size={10} strokeWidth={2} />
-                  <span>{t('removeAvatar', language)}</span>
-                </button>
-              </div>
-            )}
           </div>
         </div>
 

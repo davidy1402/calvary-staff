@@ -8,7 +8,6 @@ import {
   Edit2,
   Check,
   X,
-  ShieldCheck,
   Sparkles,
 } from 'lucide-react';
 import type { ServiceDefinition } from '../types';
@@ -115,27 +114,8 @@ export const ServiceManagerModal: React.FC<ServiceManagerModalProps> = ({
           </button>
         </div>
 
-        {/* Read-Only Notice banner if not in editor mode */}
-        {userMode !== 'editor' && (
-          <div className="mx-4 mt-3 p-3 rounded-xl bg-amber-50/80 dark:bg-zinc-900 border border-amber-200/80 dark:border-zinc-800 flex items-center justify-between gap-2 shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <ShieldCheck size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
-              <span className="text-xs text-amber-900 dark:text-amber-300">
-                {language === 'zh' ? '当前为只读视角。切换到编辑模式即可修改堂次信息' : 'Read-only mode. Switch to edit mode to customize.'}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setUserMode('editor')}
-              className="text-xs font-bold text-blue-700 dark:text-blue-400 hover:underline shrink-0 cursor-pointer"
-            >
-              {language === 'zh' ? '开启编辑' : 'Enable Edit'}
-            </button>
-          </div>
-        )}
-
         {/* Services List */}
-        <div className="p-4 overflow-y-auto space-y-3.5 flex-1">
+        <div className="px-5 py-2 overflow-y-auto divide-y divide-slate-100 dark:divide-zinc-800 flex-1">
           {churchState.services.map((svc) => {
             const isEditing = editingServiceId === svc.id;
 
@@ -251,17 +231,15 @@ export const ServiceManagerModal: React.FC<ServiceManagerModalProps> = ({
             return (
               <div
                 key={svc.id}
-                className="p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-2xs space-y-3 transition-colors hover:border-slate-300 dark:hover:border-zinc-700"
+                className="py-3.5 space-y-1.5"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="font-extrabold text-sm text-slate-900 dark:text-zinc-100 flex items-center gap-2">
-                      <span>{svc.name}</span>
-                    </h3>
-                  </div>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-100">
+                    {svc.name}
+                  </h3>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-zinc-800 px-2 py-0.5 rounded-lg border border-blue-100 dark:border-zinc-700">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-semibold text-slate-600 dark:text-zinc-300 font-mono">
                       {svc.time}
                     </span>
 
@@ -275,43 +253,30 @@ export const ServiceManagerModal: React.FC<ServiceManagerModalProps> = ({
                         handleStartEdit(svc);
                       }}
                       title={language === 'zh' ? '编辑此堂次信息' : 'Edit service details'}
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-blue-700 dark:text-zinc-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                     >
                       <Edit2 size={13} strokeWidth={2} />
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-xs text-slate-600 dark:text-zinc-400 pt-1">
+                <div className="space-y-1 text-xs text-slate-500 dark:text-zinc-400">
                   <div className="flex items-center gap-2">
-                    <Clock size={13} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                    <Clock size={12} strokeWidth={2} className="text-slate-400 dark:text-zinc-500 shrink-0" />
                     <span>
-                      <strong className="font-semibold text-slate-700 dark:text-zinc-300">
-                        {language === 'zh' ? '彩排时间' : 'Rehearsal'}:
-                      </strong>{' '}
-                      {svc.rehearsalTime}
+                      {language === 'zh' ? '彩排' : 'Rehearsal'}: {svc.rehearsalTime}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin size={13} strokeWidth={2} className="text-slate-400 dark:text-zinc-500 shrink-0" />
+                    <MapPin size={12} strokeWidth={2} className="text-slate-400 dark:text-zinc-500 shrink-0" />
                     <span>
-                      <strong className="font-semibold text-slate-700 dark:text-zinc-300">
-                        {language === 'zh' ? '场地地点' : 'Venue'}:
-                      </strong>{' '}
-                      {svc.venue}
+                      {language === 'zh' ? '地点' : 'Venue'}: {svc.venue}
                     </span>
                   </div>
                 </div>
               </div>
             );
           })}
-        </div>
-
-        {/* Footer info */}
-        <div className="p-3 bg-slate-100/80 dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800 text-center text-[11px] text-slate-500 dark:text-zinc-400 shrink-0">
-          {language === 'zh'
-            ? '修改后的时间与地点将自动同步至排班表、主页看板与 WhatsApp 发群模板'
-            : 'Changes sync across Roster, Dashboard, and WhatsApp export templates'}
         </div>
       </div>
     </BottomSheet>

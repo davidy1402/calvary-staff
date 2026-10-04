@@ -14,28 +14,28 @@ export interface AppRelease {
 }
 
 export const CURRENT_VERSION: AppRelease = {
-  version: '1.3.1',
+  version: '1.4.0',
   releaseDate: '2026-10-04',
-  title: '应用正式定名 CCCJB Connect 与顶栏优化',
-  summary: '官方英文名正式定名为 CCCJB Connect，重构顶栏安全区净空，彻底解决 iPhone 灵动岛与状态栏遮挡问题。',
+  title: '排班表与界面优化',
+  summary: '带来更顺畅直观的排班查阅与编辑体验。',
   highlights: [
     {
       category: 'feature',
-      label: '官方命名',
-      title: '定名 CCCJB Connect',
-      description: '英文名与 PWA 全平台标识统一定名为 CCCJB Connect，象征教会跨部门同工与各项聚会紧密联结。',
+      label: '主日置顶',
+      title: '优先查看来临主日',
+      description: '打开排班表自动置顶并展开本周聚会，已过去的聚会移至底部收纳。',
+    },
+    {
+      category: 'feature',
+      label: '简单直观',
+      title: '排班编辑更明确',
+      description: '统筹同工点击管理排班即可调整人员，修改完点击完成即可锁定。',
     },
     {
       category: 'ui',
-      label: '人机工学',
-      title: '顶栏安全区深度下沉防遮挡',
-      description: '重构顶栏安全净空至 68px 至 75px，顶栏标题、教会 Logo 与操作按钮完全落于 iPhone 灵动岛与系统状态栏下方，彻底杜绝物理遮挡。',
-    },
-    {
-      category: 'ui',
-      label: '视觉清晰',
-      title: '纯色背景与锐利文字抗锯齿',
-      description: '移除吸顶毛玻璃滤镜，改用纯白与纯黑不透明底色，底下的卡片文字绝不透出，WebKit 恢复原生硬件级清晰文字抗锯齿渲染。',
+      label: '清爽呼吸',
+      title: '排版整齐干净',
+      description: '精简多余的边框与背景底色，层级更少，查阅更舒服。',
     },
   ],
 };

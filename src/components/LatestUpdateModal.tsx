@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, X, CheckCircle2, Smartphone, History, ChevronDown } from 'lucide-react';
+import { Sparkles, X, Smartphone, History, ChevronDown } from 'lucide-react';
 import { CURRENT_VERSION, PAST_RELEASES, type AppRelease } from '../data/updates';
 import { useChurch } from '../context/ChurchContext';
 
@@ -25,18 +25,6 @@ export const LatestUpdateModal: React.FC<LatestUpdateModalProps> = ({
       localStorage.setItem('calvary_seen_version', CURRENT_VERSION.version);
     } catch {}
     onClose();
-  };
-
-  const getCategoryBadgeClass = (category: string) => {
-    switch (category) {
-      case 'feature':
-        return 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-900/50';
-      case 'fix':
-        return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-900/50';
-      case 'ui':
-      default:
-        return 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/70 dark:border-blue-900/50';
-    }
   };
 
   const renderReleaseContent = (release: AppRelease, isCurrent: boolean) => (
@@ -66,25 +54,16 @@ export const LatestUpdateModal: React.FC<LatestUpdateModalProps> = ({
       </p>
 
       {/* Highlights List */}
-      <div className="space-y-2.5 pt-1">
+      <div className="space-y-3 pt-2">
         {release.highlights.map((h, idx) => (
-          <div
-            key={idx}
-            className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/80 dark:border-zinc-700/60 space-y-1.5 transition-colors"
-          >
+          <div key={idx} className="space-y-0.5">
             <div className="flex items-center gap-2">
-              <span
-                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border shrink-0 ${getCategoryBadgeClass(
-                  h.category
-                )}`}
-              >
-                {h.label}
-              </span>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" />
+              <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200">
                 {h.title}
               </h4>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed pl-0.5">
+            <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed pl-3.5">
               {h.description}
             </p>
           </div>
@@ -111,16 +90,13 @@ export const LatestUpdateModal: React.FC<LatestUpdateModalProps> = ({
               </div>
               <div>
                 <h2 className="text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight flex items-center gap-2">
-                  <span>{language === 'zh' ? '最新更新通知' : 'Latest Updates'}</span>
+                  <span>{language === 'zh' ? '最新更新' : 'Latest Updates'}</span>
                   {isAutomatic && (
                     <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                       NEW
                     </span>
                   )}
                 </h2>
-                <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
-                  {language === 'zh' ? '加略山社区教会 CCCJB 助手' : 'CCCJB Assistant'}
-                </p>
               </div>
             </div>
 
@@ -140,17 +116,17 @@ export const LatestUpdateModal: React.FC<LatestUpdateModalProps> = ({
           {renderReleaseContent(CURRENT_VERSION, true)}
 
           {/* Quick Guidance Box */}
-          <div className="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-zinc-800/90 border border-indigo-100 dark:border-zinc-700/80 space-y-2">
-            <div className="flex items-center gap-2 text-indigo-900 dark:text-indigo-300">
-              <Smartphone size={16} strokeWidth={2.2} className="shrink-0" />
+          <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/60 dark:border-zinc-800 space-y-1">
+            <div className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-300">
+              <Smartphone size={14} strokeWidth={2} className="shrink-0 text-blue-600 dark:text-blue-400" />
               <h4 className="text-xs font-bold">
-                {language === 'zh' ? '新手使用引导 (Mobile Tips)' : 'Mobile Quick Guidance'}
+                {language === 'zh' ? '添加至手机主屏幕' : 'Add to Home Screen'}
               </h4>
             </div>
-            <p className="text-[11px] text-slate-600 dark:text-zinc-300 leading-relaxed">
+            <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed pl-5">
               {language === 'zh'
-                ? '在手机 Safari 或 Chrome 点击分享按钮，选择「加入主画面 / 添加到主屏幕」，即可像原生 App 一样秒开查阅，不用每次在 WhatsApp 翻找链接。'
-                : 'Tap Share in your mobile browser and choose "Add to Home Screen" to open instantly like a native app.'}
+                ? '在手机浏览器点击分享选择「添加到主屏幕」，即可像 App 一样随时打开查看。'
+                : 'Tap Share in your mobile browser and choose "Add to Home Screen" to open anytime.'}
             </p>
           </div>
 
@@ -186,10 +162,9 @@ export const LatestUpdateModal: React.FC<LatestUpdateModalProps> = ({
           <button
             type="button"
             onClick={handleDismiss}
-            className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.98] dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
           >
-            <CheckCircle2 size={15} strokeWidth={2.2} />
-            <span>{language === 'zh' ? '我知道了，开始使用' : 'Got it, continue'}</span>
+            <span>{language === 'zh' ? '我知道了' : 'Got it'}</span>
           </button>
         </div>
       </div>

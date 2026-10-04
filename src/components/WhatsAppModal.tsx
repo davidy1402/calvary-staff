@@ -191,7 +191,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
 
       {/* Text Preview Box */}
       <div className="p-4 overflow-y-auto flex-1">
-        <div className="bg-zinc-950 text-emerald-400 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all shadow-inner border border-zinc-800">
+        <div className="bg-slate-50 dark:bg-zinc-800/60 text-slate-800 dark:text-zinc-200 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all border border-slate-200/80 dark:border-zinc-700/80">
           {formattedText}
         </div>
       </div>
