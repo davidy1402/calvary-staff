@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BottomSheet } from './BottomSheet';
 import { useChurch } from '../context/ChurchContext';
 import { formatDateLabel } from '../utils/dateUtils';
-import { Clock, MapPin, Music, ExternalLink, MessageSquare } from 'lucide-react';
+import { Clock, MapPin, Music, Play } from 'lucide-react';
 import type { ServiceRoster, ServiceDefinition, RoleCategoryId } from '../types';
-import { WhatsAppModal } from './WhatsAppModal';
 
 interface RosterDetailModalProps {
   isOpen: boolean;
@@ -20,7 +19,6 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
   service,
 }) => {
   const { churchState, currentUser, language } = useChurch();
-  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
 
   if (!isOpen || !roster || !service) return null;
 
@@ -40,14 +38,13 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
   ];
 
   return (
-    <>
-      <BottomSheet
-        isOpen={isOpen && !isWhatsAppOpen}
-        onClose={onClose}
-        className="bg-slate-50 dark:bg-black"
-        maxHeight="88vh"
-      >
-        <div className="flex flex-col h-full max-h-[85vh]">
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      className="bg-slate-50 dark:bg-black"
+      maxHeight="88vh"
+    >
+      <div className="flex flex-col h-full max-h-[85vh]">
           {/* Header matching CoworkerManagerModal style */}
           <div className="px-5 pt-2 pb-2 shrink-0">
             <div className="flex items-center justify-between">
@@ -70,7 +67,7 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
           </div>
 
           {/* Content Area */}
-          <div className="px-5 py-3 overflow-y-auto space-y-4 flex-1 overscroll-contain">
+          <div className="px-5 pt-3 pb-8 overflow-y-auto space-y-4 flex-1 overscroll-contain">
             {/* Timing & Venue */}
             <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-zinc-400 flex-wrap pb-1">
               <span className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-zinc-300">
@@ -145,10 +142,11 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
                           href={song.youtubeUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline shrink-0 flex items-center gap-0.5"
+                          title={language === 'zh' ? '在 YouTube 试听' : 'Listen on YouTube'}
+                          aria-label={language === 'zh' ? '在 YouTube 试听' : 'Listen on YouTube'}
+                          className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
                         >
-                          <span>{language === 'zh' ? '试听' : 'Listen'}</span>
-                          <ExternalLink size={10} />
+                          <Play size={14} className="fill-current" />
                         </a>
                       )}
                     </div>
@@ -230,38 +228,7 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
                 })}
             </div>
           </div>
-
-          {/* Footer Actions */}
-          <div className="p-4 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800 shrink-0 flex items-center justify-between gap-2 pb-8 sm:pb-4 shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setIsWhatsAppOpen(true)}
-              className="py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200/80 dark:border-emerald-800/60 flex items-center gap-1.5 transition-colors cursor-pointer active:scale-95"
-            >
-              <MessageSquare size={14} strokeWidth={2} />
-              <span>{language === 'zh' ? '分享至 WhatsApp' : 'Share WhatsApp'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={onClose}
-              className="py-2.5 px-5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-900 transition-colors cursor-pointer active:scale-95"
-            >
-              {language === 'zh' ? '关闭' : 'Close'}
-            </button>
-          </div>
         </div>
       </BottomSheet>
-
-      {/* WhatsApp Modal for this specific date & service */}
-      {isWhatsAppOpen && (
-        <WhatsAppModal
-          isOpen={isWhatsAppOpen}
-          onClose={() => setIsWhatsAppOpen(false)}
-          initialService={service}
-          initialRoster={roster}
-        />
-      )}
-    </>
   );
 };

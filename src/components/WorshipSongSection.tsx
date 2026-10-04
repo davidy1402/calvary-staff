@@ -150,9 +150,9 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                         onClick={(e) => e.stopPropagation()}
                         title="在 YouTube 试听"
                         aria-label="在 YouTube 试听"
-                        className="w-7 h-7 rounded-lg bg-red-50 dark:bg-zinc-800 hover:bg-red-100 dark:hover:bg-zinc-700 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                        className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
                       >
-                        <Play size={11} className="fill-current ml-0.5" />
+                        <Play size={14} className="fill-current" />
                       </a>
                     ) : isEditMode ? (
                       <button
