@@ -108,20 +108,24 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   ];
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-white dark:bg-zinc-900" maxHeight="88vh">
-      {/* Sheet Title */}
-      <div className="px-4 pb-2.5 pt-0.5 bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 text-center shrink-0">
-        <h2 className="text-sm font-bold text-slate-900 dark:text-zinc-100 leading-tight">
-          {t('whatsappNotification', language)}
-        </h2>
-        <p className="text-[10px] text-slate-400 dark:text-zinc-400 font-medium">
-          {targetService.name}
-        </p>
+    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-slate-50 dark:bg-black" maxHeight="88vh">
+      {/* Header matching CoworkerManagerModal style */}
+      <div className="px-5 pt-2 pb-2 shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h2 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 leading-tight">
+              {t('whatsappNotification', language)}
+            </h2>
+            <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
+              {targetService.name} · {targetRoster?.date ? formatDateLabel(targetRoster.date) : selectedDateStr}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Service & Date Pickers */}
-      <div className="px-4 py-2.5 bg-slate-50 dark:bg-zinc-850 dark:bg-zinc-800/60 border-b border-slate-200/70 dark:border-zinc-800 shrink-0">
-        <div className="grid grid-cols-2 gap-2 mb-2">
+      {/* Service & Date Pickers + Template Tabs (No bar background) */}
+      <div className="px-5 py-2 space-y-2.5 shrink-0">
+        <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1">
               {t('serviceSelector', language)}
@@ -166,9 +170,6 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
 
         {/* Template Segmented Tabs */}
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1">
-            {language === 'zh' ? '消息模板 (对齐教会常用格式)' : 'Message Template'}
-          </label>
           <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-200/70 dark:bg-zinc-800 rounded-xl border border-slate-300/50 dark:border-zinc-700">
             {templates.map((tpl) => (
               <button
@@ -190,14 +191,14 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
       </div>
 
       {/* Text Preview Box */}
-      <div className="p-4 overflow-y-auto flex-1">
-        <div className="bg-slate-50 dark:bg-zinc-800/60 text-slate-800 dark:text-zinc-200 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all border border-slate-200/80 dark:border-zinc-700/80">
+      <div className="px-5 py-2 overflow-y-auto flex-1">
+        <div className="bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 p-4 rounded-2xl font-mono text-xs leading-relaxed whitespace-pre-wrap select-all border border-slate-200/80 dark:border-zinc-800 shadow-2xs">
           {formattedText}
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="p-4 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs pb-8 sm:pb-4">
+      <div className="px-5 py-3.5 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800 grid grid-cols-2 gap-2.5 shrink-0 shadow-2xs pb-8 sm:pb-4">
         <button
           type="button"
           onClick={handleCopy}
