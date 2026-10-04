@@ -7,6 +7,7 @@ export type RoleCategoryId =
   | 'hospitality';
 
 export type UserMode = 'member' | 'editor';
+export type ThemeMode = 'system' | 'light' | 'dark';
 
 export interface ConflictItem {
   serviceId: string;

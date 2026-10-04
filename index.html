@@ -18,8 +18,9 @@
     <script>
       (function() {
         try {
-          var saved = localStorage.getItem('calvary_theme');
-          var isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var mode = localStorage.getItem('calvary_theme_mode');
+          var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = mode === 'dark' || (mode !== 'light' && systemDark);
           var meta = document.getElementById('theme-color-meta') || document.querySelector('meta[name="theme-color"]');
           if (isDark) {
             document.documentElement.classList.add('dark');

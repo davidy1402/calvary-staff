@@ -40,7 +40,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
     language,
     setLanguage,
     isDarkMode,
-    toggleDarkMode,
+    themeMode,
+    setThemeMode,
     logout,
     authMethod,
   } = useChurch();
@@ -362,31 +363,54 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
             <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
               {language === 'zh' ? '外观显示' : 'Appearance'}
             </h3>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-              {isDarkMode
-                ? (language === 'zh' ? '已开启深色夜间模式' : 'Dark mode enabled')
-                : (language === 'zh' ? '当前为浅色白底模式' : 'Light mode enabled')}
+            <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
+              {themeMode === 'system'
+                ? (language === 'zh'
+                    ? `跟随设备 (${isDarkMode ? '深色' : '浅色'})`
+                    : `System (${isDarkMode ? 'Dark' : 'Light'})`)
+                : isDarkMode
+                ? (language === 'zh' ? '已锁定深色模式' : 'Locked to Dark')
+                : (language === 'zh' ? '已锁定浅色模式' : 'Locked to Light')}
             </p>
           </div>
         </div>
 
-        {/* Toggle Switch */}
-        <button
-          type="button"
-          onClick={toggleDarkMode}
-          className={`w-12 h-7 rounded-full transition-colors duration-200 relative p-0.5 cursor-pointer ${
-            isDarkMode ? 'bg-blue-600' : 'bg-slate-200 dark:bg-zinc-700'
-          }`}
-          aria-label={language === 'zh' ? '切换深浅色外观' : 'Toggle theme'}
-        >
-          <div
-            className={`w-6 h-6 rounded-full bg-white shadow-xs transition-transform duration-200 flex items-center justify-center ${
-              isDarkMode ? 'translate-x-5 text-blue-600' : 'translate-x-0 text-amber-500'
+        {/* 3-segment switch: 跟随设备 | 浅色 | 深色 */}
+        <div className="bg-slate-100 dark:bg-zinc-800 p-0.5 rounded-xl flex items-center shrink-0 border border-slate-200/60 dark:border-zinc-700">
+          <button
+            type="button"
+            onClick={() => setThemeMode('system')}
+            className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              themeMode === 'system'
+                ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
-            {isDarkMode ? <Moon size={12} strokeWidth={2.2} /> : <Sun size={12} strokeWidth={2.2} />}
-          </div>
-        </button>
+            {language === 'zh' ? '自动' : 'Auto'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setThemeMode('light')}
+            className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              themeMode === 'light'
+                ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
+            }`}
+          >
+            {language === 'zh' ? '浅色' : 'Light'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setThemeMode('dark')}
+            className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              themeMode === 'dark'
+                ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
+            }`}
+          >
+            {language === 'zh' ? '深色' : 'Dark'}
+          </button>
+        </div>
       </div>
 
       {/* Language Preference Card */}

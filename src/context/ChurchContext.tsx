@@ -7,6 +7,7 @@ import type {
   UserMode,
   ConflictItem,
   WorshipSong,
+  ThemeMode,
 } from '../types';
 import {
   INITIAL_STATE,
@@ -33,6 +34,8 @@ interface ChurchContextType {
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
   isDarkMode: boolean;
+  themeMode: ThemeMode;
+  setThemeMode: (mode: ThemeMode) => void;
   toggleDarkMode: () => void;
 
   // Authentication State
@@ -340,31 +343,85 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setLanguage(language === 'zh' ? 'en' : 'zh');
   };
 
-  // Dark Mode State
+  // Dark/Light Appearance State (Auto-follow Device / System Scheme)
+  const getSystemPrefersDark = () => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  };
+
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('calvary_theme_mode');
+      if (saved === 'dark' || saved === 'light' || saved === 'system') {
+        return saved as ThemeMode;
+      }
+    }
+    return 'system'; // Default: Automatically follow device!
+  });
+
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('calvary_theme');
+      const saved = localStorage.getItem('calvary_theme_mode');
       if (saved === 'dark') return true;
       if (saved === 'light') return false;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return getSystemPrefersDark();
     }
     return false;
   });
 
+  // Automatically listen and react to device dark/light scheme changes in real-time
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const applyThemeMode = () => {
+      if (themeMode === 'system') {
+        setIsDarkMode(mediaQuery.matches);
+      } else if (themeMode === 'dark') {
+        setIsDarkMode(true);
+      } else if (themeMode === 'light') {
+        setIsDarkMode(false);
+      }
+    };
+
+    applyThemeMode();
+
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      if (themeMode === 'system') {
+        setIsDarkMode(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleMediaChange);
+    return () => mediaQuery.removeEventListener('change', handleMediaChange);
+  }, [themeMode]);
+
+  // Synchronize root HTML class and dynamic theme-color meta tag
   useEffect(() => {
     const themeColor = isDarkMode ? '#000000' : '#ffffff';
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('calvary_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('calvary_theme', 'light');
     }
     const metas = document.querySelectorAll('meta[name="theme-color"]');
     metas.forEach((meta) => meta.setAttribute('content', themeColor));
   }, [isDarkMode]);
 
-  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+  const setThemeMode = (mode: ThemeMode) => {
+    setThemeModeState(mode);
+    localStorage.setItem('calvary_theme_mode', mode);
+    if (mode === 'system') {
+      setIsDarkMode(getSystemPrefersDark());
+    } else {
+      setIsDarkMode(mode === 'dark');
+    }
+  };
+
+  const toggleDarkMode = () => {
+    const nextMode: ThemeMode = isDarkMode ? 'light' : 'dark';
+    setThemeMode(nextMode);
+  };
 
   // User Mode (Member Read-Only vs Editor Mode)
   const [userMode, setUserModeState] = useState<UserMode>(() => {
@@ -937,6 +994,8 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setLanguage,
         toggleLanguage,
         isDarkMode,
+        themeMode,
+        setThemeMode,
         toggleDarkMode,
         userMode,
         setUserMode,
