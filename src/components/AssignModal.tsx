@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
-import { Search, Star, User, AlertTriangle } from 'lucide-react';
+import { Search, Star, User, AlertTriangle, Send } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
+import { generateWhatsAppDutyChangeText, getWhatsAppShareUrl } from '../utils/whatsappFormatter';
 
 interface AssignModalProps {
   role: RoleDefinition;
@@ -31,10 +32,39 @@ export const AssignModal: React.FC<AssignModalProps> = ({
   } = useChurch();
   const [search, setSearch] = useState('');
 
+  const [lastChange, setLastChange] = useState<{
+    coworkerName: string;
+    previousName?: string;
+    action: 'assigned' | 'removed';
+  } | null>(null);
+
   const effectiveDate = targetDate || selectedDate;
   const effectiveServiceId = targetServiceId || activeServiceId;
   const rosterKey = `${effectiveDate}_${effectiveServiceId}`;
   const targetRoster = churchState.rosters[rosterKey];
+  const targetService = churchState.services.find((s) => s.id === effectiveServiceId);
+
+  // Identify worship leader (lead_vocal) for this service
+  const leadVocalIds = targetRoster?.assignments?.['lead_vocal'] || [];
+  const leadVocalCoworkers = churchState.coworkers.filter((c) => leadVocalIds.includes(c.id));
+  const leadVocalNames = leadVocalCoworkers.map((c) => c.name).join('、');
+  const leadVocalPrimary = leadVocalCoworkers[0];
+
+  const handleNotifyLeader = () => {
+    if (!lastChange) return;
+    const serviceName = targetService?.name || '主日崇拜';
+    const text = generateWhatsAppDutyChangeText({
+      date: effectiveDate,
+      serviceName,
+      roleName: role.name,
+      previousCoworkerName: lastChange.previousName,
+      newCoworkerName: lastChange.action === 'assigned' ? lastChange.coworkerName : '（已调整请假）',
+      leaderName: leadVocalNames || undefined,
+    });
+
+    const url = getWhatsAppShareUrl(text, leadVocalPrimary?.phone);
+    window.open(url, '_blank');
+  };
 
   const assignedIds = useMemo(() => {
     return targetRoster?.assignments?.[role.id] || [];
@@ -124,8 +154,21 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                 onClick={() => {
                   if (isAssigned) {
                     removeAssignment(role.id, cw.id, effectiveDate, effectiveServiceId);
+                    setLastChange({
+                      coworkerName: cw.name,
+                      action: 'removed',
+                    });
                   } else {
+                    const previousCoworker =
+                      assignedIds.length > 0
+                        ? churchState.coworkers.find((c) => c.id === assignedIds[0])?.name
+                        : undefined;
                     assignCoworker(role.id, cw.id, effectiveDate, effectiveServiceId);
+                    setLastChange({
+                      coworkerName: cw.name,
+                      previousName: previousCoworker,
+                      action: 'assigned',
+                    });
                   }
                 }}
                 className={`pt-2.5 pb-2.5 px-3 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-3 ${
@@ -196,6 +239,33 @@ export const AssignModal: React.FC<AssignModalProps> = ({
             })
           )}
         </div>
-    </BottomSheet>
+
+        {/* Quick WhatsApp Notification for Leader & Team */}
+        {lastChange && (
+          <div className="px-4 py-3 bg-blue-50/95 dark:bg-zinc-800/95 border-t border-blue-200/80 dark:border-zinc-700 flex items-center justify-between gap-3 shrink-0 animate-slide-up">
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-blue-900 dark:text-zinc-100 truncate">
+                {lastChange.action === 'assigned'
+                  ? `已指派: ${lastChange.coworkerName}`
+                  : `已移除: ${lastChange.coworkerName}`}
+              </p>
+              <p className="text-[10px] text-blue-700 dark:text-zinc-400 truncate">
+                {leadVocalNames
+                  ? `本次领诗：${leadVocalNames}`
+                  : (language === 'zh' ? '可直接发送异动通知' : 'Ready to notify team')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleNotifyLeader}
+              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shrink-0 flex items-center gap-1.5 active:scale-95 transition-all shadow-xs cursor-pointer"
+              title={language === 'zh' ? '通过 WhatsApp 立即通知领诗或服事群' : 'Notify via WhatsApp'}
+            >
+              <Send size={12} strokeWidth={2.2} />
+              <span>{leadVocalNames ? `通知领诗` : (language === 'zh' ? '发异动通知' : 'Notify')}</span>
+            </button>
+          </div>
+        )}
+      </BottomSheet>
   );
 };

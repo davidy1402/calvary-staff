@@ -1,7 +1,7 @@
 import type { ServiceDefinition, RoleDefinition, Coworker, ServiceRoster, RoleCategoryId } from '../types';
 import { formatDateLabel } from './dateUtils';
 
-export type WhatsAppTemplateType = 'roster' | 'setlist' | 'rundown';
+export type WhatsAppTemplateType = 'roster' | 'setlist' | 'rundown' | 'dutyChange';
 
 export function formatShortDate(dateStr?: string): string {
   if (!dateStr) return '';
@@ -279,3 +279,60 @@ export function generateWhatsAppRundownText(
 
   return lines.join('\n');
 }
+
+export interface DutyChangeInfo {
+  date: string;
+  serviceName: string;
+  roleName: string;
+  previousCoworkerName?: string;
+  newCoworkerName: string;
+  leaderName?: string;
+  reason?: string;
+}
+
+/**
+ * 模板 4：服事人员异动 / 调班通知（发领诗或群聊）
+ */
+export function generateWhatsAppDutyChangeText(info: DutyChangeInfo): string {
+  const shortDate = formatShortDate(info.date);
+  const lines: string[] = [
+    `*【CCCJB 服事人员异动通知】*`,
+    info.leaderName ? `平安 ${info.leaderName}，` : '各位同工平安，',
+    '',
+    `📅 聚会：${shortDate} ${info.serviceName}`,
+    `🎸 岗位：*${info.roleName}*`,
+  ];
+
+  if (info.previousCoworkerName && info.previousCoworkerName !== info.newCoworkerName) {
+    lines.push(`👤 原定：${info.previousCoworkerName}`);
+  }
+  lines.push(`🔄 现变更为：*${info.newCoworkerName}*`);
+
+  if (info.reason) {
+    lines.push(`📝 说明：${info.reason}`);
+  }
+
+  lines.push('');
+  lines.push('特此通知领诗与团队留意配搭，谢谢！🙌');
+  return lines.join('\n');
+}
+
+/**
+ * 构建 WhatsApp 唤起链接（若有手机号直接指向联系人，无则打开通用分享）
+ */
+export function getWhatsAppShareUrl(text: string, phone?: string): string {
+  const encodedText = encodeURIComponent(text);
+  if (phone) {
+    const cleanPhone = phone.replace(/\D/g, '');
+    const fullPhone = cleanPhone.startsWith('60')
+      ? cleanPhone
+      : cleanPhone.startsWith('0')
+      ? `60${cleanPhone.slice(1)}`
+      : cleanPhone;
+    if (fullPhone.length >= 8) {
+      return `https://wa.me/${fullPhone}?text=${encodedText}`;
+    }
+  }
+  return `https://wa.me/?text=${encodedText}`;
+}
+

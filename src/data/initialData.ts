@@ -131,8 +131,20 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     specialEvents: ['服装要求: 浅色'],
     speaker: '苏牧师',
     songs: [
-      { id: 'sp1', title: '赞美之泉', key: 'D', category: '快歌' },
-      { id: 'sp2', title: '这一生最美的祝福', key: 'C', category: '慢歌' },
+      {
+        id: 'sp1',
+        title: '赞美之泉',
+        key: 'D',
+        category: '快歌',
+        youtubeUrl: 'https://youtu.be/V1zBw9K0v34',
+      },
+      {
+        id: 'sp2',
+        title: '这一生最美的祝福',
+        key: 'C',
+        category: '慢歌',
+        youtubeUrl: 'https://youtu.be/4e0_a2N_pVE',
+      },
     ],
     assignments: {
       lead_vocal: ['cw_youxiang'],

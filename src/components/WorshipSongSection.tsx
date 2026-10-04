@@ -142,19 +142,22 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {song.youtubeUrl ? (
-                      <a
-                        href={song.youtubeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        title="在 YouTube 试听"
-                        aria-label="在 YouTube 试听"
-                        className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
-                      >
-                        <Play size={14} className="fill-current" />
-                      </a>
-                    ) : isEditMode ? (
+                    <a
+                      href={
+                        song.youtubeUrl ||
+                        `https://www.youtube.com/results?search_query=${encodeURIComponent(song.title)}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      title="在 YouTube 试听"
+                      aria-label="在 YouTube 试听"
+                      className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                    >
+                      <Play size={14} className="fill-current" />
+                    </a>
+
+                    {isEditMode && !song.youtubeUrl && (
                       <button
                         type="button"
                         onClick={() => {
@@ -163,13 +166,13 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                             addSong({ ...song, youtubeUrl: url.trim() }, date, serviceId);
                           }
                         }}
-                        title="添加 YouTube 链接"
-                        aria-label="添加 YouTube 链接"
-                        className="w-6 h-6 rounded text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer"
+                        title="设置精准 YouTube 链接"
+                        aria-label="设置精准 YouTube 链接"
+                        className="w-6 h-6 rounded text-slate-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer"
                       >
                         <Plus size={13} strokeWidth={2.5} />
                       </button>
-                    ) : null}
+                    )}
 
                     {isEditMode && (
                       <button

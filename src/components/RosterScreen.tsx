@@ -707,11 +707,8 @@ export const RosterScreen: React.FC = () => {
                                         </span>
 
                                         {dutyNote && !isNoteEditing && (
-                                          <span
-                                            title={dutyNote}
-                                            className="text-amber-600 hover:text-amber-700 dark:text-amber-400 cursor-help"
-                                          >
-                                            <MessageSquare size={13} strokeWidth={2} />
+                                          <span className="text-[10px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200/60 dark:border-amber-900/40 truncate max-w-[120px]">
+                                            {dutyNote}
                                           </span>
                                         )}
                                       </div>

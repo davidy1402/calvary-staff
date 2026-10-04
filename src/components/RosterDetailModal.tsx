@@ -2,7 +2,8 @@ import React from 'react';
 import { BottomSheet } from './BottomSheet';
 import { useChurch } from '../context/ChurchContext';
 import { formatDateLabel } from '../utils/dateUtils';
-import { Clock, MapPin, Music, Play } from 'lucide-react';
+import { Clock, MapPin, Music, Play, CalendarPlus } from 'lucide-react';
+import { downloadCalendarEvent } from '../utils/calendarUtils';
 import type { ServiceRoster, ServiceDefinition, RoleCategoryId } from '../types';
 
 interface RosterDetailModalProps {
@@ -63,6 +64,35 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
                   {formatDateLabel(roster.date)} · {service.time}
                 </p>
               </div>
+
+              {/* Add to Calendar Button with 1-week and 1-day reminders */}
+              <button
+                type="button"
+                onClick={() => {
+                  const myRoles = Object.entries(roster.assignments || {})
+                    .filter(([, ids]) => ids.includes(currentUser?.id || ''))
+                    .map(([rId]) => churchState.roles.find((r) => r.id === rId)?.name)
+                    .filter(Boolean) as string[];
+
+                  const rolesSummary = myRoles.length > 0 ? myRoles.join('、') : service.name;
+
+                  downloadCalendarEvent({
+                    title: `${service.name} - ${rolesSummary}`,
+                    serviceName: service.name,
+                    rolesSummary,
+                    dateStr: roster.date,
+                    rehearsalTime: service.rehearsalTime,
+                    serviceVenue: service.venue,
+                    theme: roster.theme,
+                    speaker: roster.speaker,
+                  });
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-blue-700 dark:text-blue-300 text-xs font-semibold transition-colors cursor-pointer active:scale-95 border border-blue-200/70 dark:border-zinc-700 shadow-2xs"
+                title={language === 'zh' ? '添加至手机日历 (含1周与1天前提醒)' : 'Add to Calendar (with 1-week advance reminder)'}
+              >
+                <CalendarPlus size={13} strokeWidth={2} />
+                <span>{language === 'zh' ? '存入日历' : 'Add to Cal'}</span>
+              </button>
             </div>
           </div>
 
@@ -137,18 +167,19 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
                           </span>
                         )}
                       </div>
-                      {song.youtubeUrl && (
-                        <a
-                          href={song.youtubeUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title={language === 'zh' ? '在 YouTube 试听' : 'Listen on YouTube'}
-                          aria-label={language === 'zh' ? '在 YouTube 试听' : 'Listen on YouTube'}
-                          className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
-                        >
-                          <Play size={14} className="fill-current" />
-                        </a>
-                      )}
+                      <a
+                        href={
+                          song.youtubeUrl ||
+                          `https://www.youtube.com/results?search_query=${encodeURIComponent(song.title)}`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={language === 'zh' ? '在 YouTube 试听' : 'Listen on YouTube'}
+                        aria-label={language === 'zh' ? '在 YouTube 试听' : 'Listen on YouTube'}
+                        className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                      >
+                        <Play size={14} className="fill-current" />
+                      </a>
                     </div>
                   ))}
                 </div>

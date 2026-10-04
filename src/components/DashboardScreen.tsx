@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { AddToHomeCard } from './AddToHomeCard';
-import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle } from 'lucide-react';
+import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle, CalendarPlus } from 'lucide-react';
+import { downloadCalendarEvent } from '../utils/calendarUtils';
 import { t } from '../utils/i18n';
 import { ChurchLogo } from './ChurchLogo';
 import { DailyScriptureCard } from './DailyScriptureCard';
@@ -191,7 +192,30 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                     </div>
                   </div>
 
-                  <ChevronRight size={15} strokeWidth={2} className="text-slate-300 dark:text-zinc-600 shrink-0 self-center group-hover:text-slate-500 dark:group-hover:text-zinc-400 transition-colors" />
+                  <div className="flex items-center gap-1 shrink-0 self-center">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        downloadCalendarEvent({
+                          title: `${service.name} - ${roles.join('、')}`,
+                          serviceName: service.name,
+                          rolesSummary: roles.join('、'),
+                          dateStr: roster.date,
+                          rehearsalTime: service.rehearsalTime,
+                          serviceVenue: service.venue,
+                          theme: roster.theme,
+                          speaker: roster.speaker,
+                        });
+                      }}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer active:scale-95"
+                      title={language === 'zh' ? '存入手机日历 (含提前1周与1天前提醒)' : 'Add to Calendar'}
+                      aria-label="Add to Calendar"
+                    >
+                      <CalendarPlus size={15} strokeWidth={2} />
+                    </button>
+                    <ChevronRight size={15} strokeWidth={2} className="text-slate-300 dark:text-zinc-600 group-hover:text-slate-500 dark:group-hover:text-zinc-400 transition-colors" />
+                  </div>
                 </div>
               );
             })}
