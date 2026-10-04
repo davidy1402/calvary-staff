@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { PartyPopper } from 'lucide-react';
 import { fireConfetti } from '../utils/confetti';
 import { ChurchLogo } from './ChurchLogo';
@@ -25,18 +26,23 @@ export const EasterEggModal: React.FC<EasterEggModalProps> = ({ isOpen, onClose,
   }, [isOpen]);
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
-  return (
+  return createPortal(
     <div
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-xs animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in"
+      style={{
+        minHeight: '100dvh',
+      }}
     >
       <div
-        className="bg-white dark:bg-zinc-900 rounded-3xl max-w-sm w-full p-6 text-center border border-slate-200/90 dark:border-zinc-800 shadow-xl relative overflow-hidden animate-scale-up"
+        className="bg-white dark:bg-zinc-900 rounded-3xl max-w-sm w-full p-6 text-center border border-slate-200/90 dark:border-zinc-800 shadow-2xl relative overflow-hidden animate-pop-in"
         role="dialog"
         aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Subtle Icon Badge */}
         <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-2xs mb-3.5">
@@ -96,9 +102,9 @@ export const EasterEggModal: React.FC<EasterEggModalProps> = ({ isOpen, onClose,
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 font-semibold text-xs active:scale-98 transition-colors cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-semibold text-xs active:scale-98 transition-colors cursor-pointer"
           >
-            {language === 'zh' ? '知道了' : 'Got it'}
+            {language === 'zh' ? '接收祝福' : 'Receive Blessing'}
           </button>
         </div>
 
@@ -110,6 +116,7 @@ export const EasterEggModal: React.FC<EasterEggModalProps> = ({ isOpen, onClose,
           </span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
