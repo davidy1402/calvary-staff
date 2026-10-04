@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { AddToHomeCard } from './AddToHomeCard';
 import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle } from 'lucide-react';
@@ -6,6 +6,8 @@ import { t } from '../utils/i18n';
 import { ChurchLogo } from './ChurchLogo';
 import { DailyScriptureCard } from './DailyScriptureCard';
 import { getTimeGreeting } from '../utils/greetingUtils';
+import { RosterDetailModal } from './RosterDetailModal';
+import type { ServiceRoster, ServiceDefinition } from '../types';
 
 interface DashboardScreenProps {
   onNavigateToRoster: () => void;
@@ -15,6 +17,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
   const { currentUser, getUserSeasonAssignments, language } = useChurch();
 
   const userAssignments = getUserSeasonAssignments(currentUser?.id);
+
+  const [selectedDuty, setSelectedDuty] = useState<{
+    roster: ServiceRoster;
+    service: ServiceDefinition;
+  } | null>(null);
 
   // Short display name
   const getShortName = (fullName?: string) => {
@@ -129,7 +136,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
               return (
                 <div
                   key={`${roster.id}_${index}`}
-                  className="py-3.5 flex items-start gap-3 hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 rounded-xl px-1.5 transition-colors duration-150"
+                  onClick={() => setSelectedDuty({ roster, service })}
+                  className="py-3.5 flex items-start gap-3 hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 rounded-xl px-1.5 transition-colors duration-150 cursor-pointer active:scale-[0.99] group"
                 >
                   {/* Calendar Ticket Badge */}
                   <div className="w-13 shrink-0 bg-slate-100/80 dark:bg-zinc-800/70 rounded-xl p-1.5 text-center flex flex-col items-center justify-center">
@@ -182,6 +190,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                       </span>
                     </div>
                   </div>
+
+                  <ChevronRight size={15} strokeWidth={2} className="text-slate-300 dark:text-zinc-600 shrink-0 self-center group-hover:text-slate-500 dark:group-hover:text-zinc-400 transition-colors" />
                 </div>
               );
             })}
@@ -201,6 +211,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
         </div>
       </div>
       </div>
+
+      {/* Roster Day Detail Modal */}
+      <RosterDetailModal
+        isOpen={!!selectedDuty}
+        onClose={() => setSelectedDuty(null)}
+        roster={selectedDuty?.roster || null}
+        service={selectedDuty?.service || null}
+      />
     </div>
   );
 };
