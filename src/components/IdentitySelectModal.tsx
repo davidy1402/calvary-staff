@@ -2,15 +2,12 @@ import React, { useId, useMemo, useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { BottomSheet } from './BottomSheet';
 import { Search, X, Check, ChevronRight, UserPlus, ArrowLeft } from 'lucide-react';
-import type { Coworker } from '../types';
 
 interface IdentitySelectModalProps {
   isOpen: boolean;
   onClose: () => void;
   canDismiss?: boolean;
 }
-
-const PINNED_COWORKER_IDS = ['cw_diana', 'cw_selena', 'cw_yongyi', 'cw_zongyan', 'cw_david', 'cw_kaiyue', 'cw_wensen'];
 
 export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
   isOpen,
@@ -44,10 +41,6 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
     [c.name, c.englishName, c.cellGroup].some((value) =>
       value.toLowerCase().includes(search.trim().toLowerCase())
     )
-  );
-
-  const pinned = PINNED_COWORKER_IDS.map((cwId) => coworkers.find((c) => c.id === cwId)).filter(
-    (c): c is Coworker => !!c
   );
 
   const choose = (cwId: string) => {
