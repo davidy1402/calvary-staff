@@ -16,7 +16,7 @@ export interface AppRelease {
 export const CURRENT_VERSION: AppRelease = {
   version: '1.5.0',
   releaseDate: '2026-10-04',
-  title: '弹窗手感与同工认领体验全面升级',
+  title: '弹窗手感与同工身份切换体验升级',
   summary: '带来 iOS 级原生流畅弹窗手感、新同工自主登记与 iPad 横屏大屏适配。',
   highlights: [
     {
@@ -27,9 +27,9 @@ export const CURRENT_VERSION: AppRelease = {
     },
     {
       category: 'feature',
-      label: '同工认领',
+      label: '同工登记',
       title: '新同工快速登记与访客浏览',
-      description: '首次访问可搜索并认领名字；新加入服事的同工可直接登记姓名进入系统，或选择以访客身份浏览。',
+      description: '首次访问可轻松选取自己的名字；新加入服事的同工可直接登记姓名进入系统，或选择以访客身份浏览。',
     },
     {
       category: 'ui',
