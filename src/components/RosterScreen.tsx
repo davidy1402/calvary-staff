@@ -177,7 +177,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
         <div className="flex border-b border-slate-200/80 dark:border-zinc-800 mt-2 px-1">
           {churchState.services.map((svc) => {
             const isActive = svc.id === activeServiceId;
-            const tabLabel = getServiceShortName(svc.id, svc.shortName);
+            const tabLabel = svc.shortName || getServiceShortName(svc.id, svc.name);
             return (
               <button
                 key={svc.id}
@@ -227,7 +227,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
               className="text-[11px] md:text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 shrink-0 ml-2 cursor-pointer hover:underline"
             >
               <Pencil size={12} strokeWidth={2} />
-              <span>{language === 'zh' ? '编辑堂次' : 'Edit'}</span>
+              <span>{language === 'zh' ? '编辑聚会设定' : 'Edit Service'}</span>
             </button>
           )}
         </div>

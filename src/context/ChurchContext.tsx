@@ -248,47 +248,25 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     cw_12: 'cw_diana',
   };
 
-  // Ensure all initial services have updated categories and normalized names/venues (Hall 1, Hall 2)
-  const mergedServices = INITIAL_SERVICES.map((initSvc) => {
-    const found = saved.services?.find((s) => s.id === initSvc.id);
+  // Ensure all services have updated categories and retain user modifications
+  const savedServiceMap = new Map((saved.services || []).map((s) => [s.id, s]));
+  const mergedServices: ServiceDefinition[] = INITIAL_SERVICES.map((initSvc) => {
+    const found = savedServiceMap.get(initSvc.id);
     if (found) {
-      let name = found.name;
-      let shortName = found.shortName;
-      let time = found.time;
-      let rehearsalTime = found.rehearsalTime;
-      let venue = found.venue;
-      if (name.includes('青年崇拜') || name.includes('Ignite')) {
-        name = 'Fire4J';
-        shortName = 'Fire4J';
-      }
-      if (initSvc.id === 'sun_mandarin') {
-        if (time.includes('8:30') || time.includes('11:00 AM')) {
-          time = '10:30 AM';
-          rehearsalTime = '9:30 AM 彩排调音';
-        }
-        if (venue.includes('主堂')) {
-          venue = 'Hall 1';
-        }
-      }
-      if (initSvc.id === 'sat_youth' && (venue.includes('青年中心') || venue.includes('Youth Center'))) {
-        venue = 'Hall 2';
-      }
-      if (initSvc.id === 'fri_prayer' && venue.includes('主日学 Hall 2')) {
-        venue = 'Hall 2';
-      }
       return {
         ...initSvc,
         ...found,
-        name,
-        shortName,
-        time,
-        rehearsalTime,
-        venue,
-        categoryIds: initSvc.categoryIds,
+        categoryIds: found.categoryIds?.length ? found.categoryIds : initSvc.categoryIds,
       };
     }
     return initSvc;
   });
+  // Also preserve any custom services added by the user
+  for (const s of saved.services || []) {
+    if (!INITIAL_SERVICES.some((init) => init.id === s.id)) {
+      mergedServices.push(s);
+    }
+  }
 
   // Normalize song categories, clean placeholder notes, strip presider, and ensure YouTube links
   const cleanedSavedRosters: Record<string, ServiceRoster> = {};
