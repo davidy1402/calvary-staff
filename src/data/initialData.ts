@@ -122,6 +122,32 @@ export const INITIAL_COWORKERS: Coworker[] = [
 ];
 
 export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
+  // 2026年 9月27日 (已结束的主日)
+  '2026-09-27_sun_mandarin': {
+    id: '2026-09-27_sun_mandarin',
+    serviceId: 'sun_mandarin',
+    date: '2026-09-27',
+    theme: '倚靠圣灵得胜',
+    specialEvents: ['服装要求: 浅色'],
+    speaker: '苏牧师',
+    songs: [
+      { id: 'sp1', title: '赞美之泉', key: 'D', category: '快歌' },
+      { id: 'sp2', title: '这一生最美的祝福', key: 'C', category: '慢歌' },
+    ],
+    assignments: {
+      lead_vocal: ['cw_youxiang'],
+      backing_vocal: ['cw_liping'],
+      keyboard: ['cw_yongyi'],
+      drums: ['cw_jinlai'],
+      sound_pa: ['cw_wensen'],
+      ppt: ['cw_leelian'],
+      speaker: ['cw_pastor_su'],
+      announcements: ['cw_selena'],
+      greeter: ['cw_diana'],
+    },
+    updatedAt: '2026-09-27T12:00:00.000Z',
+  },
+
   // 2026年 10月4日 (第一周)
   '2026-10-04_sun_mandarin': {
     id: '2026-10-04_sun_mandarin',
@@ -317,7 +343,28 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
     updatedAt: '2026-10-03T12:00:00.000Z',
   },
 
-  // 实体祷告会 @hall 2
+  // Fire4J 青年崇拜 (来临周六)
+  '2026-10-10_sat_youth': {
+    id: '2026-10-10_sat_youth',
+    serviceId: 'sat_youth',
+    date: '2026-10-10',
+    theme: 'Fire4J: 青年觉醒',
+    songs: [
+      { id: 'sy4', title: '在耶稣里有平安', key: 'G', category: '快歌' },
+      { id: 'sy5', title: '安静', key: 'C', category: '慢歌' },
+    ],
+    assignments: {
+      lead_vocal: ['cw_david'],
+      guitar: ['cw_david'],
+      bass: ['cw_zongyan'],
+      drums: ['cw_zongyan'],
+      sound_pa: ['cw_diana'],
+      ppt: ['cw_jiakai'],
+    },
+    updatedAt: '2026-10-04T10:00:00.000Z',
+  },
+
+  // 实体祷告会 @hall 2 (上周)
   '2026-10-02_fri_prayer': {
     id: '2026-10-02_fri_prayer',
     serviceId: 'fri_prayer',
@@ -335,6 +382,21 @@ export const INITIAL_ROSTERS: Record<string, ServiceRoster> = {
       ppt: 'Selena 电脑 PPT',
     },
     updatedAt: '2026-10-01T17:54:00.000Z',
+  },
+
+  // 实体祷告会 @hall 2 (来临周五)
+  '2026-10-09_fri_prayer': {
+    id: '2026-10-09_fri_prayer',
+    serviceId: 'fri_prayer',
+    date: '2026-10-09',
+    theme: '守望破口，同心呼求',
+    assignments: {
+      lead_vocal: ['cw_kaiyue'],
+      guitar: ['cw_kaiyue'],
+      keyboard: ['cw_yongyi'],
+      ppt: ['cw_diana'],
+    },
+    updatedAt: '2026-10-04T10:00:00.000Z',
   },
 };
 

@@ -60,11 +60,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-zinc-700">
-            {t('home', language)}
-          </span>
-        </div>
       </header>
 
       {/* Screen Body Content */}

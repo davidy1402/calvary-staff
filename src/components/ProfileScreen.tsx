@@ -203,63 +203,54 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
         </div>
       </div>
 
-      {/* Mode & Permission Card (Diana & Selena's permission protection) */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-4 space-y-3">
-        <div className="flex items-center gap-2.5">
+      {/* Schedule Management Access Row */}
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-3.5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
             <ShieldCheck size={18} strokeWidth={2} />
           </div>
-          <div>
-            <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-              {language === 'zh' ? '操作模式' : 'Mode'}
-            </h3>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-              {language === 'zh' ? '只读防误触，开启后可安排服事' : 'Toggle read-only or edit access'}
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                {language === 'zh' ? '排班管理权限' : 'Schedule Access'}
+              </h3>
+              <span
+                className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                  userMode === 'editor'
+                    ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
+                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400'
+                }`}
+              >
+                {userMode === 'editor'
+                  ? (language === 'zh' ? '已开启编辑' : 'Unlocked')
+                  : (language === 'zh' ? '只读中' : 'Locked')}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5">
+              {userMode === 'editor'
+                ? (language === 'zh' ? '可安排同工与修改聚会主题' : 'Can assign roles and edit themes')
+                : (language === 'zh' ? '默认只读防误触，需管理员 PIN 解锁' : 'Read-only, enter PIN to edit')}
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        {userMode === 'editor' ? (
           <button
             type="button"
             onClick={() => setUserMode('member')}
-            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-              userMode === 'member'
-                ? 'bg-blue-50/80 dark:bg-zinc-800 border-blue-600 dark:border-blue-500 text-blue-950 dark:text-zinc-100 shadow-2xs'
-                : 'bg-slate-50 dark:bg-zinc-800/70 border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
-            }`}
+            className="text-xs font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-zinc-700 transition-colors shrink-0 cursor-pointer"
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold">
-                {language === 'zh' ? '只读模式' : 'Read-only'}
-              </span>
-              {userMode === 'member' && <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </div>
-            <p className="text-[10px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-              {language === 'zh' ? '仅查看服事安排，防止误触' : 'Read-only view, safe from accidental changes'}
-            </p>
+            {language === 'zh' ? '切换只读' : 'Lock'}
           </button>
-
+        ) : (
           <button
             type="button"
             onClick={handleSwitchToEditor}
-            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-              userMode === 'editor'
-                ? 'bg-blue-50/80 dark:bg-zinc-800 border-blue-600 dark:border-blue-500 text-blue-950 dark:text-zinc-100 shadow-2xs'
-                : 'bg-slate-50 dark:bg-zinc-800/70 border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
-            }`}
+            className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700 px-3 py-1.5 rounded-xl border border-blue-200/80 dark:border-zinc-700 transition-colors shrink-0 cursor-pointer"
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold">
-                {language === 'zh' ? '编辑模式' : 'Editor Mode'}
-              </span>
-              {userMode === 'editor' && <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </div>
-            <p className="text-[10px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-              {language === 'zh' ? '可安排人员与修改聚会主题' : 'Assign members and edit themes'}
-            </p>
+            {language === 'zh' ? '解锁编辑' : 'Unlock'}
           </button>
-        </div>
+        )}
       </div>
 
       {/* Ministry & Coordination Tools */}
