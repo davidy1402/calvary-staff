@@ -144,7 +144,7 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
                           rel="noopener noreferrer"
                           title={language === 'zh' ? '在 YouTube 试听' : 'Listen on YouTube'}
                           aria-label={language === 'zh' ? '在 YouTube 试听' : 'Listen on YouTube'}
-                          className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                          className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
                         >
                           <Play size={14} className="fill-current" />
                         </a>
