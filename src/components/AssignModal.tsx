@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
-import { Search, Star, User, AlertTriangle, Send } from 'lucide-react';
+import { Search, Star, User, Send } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 import { generateWhatsAppDutyChangeText, getWhatsAppShareUrl } from '../utils/whatsappFormatter';
@@ -12,6 +12,7 @@ interface AssignModalProps {
   onClose: () => void;
   targetDate?: string;
   targetServiceId?: string;
+  showNoteEditor?: boolean;
 }
 
 export const AssignModal: React.FC<AssignModalProps> = ({
@@ -20,6 +21,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
   onClose,
   targetDate,
   targetServiceId,
+  showNoteEditor = false,
 }) => {
   const {
     churchState,
@@ -27,7 +29,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
     activeServiceId,
     assignCoworker,
     removeAssignment,
-    getCoworkerConflictRoles,
+    updateDutyNote,
     language,
   } = useChurch();
   const [search, setSearch] = useState('');
@@ -43,6 +45,16 @@ export const AssignModal: React.FC<AssignModalProps> = ({
   const rosterKey = `${effectiveDate}_${effectiveServiceId}`;
   const targetRoster = churchState.rosters[rosterKey];
   const targetService = churchState.services.find((s) => s.id === effectiveServiceId);
+  const [note, setNote] = useState(() => targetRoster?.dutyNotes?.[role.id] || '');
+  const saveNote = () => {
+    if (showNoteEditor && note !== (targetRoster?.dutyNotes?.[role.id] || '')) {
+      updateDutyNote(role.id, note, effectiveDate, effectiveServiceId);
+    }
+  };
+  const handleClose = () => {
+    saveNote();
+    onClose();
+  };
 
   // Identify worship leader (lead_vocal) for this service
   const leadVocalIds = targetRoster?.assignments?.['lead_vocal'] || [];
@@ -103,16 +115,40 @@ export const AssignModal: React.FC<AssignModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-white dark:bg-zinc-900" maxHeight="88vh">
-      {/* Sheet Title */}
-      <div className="px-4 pb-2.5 pt-0.5 bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 text-center shrink-0">
-        <h2 className="text-sm font-bold text-slate-900 dark:text-zinc-100 leading-tight">
-          {t('assignRole', language)}: {role.name}
-        </h2>
-        <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">
-          {t('selectCoworkerHint', language)}
-        </p>
+    <BottomSheet isOpen={isOpen} onClose={handleClose} className="bg-white dark:bg-zinc-900" maxHeight="88vh">
+      <div className="px-4 pb-3 pt-0.5 border-b border-slate-100 dark:border-zinc-800 shrink-0 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
+            {showNoteEditor ? (language === 'zh' ? '编辑岗位' : 'Edit role') : t('assignRole', language)} · {role.name}
+          </h2>
+          <p className="text-xs leading-relaxed text-slate-600 dark:text-zinc-400 mt-1">
+            {effectiveDate} · {targetService?.name}
+          </p>
+          <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
+            {language === 'zh' ? '点击同工选取或移除，改动即时生效' : 'Tap a person to assign or remove. Changes apply immediately.'}
+          </p>
+        </div>
+        <button type="button" onClick={handleClose} className="min-h-11 px-3 rounded-lg text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 shrink-0">
+          {t('done', language)}
+        </button>
       </div>
+
+      {showNoteEditor && (
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-zinc-800 shrink-0">
+          <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300">
+            {language === 'zh' ? '服事备注' : 'Duty note'}
+            <textarea
+              aria-label={language === 'zh' ? '服事备注' : 'Duty note'}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              onBlur={saveNote}
+              rows={2}
+              placeholder={language === 'zh' ? '填写准备事项或提醒（选填）' : 'Preparation or reminders (optional)'}
+              className="mt-2 w-full resize-y rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm leading-relaxed text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </label>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="px-4 py-2.5 bg-slate-50 dark:bg-zinc-900/60 border-b border-slate-200/70 dark:border-zinc-800 shrink-0">
@@ -124,6 +160,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
           />
           <input
             type="text"
+            aria-label={t('searchCoworker', language)}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('searchCoworker', language)}
@@ -142,14 +179,11 @@ export const AssignModal: React.FC<AssignModalProps> = ({
           sortedCoworkers.map((cw) => {
             const isAssigned = assignedIds.includes(cw.id);
             const isQualified = cw.qualifiedRoleIds.includes(role.id);
-            const conflictRoles = getCoworkerConflictRoles(
-              cw.id,
-              effectiveDate,
-              effectiveServiceId
-            ).filter((name) => name !== role.name);
 
             return (
-              <div
+              <button
+                type="button"
+                aria-pressed={isAssigned}
                 key={cw.id}
                 onClick={() => {
                   if (isAssigned) {
@@ -171,7 +205,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                     });
                   }
                 }}
-                className={`pt-2.5 pb-2.5 px-3 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-3 ${
+                className={`w-full text-left min-h-14 pt-2.5 pb-2.5 px-3 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-3 ${
                   isAssigned
                     ? 'bg-blue-50/80 dark:bg-zinc-800 border border-blue-300 dark:border-zinc-600'
                     : 'hover:bg-slate-50 dark:hover:bg-zinc-800/50 border border-transparent'
@@ -197,7 +231,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                   )}
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                      <span className="text-sm font-semibold text-slate-900 dark:text-zinc-100">
                         {cw.name}
                       </span>
                       {cw.englishName && (
@@ -206,24 +240,17 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                         </span>
                       )}
                       {isQualified && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded-md border border-amber-200/60 dark:border-amber-800/60">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-zinc-400">
                           <Star size={10} strokeWidth={2} />
                           {t('regularRole', language)}
                         </span>
                       )}
-                      <span className="text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-zinc-800 px-1.5 py-0.5 rounded-md border border-blue-100 dark:border-zinc-700">
+                      <span className="text-xs text-slate-500 dark:text-zinc-400">
                         {cw.cellGroup}
                       </span>
                     </div>
-
-                    {conflictRoles.length > 0 && (
-                      <div className="inline-flex items-center gap-1 text-[11px] text-amber-900 dark:text-amber-200 font-bold mt-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 px-2 py-0.5 rounded-md">
-                        <AlertTriangle size={11} strokeWidth={2.5} className="shrink-0 text-amber-700 dark:text-amber-400" />
-                        <span>{t('clashAlert', language)}: {conflictRoles.join('、')}</span>
-                      </div>
-                    )}
-                    </div>
                   </div>
+                </div>
 
                   <div
                     className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border transition-all ${
@@ -234,7 +261,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                   >
                     {isAssigned && <span className="text-xs font-bold leading-none">✓</span>}
                   </div>
-                </div>
+                </button>
               );
             })
           )}

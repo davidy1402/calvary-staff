@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
-import { Music, Plus, Trash2, Check, X, ChevronDown, ChevronUp, Play, Video } from 'lucide-react';
+import { Music, Plus, Trash2, Check, X, ChevronDown, ChevronUp, Play, Video, Edit2 } from 'lucide-react';
 import type { WorshipSong } from '../types';
 
 interface WorshipSongSectionProps {
@@ -14,50 +14,64 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
   serviceId,
   songs = [],
 }) => {
-  const { isEditMode, addSong, removeSong, language } = useChurch();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const { isEditMode, addSong, updateSong, removeSong, language } = useChurch();
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [editingSongId, setEditingSongId] = useState<string | null>(null);
 
   // New song form state
   const [title, setTitle] = useState('');
-  const [key, setKey] = useState('G');
+  const [key, setKey] = useState('');
   const [category, setCategory] = useState('快歌');
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [notes, setNotes] = useState('');
 
-  const keyPresets = ['C', 'D', 'E', 'F', 'G', 'A', 'Bb', 'Em', 'C-D', 'D-G', 'Bb-C'];
   const categoryPresets = ['快歌', '慢歌', '回应'];
 
-  const handleAddSong = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-
-    addSong(
-      {
-        title: title.trim(),
-        key: key.trim(),
-        category,
-        youtubeUrl: youtubeUrl.trim() || undefined,
-        notes: notes.trim() || undefined,
-      },
-      date,
-      serviceId
-    );
-
+  const resetForm = () => {
     setTitle('');
+    setKey('');
+    setCategory('快歌');
     setYoutubeUrl('');
     setNotes('');
+    setEditingSongId(null);
     setIsAdding(false);
+  };
+
+  const startAdding = () => {
+    resetForm();
+    setIsExpanded(true);
+    setIsAdding(true);
+  };
+
+  const handleSaveSong = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    const song = {
+      title: title.trim(),
+      key: key.trim(),
+      category,
+      youtubeUrl: youtubeUrl.trim() || undefined,
+      notes: notes.trim() || undefined,
+    };
+    if (editingSongId) {
+      updateSong(editingSongId, song, date, serviceId);
+    } else {
+      addSong(song, date, serviceId);
+    }
+    resetForm();
   };
 
   return (
     <div className="rounded-xl bg-slate-50/70 dark:bg-zinc-800/40 p-3 mb-2 transition-colors">
       {/* Section Header */}
-      <div
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between cursor-pointer select-none"
-      >
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          aria-expanded={isExpanded}
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="min-h-11 flex-1 flex items-center gap-2 text-left"
+        >
           <Music size={14} strokeWidth={2} className="text-blue-600 dark:text-blue-400" />
           <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 tracking-tight">
             {language === 'zh' ? '敬拜赞美歌单' : 'Worship Setlist'}
@@ -65,25 +79,23 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
           <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-500">
             {songs.length} {language === 'zh' ? '首' : 'songs'}
           </span>
-        </div>
+          {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+        </button>
 
         <div className="flex items-center gap-2">
-          {isEditMode && isExpanded && !isAdding && (
+          {isEditMode && !isAdding && (
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsAdding(true);
+                startAdding();
               }}
-              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 transition-colors cursor-pointer"
+              className="min-h-11 px-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 transition-colors cursor-pointer"
             >
               <Plus size={12} strokeWidth={2.5} />
               <span>{language === 'zh' ? '加诗歌' : 'Add'}</span>
             </button>
           )}
-          <div className="text-slate-400 dark:text-zinc-500">
-            {isExpanded ? <ChevronUp size={15} strokeWidth={2} /> : <ChevronDown size={15} strokeWidth={2} />}
-          </div>
         </div>
       </div>
 
@@ -91,13 +103,13 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
       {isExpanded && (
         <div className="pt-2 space-y-1">
           {/* Song List Items */}
-          {songs.length === 0 && !isAdding ? (
+          {songs.length === 0 && !(isAdding && isEditMode) ? (
             <div className="py-2 text-center text-slate-400 dark:text-zinc-500 text-xs">
               <span>{language === 'zh' ? '尚未录入本周诗歌' : 'No songs added for this service'}</span>
               {isEditMode && (
                 <button
                   type="button"
-                  onClick={() => setIsAdding(true)}
+                  onClick={startAdding}
                   className="block mx-auto mt-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   + {language === 'zh' ? '点击添加第一首诗歌' : 'Add first song'}
@@ -109,15 +121,15 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
               {songs.map((song, idx) => (
                 <div
                   key={song.id}
-                  className="py-2 flex items-center justify-between gap-3 hover:bg-slate-100/50 dark:hover:bg-zinc-800/40 px-1 rounded-lg transition-colors"
+                  className="py-2 flex flex-wrap items-center justify-between gap-2 hover:bg-slate-100/50 dark:hover:bg-zinc-800/40 px-1 rounded-lg transition-colors"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1 basis-40">
                     <span className="text-xs font-mono font-medium text-slate-400 dark:text-zinc-500 w-4 text-center shrink-0">
                       {idx + 1}
                     </span>
 
                     <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-bold text-slate-900 dark:text-zinc-100 truncate">
+                      <span className="text-sm font-bold text-slate-900 dark:text-zinc-100 break-words w-full">
                         {song.title}
                       </span>
 
@@ -134,7 +146,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                       )}
 
                       {song.notes && (
-                        <span className="text-[10px] text-slate-400 dark:text-zinc-500 truncate">
+                        <span className="text-xs leading-relaxed whitespace-pre-wrap break-words text-slate-600 dark:text-zinc-400 w-full">
                           ({song.notes})
                         </span>
                       )}
@@ -152,34 +164,40 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                       onClick={(e) => e.stopPropagation()}
                       title="在 YouTube 试听"
                       aria-label="在 YouTube 试听"
-                      className="p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+                      className="min-h-11 min-w-11 p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-center shrink-0 transition-colors cursor-pointer"
                     >
                       <Play size={14} className="fill-current" />
                     </a>
 
-                    {isEditMode && !song.youtubeUrl && (
+                    {isEditMode && (
                       <button
                         type="button"
                         onClick={() => {
-                          const url = window.prompt(`为《${song.title}》输入 YouTube 链接:`, song.youtubeUrl || '');
-                          if (url !== null && url.trim()) {
-                            addSong({ ...song, youtubeUrl: url.trim() }, date, serviceId);
-                          }
+                          setEditingSongId(song.id);
+                          setTitle(song.title);
+                          setKey(song.key || '');
+                          setCategory(song.category || '快歌');
+                          setYoutubeUrl(song.youtubeUrl || '');
+                          setNotes(song.notes || '');
+                          setIsAdding(true);
                         }}
-                        title="设置精准 YouTube 链接"
-                        aria-label="设置精准 YouTube 链接"
-                        className="w-6 h-6 rounded text-slate-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer"
+                        aria-label={language === 'zh' ? `编辑诗歌 ${song.title}` : `Edit song ${song.title}`}
+                        className="min-h-11 min-w-11 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 flex items-center justify-center"
                       >
-                        <Plus size={13} strokeWidth={2.5} />
+                        <Edit2 size={15} />
                       </button>
                     )}
 
                     {isEditMode && (
                       <button
                         type="button"
-                        onClick={() => removeSong(song.id, date, serviceId)}
-                        title="删除诗歌"
-                        className="text-slate-300 dark:text-zinc-600 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                        onClick={() => {
+                          removeSong(song.id, date, serviceId);
+                          if (editingSongId === song.id) resetForm();
+                        }}
+                        title={language === 'zh' ? '删除诗歌' : 'Delete song'}
+                        aria-label={language === 'zh' ? `删除诗歌 ${song.title}` : `Delete song ${song.title}`}
+                        className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                       >
                         <Trash2 size={13} strokeWidth={2} />
                       </button>
@@ -191,16 +209,17 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
           )}
 
           {/* Add Song Inline Form */}
-          {isAdding && (
-            <form onSubmit={handleAddSong} className="p-3 bg-white dark:bg-zinc-900 rounded-xl border border-blue-200 dark:border-zinc-700 space-y-2.5 shadow-xs animate-slide-up mt-2">
+          {isAdding && isEditMode && (
+            <form onSubmit={handleSaveSong} className="p-3 bg-white dark:bg-zinc-900 rounded-xl border border-blue-200 dark:border-zinc-700 space-y-2.5 shadow-xs animate-slide-up mt-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
-                  {language === 'zh' ? '添加诗歌' : 'Add Song'}
+                  {editingSongId ? (language === 'zh' ? '编辑诗歌' : 'Edit Song') : (language === 'zh' ? '添加诗歌' : 'Add Song')}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setIsAdding(false)}
-                  className="text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                  onClick={resetForm}
+                  aria-label={language === 'zh' ? '取消编辑诗歌' : 'Cancel song editing'}
+                  className="min-h-11 min-w-11 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300"
                 >
                   <X size={14} strokeWidth={2} />
                 </button>
@@ -213,31 +232,24 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={language === 'zh' ? '诗歌名称 (例如: Yes Amen！ 是你的应许)' : 'Song Title'}
                   className="w-full text-xs px-2.5 py-1.5 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold text-slate-900 dark:text-zinc-100"
+                  aria-label={language === 'zh' ? '诗歌名称' : 'Song title'}
+                  required
                   autoFocus
                 />
               </div>
 
-              {/* Key Selector Chips */}
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1">
-                  {language === 'zh' ? '调性 (Key)' : 'Key'}
+                <label className="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">
+                  Key
+                  <input
+                    type="text"
+                    aria-label="Key"
+                    value={key}
+                    onChange={(e) => setKey(e.target.value)}
+                    placeholder={language === 'zh' ? '领诗填写，例如 G、Bb、C-D' : 'Enter key, e.g. G, Bb, C-D'}
+                    className="mt-1 w-full min-h-11 text-sm px-2.5 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-900 dark:text-zinc-100"
+                  />
                 </label>
-                <div className="flex items-center gap-1 flex-wrap">
-                  {keyPresets.map((k) => (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => setKey(k)}
-                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border transition-colors cursor-pointer ${
-                        key === k
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-700'
-                      }`}
-                    >
-                      {k}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Category Selector Chips */}
@@ -293,7 +305,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
               <div className="flex items-center justify-end gap-2 pt-1">
                 <button
                   type="button"
-                  onClick={() => setIsAdding(false)}
+                  onClick={resetForm}
                   className="px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200"
                 >
                   {language === 'zh' ? '取消' : 'Cancel'}

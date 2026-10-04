@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import {
   CalendarDays,
@@ -9,9 +9,7 @@ import {
   Plus,
   X,
   Share2,
-  AlertTriangle,
   FileText,
-  MessageSquare,
   Clock,
   MapPin,
 } from 'lucide-react';
@@ -41,12 +39,9 @@ export const RosterScreen: React.FC = () => {
     setUserMode,
     isEditMode,
     getRostersForService,
-    removeAssignment,
     updateRosterMeta,
-    updateDutyNote,
     addSpecialEvent,
     removeSpecialEvent,
-    getCoworkerDateConflicts,
     language,
   } = useChurch();
 
@@ -80,7 +75,8 @@ export const RosterScreen: React.FC = () => {
     .sort((a, b) => b.date.localeCompare(a.date));
 
   // Prioritize upcoming first, past at the bottom
-  const orderedRosters = [...upcomingRosters, ...pastRosters];
+  const [showPast, setShowPast] = useState(false);
+  const orderedRosters = [...upcomingRosters, ...(showPast ? pastRosters : [])];
 
   // Accordion state: default open the closest upcoming service date
   const defaultExpandedDate = upcomingRosters[0]?.date || allServiceRosters[0]?.date;
@@ -95,16 +91,19 @@ export const RosterScreen: React.FC = () => {
   const [editingThemeDate, setEditingThemeDate] = useState<string | null>(null);
   const [themeInput, setThemeInput] = useState<string>('');
 
-  // Editing note for a specific role
-  const [editingNoteKey, setEditingNoteKey] = useState<string | null>(null);
-  const [noteInput, setNoteInput] = useState<string>('');
+  const [isPinOpen, setIsPinOpen] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState(false);
 
-  const handleEnterEditMode = () => {
-    const pin = window.prompt(language === 'zh' ? '请输入统筹管理 4 位 PIN 码' : 'Enter 4-digit coordinator PIN');
-    if (pin === '2026' || pin === '1402' || pin === '1234') {
+  const handleEnterEditMode = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (['2026', '1402', '1234'].includes(pinInput)) {
       setUserMode('editor');
-    } else if (pin !== null) {
-      alert(language === 'zh' ? 'PIN 码错误' : 'Incorrect PIN');
+      setIsPinOpen(false);
+      setPinInput('');
+      setPinError(false);
+    } else {
+      setPinError(true);
     }
   };
 
@@ -130,20 +129,18 @@ export const RosterScreen: React.FC = () => {
 
   const coworkerMap = new Map(churchState.coworkers.map((c) => [c.id, c]));
 
-  // Department categories with semantic accents
+  // Department headings
   const categoryGroups: Array<{
     id: RoleCategoryId;
     nameZh: string;
     nameEn: string;
-    accentBg: string;
-    accentText: string;
   }> = [
-    { id: 'pulpit', nameZh: '讲台与报告', nameEn: 'Pulpit & Service', accentBg: 'bg-indigo-50 dark:bg-indigo-950/50', accentText: 'text-indigo-800 dark:text-indigo-300' },
-    { id: 'worship', nameZh: '敬拜赞美团', nameEn: 'Worship Team', accentBg: 'bg-blue-50 dark:bg-blue-950/50', accentText: 'text-blue-800 dark:text-blue-300' },
-    { id: 'media', nameZh: '影音多媒体', nameEn: 'AV & Media', accentBg: 'bg-cyan-50 dark:bg-cyan-950/50', accentText: 'text-cyan-800 dark:text-cyan-300' },
-    { id: 'sundayschool', nameZh: '主日学儿童事工', nameEn: 'Sunday School', accentBg: 'bg-amber-50 dark:bg-amber-950/50', accentText: 'text-amber-800 dark:text-amber-300' },
-    { id: 'prayer', nameZh: '守望代祷事工', nameEn: 'Prayer & Intercession', accentBg: 'bg-purple-50 dark:bg-purple-950/50', accentText: 'text-purple-800 dark:text-purple-300' },
-    { id: 'hospitality', nameZh: '接待与关怀', nameEn: 'Hospitality & Ushers', accentBg: 'bg-emerald-50 dark:bg-emerald-950/50', accentText: 'text-emerald-800 dark:text-emerald-300' },
+    { id: 'pulpit', nameZh: '讲台与报告', nameEn: 'Pulpit & Service' },
+    { id: 'worship', nameZh: '敬拜赞美团', nameEn: 'Worship Team' },
+    { id: 'media', nameZh: '影音多媒体', nameEn: 'AV & Media' },
+    { id: 'sundayschool', nameZh: '主日学儿童事工', nameEn: 'Sunday School' },
+    { id: 'prayer', nameZh: '守望代祷事工', nameEn: 'Prayer & Intercession' },
+    { id: 'hospitality', nameZh: '接待与关怀', nameEn: 'Hospitality & Ushers' },
   ];
 
   const filterChips: Array<{ id: string; label: string }> = [
@@ -157,57 +154,6 @@ export const RosterScreen: React.FC = () => {
     { id: 'hospitality', label: t('filterHospitality', language) },
   ];
 
-  // Touch swipe gesture handling for category switching (Selena & David's HCI request)
-  const touchStartX = useRef<number | null>(null);
-  const touchStartY = useRef<number | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      touchStartX.current = e.touches[0].clientX;
-      touchStartY.current = e.touches[0].clientY;
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null || touchStartY.current === null) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const deltaX = endX - touchStartX.current;
-    const deltaY = endY - touchStartY.current;
-
-    touchStartX.current = null;
-    touchStartY.current = null;
-
-    // Detect predominantly horizontal swipe (minimum 40px, deltaX > 1.3 * deltaY)
-    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
-      const currentIndex = filterChips.findIndex((c) => c.id === filterType);
-      if (currentIndex === -1) return;
-
-      if (deltaX < 0) {
-        // Swiped LEFT: advance to next category
-        if (currentIndex < filterChips.length - 1) {
-          const nextChip = filterChips[currentIndex + 1];
-          setFilterType(nextChip.id);
-          document.getElementById(`chip-${nextChip.id}`)?.scrollIntoView({
-            behavior: 'smooth',
-            inline: 'center',
-            block: 'nearest',
-          });
-        }
-      } else {
-        // Swiped RIGHT: go back to previous category
-        if (currentIndex > 0) {
-          const prevChip = filterChips[currentIndex - 1];
-          setFilterType(prevChip.id);
-          document.getElementById(`chip-${prevChip.id}`)?.scrollIntoView({
-            behavior: 'smooth',
-            inline: 'center',
-            block: 'nearest',
-          });
-        }
-      }
-    }
-  };
 
   return (
     <div className="min-h-full">
@@ -242,7 +188,7 @@ export const RosterScreen: React.FC = () => {
             ) : (
               <button
                 type="button"
-                onClick={handleEnterEditMode}
+                onClick={() => { setIsPinOpen(true); setPinError(false); }}
                 className="text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-800 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200/80 dark:border-zinc-800"
                 title={language === 'zh' ? '输入统筹 PIN 码管理排班' : 'Enter PIN to edit schedule'}
               >
@@ -252,6 +198,29 @@ export const RosterScreen: React.FC = () => {
             )}
           </div>
         </div>
+
+        {isPinOpen && !isEditMode && (
+          <form onSubmit={handleEnterEditMode} className="py-3 border-t border-slate-100 dark:border-zinc-800">
+            <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300">
+              {language === 'zh' ? '统筹管理 PIN' : 'Coordinator PIN'}
+              <input
+                type="password"
+                inputMode="numeric"
+                autoComplete="off"
+                maxLength={4}
+                value={pinInput}
+                onChange={(e) => { setPinInput(e.target.value); setPinError(false); }}
+                autoFocus
+                className="mt-2 w-full min-h-11 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-base text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </label>
+            {pinError && <p role="alert" className="mt-2 text-sm text-rose-700 dark:text-rose-400">{language === 'zh' ? 'PIN 码错误，请重试' : 'Incorrect PIN. Try again.'}</p>}
+            <div className="mt-2 flex justify-end gap-2">
+              <button type="button" onClick={() => { setIsPinOpen(false); setPinInput(''); }} className="min-h-11 px-3 text-sm text-slate-600 dark:text-zinc-400">{language === 'zh' ? '取消' : 'Cancel'}</button>
+              <button type="submit" className="min-h-11 px-3 rounded-lg bg-blue-700 text-sm font-semibold text-white">{language === 'zh' ? '进入编辑' : 'Start editing'}</button>
+            </div>
+          </form>
+        )}
 
         {/* TabBar: Material Underline Tabs */}
         <div className="flex border-b border-slate-200/80 dark:border-zinc-800 mt-2 px-1">
@@ -264,6 +233,7 @@ export const RosterScreen: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setActiveServiceId(svc.id);
+                  setFilterType('all');
                   const rosters = getRostersForService(svc.id);
                   const up = rosters.filter((r) => r.date >= todayStr).sort((a, b) => a.date.localeCompare(b.date));
                   const targetDate = up[0]?.date || rosters[0]?.date;
@@ -311,26 +281,34 @@ export const RosterScreen: React.FC = () => {
           )}
         </div>
 
-        {/* Fast Filter Chips Row (High Ergonomics for Selena) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-2 px-1 scrollbar-none">
-          {filterChips.map((chip) => {
-            const isChipActive = filterType === chip.id;
-            return (
-              <button
-                key={chip.id}
-                id={`chip-${chip.id}`}
-                type="button"
-                onClick={() => setFilterType(chip.id)}
-                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-150 cursor-pointer active:scale-95 ${
-                  isChipActive
-                    ? 'bg-blue-900 dark:bg-blue-600 text-white shadow-2xs'
-                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-slate-900 dark:hover:text-zinc-100'
-                }`}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
+        {/* Primary views and a compact department filter */}
+        <div className="flex items-center gap-2 py-3">
+          {filterChips.slice(0, 2).map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              aria-pressed={filterType === chip.id}
+              onClick={() => setFilterType(chip.id)}
+              className={`min-h-11 px-3 rounded-lg text-sm font-semibold shrink-0 transition-colors ${
+                filterType === chip.id
+                  ? 'bg-blue-900 dark:bg-blue-600 text-white'
+                  : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
+          <select
+            aria-label={language === 'zh' ? '按事工筛选' : 'Filter by ministry'}
+            value={filterType === 'all' || filterType === 'my' ? '' : filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 text-xs text-slate-700 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="" disabled>{language === 'zh' ? '按事工筛选' : 'Ministry'}</option>
+            {filterChips.slice(2).filter((chip) => activeService.categoryIds.includes(chip.id as RoleCategoryId)).map((chip) => (
+              <option key={chip.id} value={chip.id}>{chip.label}</option>
+            ))}
+          </select>
         </div>
       </header>
 
@@ -338,31 +316,23 @@ export const RosterScreen: React.FC = () => {
       {isEditMode && (
         <div className="bg-blue-50/90 dark:bg-blue-950/40 border-b border-blue-100/90 dark:border-blue-900/40 px-4 py-1.5 flex items-center justify-between text-xs text-blue-900 dark:text-blue-300 animate-slide-up">
           <span className="flex items-center gap-1.5 text-[11px] font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse shrink-0" />
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" />
             <span>{language === 'zh' ? '排班编辑模式已开启，改动即时生效' : 'Editing schedule. Changes save automatically.'}</span>
           </span>
-          <button
-            type="button"
-            onClick={() => setUserMode('member')}
-            className="text-[11px] font-bold text-blue-700 dark:text-blue-400 hover:underline cursor-pointer ml-2 shrink-0"
-          >
-            {language === 'zh' ? '完成并锁定' : 'Done'}
-          </button>
+
         </div>
       )}
 
-      {/* Swipeable Content Area (Left/Right swipe switches category tabs) */}
+      {/* Roster content */}
       <div
         className="px-4 pt-3 space-y-4 touch-pan-y min-h-[50vh] animate-slide-up"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         {orderedRosters.length === 0 ? (
           <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-slate-200 dark:border-zinc-800 text-center text-slate-500 dark:text-zinc-400 animate-slide-up">
           <CalendarDays size={36} strokeWidth={1.5} className="mx-auto text-slate-300 dark:text-zinc-600 mb-2" />
-          <p className="text-base font-bold text-slate-800 dark:text-zinc-200">{t('noRosterData', language)}</p>
+          <p className="text-base font-bold text-slate-800 dark:text-zinc-200">{pastRosters.length > 0 ? (language === 'zh' ? '暂无即将举行的聚会' : 'No upcoming services') : t('noRosterData', language)}</p>
           <p className="text-xs text-slate-400 dark:text-zinc-500 mt-1">
-            {isEditMode ? t('noRosterHintEdit', language) : t('noRosterHintView', language)}
+            {pastRosters.length > 0 ? (language === 'zh' ? '可在下方查看历史服事表' : 'View past services below') : (isEditMode ? t('noRosterHintEdit', language) : t('noRosterHintView', language))}
           </p>
         </div>
       ) : (
@@ -409,10 +379,14 @@ export const RosterScreen: React.FC = () => {
                 >
                   {/* Sticky Date Card Header */}
                   <div
-                    onClick={() => toggleExpand(roster.date)}
-                    className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 transition-colors select-none border-b border-slate-100 dark:border-zinc-800"
+                    className="p-4 flex items-center justify-between hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 transition-colors select-none border-b border-slate-100 dark:border-zinc-800"
                   >
-                    <div className="flex items-start gap-3 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(roster.date)}
+                      aria-expanded={isExpanded}
+                      className="min-h-11 flex-1 flex items-start gap-3 min-w-0 text-left"
+                    >
                       <div
                         className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border ${
                           isPast
@@ -442,8 +416,8 @@ export const RosterScreen: React.FC = () => {
                             </span>
                           ) : null}
 
-                          {/* Graphical Staffing Progress Meter */}
-                          <div className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-slate-200/60 dark:border-zinc-700">
+                          {/* Staffing details are only needed by coordinators. */}
+                          {isEditMode && <div className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-slate-200/60 dark:border-zinc-700">
                             <div className="w-12 h-1.5 bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden shrink-0">
                               <div
                                 className={`h-full rounded-full transition-all duration-300 ${
@@ -470,7 +444,7 @@ export const RosterScreen: React.FC = () => {
                             {!isPast && isFullyStaffed && (
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                             )}
-                          </div>
+                          </div>}
 
                           {roster.specialEvents &&
                             roster.specialEvents.map((ev) => (
@@ -487,7 +461,7 @@ export const RosterScreen: React.FC = () => {
                             ))}
                         </div>
                       </div>
-                    </div>
+                    </button>
 
                     <div className="flex items-center gap-2 shrink-0">
                       <button
@@ -501,13 +475,19 @@ export const RosterScreen: React.FC = () => {
                       >
                       <Share2 size={17} strokeWidth={2} />
                     </button>
-                    <div className="text-slate-400 dark:text-zinc-500 p-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(roster.date)}
+                      aria-expanded={isExpanded}
+                      aria-label={`${isExpanded ? (language === 'zh' ? '收起' : 'Collapse') : (language === 'zh' ? '展开' : 'Expand')} ${dateTitle}`}
+                      className="min-h-11 min-w-8 flex items-center justify-center text-slate-500 dark:text-zinc-400"
+                    >
                       {isExpanded ? (
                         <ChevronUp size={20} strokeWidth={2.25} />
                       ) : (
                         <ChevronDown size={20} strokeWidth={2.25} />
                       )}
-                    </div>
+                    </button>
                   </div>
                 </div>
 
@@ -515,10 +495,10 @@ export const RosterScreen: React.FC = () => {
                 {isExpanded && (
                   <div className="px-4 pb-4 pt-3 animate-slide-up space-y-3">
                     {/* Theme / Scripture Bar */}
-                    <div className="py-1 px-0.5 flex items-center justify-between text-xs text-slate-600 dark:text-zinc-300">
+                    {(roster.theme || isEditMode) && <div className="py-1 px-0.5 flex items-center justify-between text-xs text-slate-600 dark:text-zinc-300">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <FileText size={15} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
-                        {editingThemeDate === roster.date ? (
+                        {editingThemeDate === roster.date && isEditMode ? (
                           <div className="flex items-center gap-2 flex-1 mr-2">
                             <input
                               type="text"
@@ -570,10 +550,10 @@ export const RosterScreen: React.FC = () => {
                           {roster.theme ? t('modifyTheme', language) : t('fillTheme', language)}
                         </button>
                       )}
-                    </div>
+                    </div>}
 
                     {/* Natively Integrated Worship Song List (No Google Sheets required) */}
-                    {activeService.categoryIds.includes('worship') && (
+                    {activeService.categoryIds.includes('worship') && ['all', 'my', 'worship'].includes(filterType) && (
                       <WorshipSongSection
                         date={roster.date}
                         serviceId={roster.serviceId}
@@ -634,7 +614,7 @@ export const RosterScreen: React.FC = () => {
                           const catRoles = allCatRoles.filter((r) => {
                             if (!isEditMode) {
                               const assignedIds = roster.assignments[r.id] || [];
-                              if (assignedIds.length === 0) return false;
+                              if (assignedIds.length === 0 && !roster.dutyNotes?.[r.id]) return false;
                             }
                             if (filterType === 'all') return true;
                             if (filterType === 'my') {
@@ -693,142 +673,36 @@ export const RosterScreen: React.FC = () => {
                                     .map((id) => coworkerMap.get(id))
                                     .filter(Boolean);
                                   const dutyNote = roster.dutyNotes?.[role.id];
-                                  const isNoteEditing = editingNoteKey === `${roster.id}_${role.id}`;
 
                                   return (
                                     <div
                                       key={role.id}
-                                      className="py-2.5 px-1 flex items-center justify-between gap-3 hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-colors"
+                                      className="py-3 px-1 grid grid-cols-[minmax(4.5rem,auto)_minmax(0,1fr)] gap-x-3 gap-y-1.5"
                                     >
-                                      {/* Left: Role Title (Clean readable label, no gray pill border) */}
-                                      <div className="flex items-center gap-1.5 shrink-0 min-w-[4.5rem]">
-                                        <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">
-                                          {role.name}
-                                        </span>
-
-                                        {dutyNote && !isNoteEditing && (
-                                          <span className="text-[10px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200/60 dark:border-amber-900/40 truncate max-w-[120px]">
-                                            {dutyNote}
-                                          </span>
+                                      <span className="text-sm font-medium text-slate-600 dark:text-zinc-400 self-center">
+                                        {role.name}
+                                      </span>
+                                      <div className="flex items-center justify-end gap-2 min-w-0">
+                                        <div className="min-w-0 text-right text-sm font-semibold text-slate-900 dark:text-zinc-100 break-words">
+                                          {assignedCoworkers.length > 0
+                                            ? assignedCoworkers.map((cw) => cw?.name).join('、')
+                                            : <span className="font-normal text-slate-500 dark:text-zinc-400">{t('pending', language)}</span>}
+                                        </div>
+                                        {isEditMode && (
+                                          <button
+                                            type="button"
+                                            onClick={() => setSelectedRoleForAssign({ role, date: roster.date, serviceId: roster.serviceId })}
+                                            aria-label={language === 'zh' ? `编辑${role.name}` : `Edit ${role.name}`}
+                                            className="min-h-11 px-2 shrink-0 rounded-lg text-xs font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-blue-500"
+                                          >
+                                            {language === 'zh' ? '编辑' : 'Edit'}
+                                          </button>
                                         )}
                                       </div>
-
-                                      {/* Inline Note Editor in Edit Mode */}
-                                      {isNoteEditing ? (
-                                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                                          <input
-                                            type="text"
-                                            value={noteInput}
-                                            onChange={(e) => setNoteInput(e.target.value)}
-                                            placeholder={language === 'zh' ? '输入服事备注' : 'Add note'}
-                                            className="text-xs px-2.5 py-1 bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 min-w-0"
-                                            autoFocus
-                                          />
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              updateDutyNote(role.id, noteInput, roster.date, roster.serviceId);
-                                              setEditingNoteKey(null);
-                                            }}
-                                            className="px-2.5 py-1 bg-blue-600 text-white font-bold text-xs rounded-md shrink-0 cursor-pointer"
-                                          >
-                                            {t('save', language)}
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditingNoteKey(null)}
-                                            className="px-1 text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 text-xs shrink-0 cursor-pointer"
-                                          >
-                                            ✕
-                                          </button>
-                                        </div>
-                                      ) : (
-                                        /* Center/Right: Assigned Coworkers (Natural typography, no heavy nested boxes) */
-                                        <div className="flex-1 flex items-center justify-end gap-2 flex-wrap min-w-0">
-                                          {assignedCoworkers.length === 0 ? (
-                                            <span className="text-xs font-normal text-slate-300 dark:text-zinc-600">
-                                              {t('pending', language)}
-                                            </span>
-                                          ) : (
-                                            assignedCoworkers.map((cw) => {
-                                              if (!cw) return null;
-                                              const dateConflicts = getCoworkerDateConflicts(cw.id, roster.date);
-                                              const hasConflict = dateConflicts.length > 1;
-
-                                              return (
-                                                <div
-                                                  key={cw.id}
-                                                  className={`inline-flex items-center gap-1 text-sm font-bold ${
-                                                    hasConflict
-                                                      ? 'text-amber-700 dark:text-amber-400'
-                                                      : 'text-slate-900 dark:text-zinc-100'
-                                                  }`}
-                                                >
-                                                  <span>{cw.name}</span>
-
-                                                  {/* Conflict Warning */}
-                                                  {hasConflict && (
-                                                    <span
-                                                      title={`时间冲突: 当天同时服事 ${dateConflicts.map((c) => `[${c.serviceName} ${c.roleName}]`).join('、')}`}
-                                                      className="text-amber-600 dark:text-amber-400"
-                                                    >
-                                                      <AlertTriangle size={13} strokeWidth={2.5} />
-                                                    </span>
-                                                  )}
-
-                                                  {isEditMode && (
-                                                    <button
-                                                      type="button"
-                                                      onClick={() =>
-                                                        removeAssignment(
-                                                          role.id,
-                                                          cw.id,
-                                                          roster.date,
-                                                          roster.serviceId
-                                                        )
-                                                      }
-                                                      className="text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 ml-0.5 cursor-pointer p-0.5"
-                                                    >
-                                                      <X size={12} strokeWidth={2.5} />
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              );
-                                            })
-                                          )}
-
-                                          {/* Actions in Edit Mode: Assign & Add Note */}
-                                          {isEditMode && (
-                                            <div className="flex items-center gap-1 ml-1 shrink-0">
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  setNoteInput(dutyNote || '');
-                                                  setEditingNoteKey(`${roster.id}_${role.id}`);
-                                                }}
-                                                title="添加/编辑备注"
-                                                className="w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                                              >
-                                                <MessageSquare size={12} strokeWidth={2} />
-                                              </button>
-
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  setSelectedRoleForAssign({
-                                                    role,
-                                                    date: roster.date,
-                                                    serviceId: roster.serviceId,
-                                                  })
-                                                }
-                                                className="w-6 h-6 rounded flex items-center justify-center text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 bg-blue-50 dark:bg-zinc-800 transition-colors active:scale-90 cursor-pointer"
-                                                title={assignedCoworkers.length === 0 ? t('assign', language) : t('change', language)}
-                                              >
-                                                <Plus size={12} strokeWidth={2.5} />
-                                              </button>
-                                            </div>
-                                          )}
-                                        </div>
+                                      {dutyNote && (
+                                        <p className="col-span-2 text-xs leading-relaxed whitespace-pre-wrap break-words text-slate-600 dark:text-zinc-400">
+                                          {dutyNote}
+                                        </p>
                                       )}
                                     </div>
                                   );
@@ -849,6 +723,22 @@ export const RosterScreen: React.FC = () => {
       )}
       </div>
 
+      {pastRosters.length > 0 && (
+        <div className="px-4 py-5">
+          <button
+            type="button"
+            aria-expanded={showPast}
+            onClick={() => setShowPast((prev) => !prev)}
+            className="min-h-11 w-full flex items-center justify-center gap-2 rounded-lg text-sm font-medium text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800"
+          >
+            {showPast ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {language === 'zh'
+              ? `${showPast ? '收起' : '查看'}历史服事表（${pastRosters.length}）`
+              : `${showPast ? 'Hide' : 'Show'} past services (${pastRosters.length})`}
+          </button>
+        </div>
+      )}
+
       {/* Role Assignment Modal */}
       {selectedRoleForAssign && (
         <AssignModal
@@ -857,6 +747,7 @@ export const RosterScreen: React.FC = () => {
           onClose={() => setSelectedRoleForAssign(null)}
           targetDate={selectedRoleForAssign.date}
           targetServiceId={selectedRoleForAssign.serviceId}
+          showNoteEditor
         />
       )}
 
