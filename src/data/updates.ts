@@ -14,33 +14,59 @@ export interface AppRelease {
 }
 
 export const CURRENT_VERSION: AppRelease = {
-  version: '1.4.0',
+  version: '1.5.0',
   releaseDate: '2026-10-04',
-  title: '排班表与界面优化',
-  summary: '带来更顺畅直观的排班查阅与编辑体验。',
+  title: '弹窗手感与同工认领体验全面升级',
+  summary: '带来 iOS 级原生流畅弹窗手感、新同工自主登记与 iPad 横屏大屏适配。',
   highlights: [
     {
-      category: 'feature',
-      label: '主日置顶',
-      title: '优先查看来临主日',
-      description: '打开排班表自动置顶并展开本周聚会，已过去的聚会移至底部收纳。',
+      category: 'ui',
+      label: '原生手感',
+      title: 'Bottom Sheet 流畅上下滑行动画',
+      description: '弹窗展开由下而上、关闭由上至下平滑滑出，搭配 iOS 级阻尼曲线与手势拖拽关闭，告别突兀闪退。',
     },
     {
       category: 'feature',
-      label: '简单直观',
-      title: '排班编辑更明确',
-      description: '统筹同工点击管理排班即可调整人员，修改完点击完成即可锁定。',
+      label: '同工认领',
+      title: '新同工快速登记与访客浏览',
+      description: '首次访问可搜索并认领名字；新加入服事的同工可直接登记姓名进入系统，或选择以访客身份浏览。',
     },
     {
       category: 'ui',
-      label: '清爽呼吸',
-      title: '排版整齐干净',
-      description: '精简多余的边框与背景底色，层级更少，查阅更舒服。',
+      label: '大屏适配',
+      title: 'iPad / 平板横屏悬浮导览轨',
+      description: '在平板与桌面横屏下自动转换为右侧悬浮胶囊导览轨，视野更广，查阅排班更轻松。',
     },
   ],
 };
 
 export const PAST_RELEASES: AppRelease[] = [
+  {
+    version: '1.4.0',
+    releaseDate: '2026-10-04',
+    title: '排班表与界面优化',
+    summary: '带来更顺畅直观的排班查阅与编辑体验。',
+    highlights: [
+      {
+        category: 'feature',
+        label: '主日置顶',
+        title: '优先查看来临主日',
+        description: '打开排班表自动置顶并展开本周聚会，已过去的聚会移至底部收纳。',
+      },
+      {
+        category: 'feature',
+        label: '简单直观',
+        title: '排班编辑更明确',
+        description: '统筹同工点击管理排班即可调整人员，修改完点击完成即可锁定。',
+      },
+      {
+        category: 'ui',
+        label: '清爽呼吸',
+        title: '排版整齐干净',
+        description: '精简多余的边框与背景底色，层级更少，查阅更舒服。',
+      },
+    ],
+  },
   {
     version: '1.3.0',
     releaseDate: '2026-10-04',
