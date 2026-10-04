@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
 import { Search, Star, User, Send } from 'lucide-react';
+import { RosterSaveStatus } from './RosterSaveStatus';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 import { generateWhatsAppDutyChangeText, getWhatsAppShareUrl } from '../utils/whatsappFormatter';
@@ -36,6 +37,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
 
   const [lastChange, setLastChange] = useState<{
     coworkerName: string;
+    coworkerId: string;
     previousName?: string;
     action: 'assigned' | 'removed';
   } | null>(null);
@@ -119,13 +121,13 @@ export const AssignModal: React.FC<AssignModalProps> = ({
       <div className="px-4 pb-3 pt-0.5 border-b border-slate-100 dark:border-zinc-800 shrink-0 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
-            {showNoteEditor ? (language === 'zh' ? '编辑岗位' : 'Edit role') : t('assignRole', language)} · {role.name}
+            {showNoteEditor ? (language === 'zh' ? '编辑岗位' : 'Edit role') : t('assignRole', language)} {role.name}
           </h2>
           <p className="text-xs leading-relaxed text-slate-600 dark:text-zinc-400 mt-1">
-            {effectiveDate} · {targetService?.name}
+            {effectiveDate} {targetService?.name}
           </p>
           <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
-            {language === 'zh' ? '点击同工选取或移除，改动即时生效' : 'Tap a person to assign or remove. Changes apply immediately.'}
+            {language === 'zh' ? '点击同工可选取或移除' : 'Tap a person to assign or remove.'}
           </p>
         </div>
         <button type="button" onClick={handleClose} className="min-h-11 px-3 rounded-lg text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 shrink-0">
@@ -143,12 +145,14 @@ export const AssignModal: React.FC<AssignModalProps> = ({
               onChange={(e) => setNote(e.target.value)}
               onBlur={saveNote}
               rows={2}
-              placeholder={language === 'zh' ? '填写准备事项或提醒（选填）' : 'Preparation or reminders (optional)'}
+              placeholder={language === 'zh' ? '准备事项或提醒，可留空' : 'Preparation or reminders (optional)'}
               className="mt-2 w-full resize-y rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm leading-relaxed text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </label>
         </div>
       )}
+
+      <div className="px-4 py-1"><RosterSaveStatus /></div>
 
       {/* Search Bar */}
       <div className="px-4 py-2.5 bg-slate-50 dark:bg-zinc-900/60 border-b border-slate-200/70 dark:border-zinc-800 shrink-0">
@@ -190,6 +194,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                     removeAssignment(role.id, cw.id, effectiveDate, effectiveServiceId);
                     setLastChange({
                       coworkerName: cw.name,
+                      coworkerId: cw.id,
                       action: 'removed',
                     });
                   } else {
@@ -200,6 +205,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                     assignCoworker(role.id, cw.id, effectiveDate, effectiveServiceId);
                     setLastChange({
                       coworkerName: cw.name,
+                      coworkerId: cw.id,
                       previousName: previousCoworker,
                       action: 'assigned',
                     });
@@ -268,7 +274,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
         </div>
 
         {/* Quick WhatsApp Notification for Leader & Team */}
-        {lastChange && (
+        {lastChange && (assignedIds.includes(lastChange.coworkerId) === (lastChange.action === 'assigned')) && (
           <div className="px-4 py-3 bg-blue-50/95 dark:bg-zinc-800/95 border-t border-blue-200/80 dark:border-zinc-700 flex items-center justify-between gap-3 shrink-0 animate-slide-up">
             <div className="min-w-0">
               <p className="text-xs font-bold text-blue-900 dark:text-zinc-100 truncate">

@@ -141,6 +141,12 @@ interface ChurchContextType {
   undoRosterChange: () => void;
   canUndoRosterChange: boolean;
 
+  // Identity selection onboarding
+  isIdentityModalOpen: boolean;
+  setIsIdentityModalOpen: (open: boolean) => void;
+  hasClaimedIdentity: boolean;
+  selectIdentity: (coworkerId: string) => void;
+
   exportBackup: () => void;
   importBackup: (jsonText: string) => boolean;
   resetToDefault: () => void;
@@ -520,6 +526,29 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [currentUserId]);
 
+  const [hasClaimedIdentity, setHasClaimedIdentity] = useState<boolean>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('user') || params.get('u') || params.get('name')) {
+        return true;
+      }
+      return Boolean(localStorage.getItem('calvary_current_user_id'));
+    } catch {
+      return true;
+    }
+  });
+
+  const [isIdentityModalOpen, setIsIdentityModalOpen] = useState<boolean>(() => {
+    return !hasClaimedIdentity;
+  });
+
+  const selectIdentity = (coworkerId: string) => {
+    setCurrentUserId(coworkerId);
+    setHasClaimedIdentity(true);
+    setIsIdentityModalOpen(false);
+    localStorage.setItem('calvary_current_user_id', coworkerId);
+  };
+
   const activeService =
     churchState.services.find((s) => s.id === activeServiceId) || churchState.services[0];
 
@@ -575,7 +604,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     isSupabaseConfigured() ? 'connecting' : 'offline'
   );
   const churchStateRef = React.useRef(churchState);
-  churchStateRef.current = churchState;
+  useEffect(() => { churchStateRef.current = churchState; }, [churchState]);
   const [undoEntry, setUndoEntry] = useState<{ before: ServiceRoster; after: ServiceRoster } | null>(null);
   useEffect(() => {
     if (!undoEntry) return;
@@ -583,15 +612,15 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => window.clearTimeout(timer);
   }, [undoEntry]);
 
-  const queueRef = React.useRef<RosterSyncQueue | null>(null);
-  if (!queueRef.current) {
+  const editedRosterIds = React.useRef(new Set<string>());
+  const [rosterQueue] = useState(() => {
     let initial: ServiceRoster[] = [];
     try {
       const ids: unknown = JSON.parse(localStorage.getItem('calvary_pending_rosters') || '[]');
       if (Array.isArray(ids)) initial = ids.filter((id): id is string => typeof id === 'string')
         .map((id) => churchState.rosters[id]).filter(Boolean);
     } catch { /* Ignore invalid pending metadata, preserve roster data. */ }
-    queueRef.current = new RosterSyncQueue({
+    return new RosterSyncQueue({
       initial,
       write: upsertRemoteRoster,
       onStatus: setSyncStatus,
@@ -600,14 +629,14 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         catch { setLocalSaveStatus('error'); }
       },
     });
-  }
+  });
   const retryRosterSync = async () => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(churchStateRef.current));
       setLocalSaveStatus('saved');
     } catch { setLocalSaveStatus('error'); return; }
     if (!isSupabaseConfigured()) return;
-    if (queueRef.current!.snapshot().length) await queueRef.current!.flush();
+    if (rosterQueue.snapshot().length) await rosterQueue.flush();
     else {
       setSyncStatus('connecting');
       const data = await fetchRemoteChurchData();
@@ -616,15 +645,18 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const persistRoster = (roster: ServiceRoster) => {
+    editedRosterIds.current.add(roster.id);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(churchStateRef.current));
       setLocalSaveStatus('saved');
     } catch { setLocalSaveStatus('error'); }
-    if (isSupabaseConfigured()) void queueRef.current!.enqueue(roster);
+    if (isSupabaseConfigured()) void rosterQueue.enqueue(roster);
   };
-  const canUndoRosterChange = !!undoEntry && churchState.rosters[undoEntry.after.id] === undoEntry.after;
+  const canUndoRosterChange = !!undoEntry && (churchState.rosters[undoEntry.after.id] === undoEntry.after || Date.parse(churchState.rosters[undoEntry.after.id]?.updatedAt || '') === Date.parse(undoEntry.after.updatedAt || ''));
   const undoRosterChange = () => {
-    if (!undoEntry || churchStateRef.current.rosters[undoEntry.after.id] !== undoEntry.after) return;
+    if (!undoEntry) return;
+    const current = churchStateRef.current.rosters[undoEntry.after.id];
+    if (current !== undoEntry.after && Date.parse(current?.updatedAt || '') !== Date.parse(undoEntry.after.updatedAt || '')) return;
     const restored = { ...undoEntry.before, updatedAt: new Date().toISOString() };
     const next = { ...churchStateRef.current, rosters: { ...churchStateRef.current.rosters, [restored.id]: restored } };
     churchStateRef.current = next;
@@ -663,12 +695,12 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               services: remoteData.services.length > 0 ? remoteData.services : prev.services,
               rosters:
                 Object.keys(remoteData.rosters).length > 0
-                  ? { ...prev.rosters, ...Object.fromEntries(Object.entries(remoteData.rosters).filter(([id]) => !queueRef.current!.has(id))) }
+                  ? { ...prev.rosters, ...Object.fromEntries(Object.entries(remoteData.rosters).filter(([id]) => !rosterQueue.has(id) && !editedRosterIds.current.has(id))) }
                   : prev.rosters,
             }));
           }
           setSyncStatus('synced');
-          await queueRef.current!.flush();
+          await rosterQueue.flush();
         } else {
           setSyncStatus('error');
         }
@@ -683,7 +715,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Real-time synchronization subscription
     const unsubscribe = subscribeToRealtimeChanges({
       onRosterChange: (updatedRoster) => {
-        if (queueRef.current!.has(updatedRoster.id)) return;
+        if (rosterQueue.has(updatedRoster.id)) return;
         setChurchState((prev) => ({
           ...prev,
           rosters: {
@@ -721,7 +753,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       isMounted = false;
       unsubscribe();
     };
-  }, []);
+  }, [rosterQueue]);
 
   const rosterKey = `${selectedDate}_${activeServiceId}`;
   const currentRoster = churchState.rosters[rosterKey];
@@ -1151,6 +1183,10 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         undoRosterChange,
         canUndoRosterChange,
         isCloudConnected: syncStatus === 'synced',
+        isIdentityModalOpen,
+        setIsIdentityModalOpen,
+        hasClaimedIdentity,
+        selectIdentity,
         getCoworkerDateConflicts,
         getCoworkerConflictRoles,
         exportBackup,

@@ -13,6 +13,7 @@ import {
   Clock,
   MapPin,
 } from 'lucide-react';
+import { RosterSaveStatus } from './RosterSaveStatus';
 import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
 import { WorshipSongSection } from './WorshipSongSection';
@@ -30,7 +31,7 @@ const getTodayDateStr = () => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-export const RosterScreen: React.FC = () => {
+export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlistDate }) => {
   const {
     churchState,
     currentUser,
@@ -57,7 +58,7 @@ export const RosterScreen: React.FC = () => {
   const [whatsAppModalRoster, setWhatsAppModalRoster] = useState<ServiceRoster | null>(null);
 
   // Active filter chip
-  const [filterType, setFilterType] = useState<string>('all');
+  const [filterType, setFilterType] = useState<string>(setlistDate ? 'worship' : 'all');
 
   // Service Edit Modal
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
@@ -80,7 +81,7 @@ export const RosterScreen: React.FC = () => {
   const orderedRosters = [...upcomingRosters, ...(showPast ? pastRosters : [])];
 
   // Accordion state: default open the closest upcoming service date
-  const defaultExpandedDate = upcomingRosters[0]?.date || allServiceRosters[0]?.date;
+  const defaultExpandedDate = setlistDate || upcomingRosters[0]?.date || allServiceRosters[0]?.date;
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>(() => {
     if (defaultExpandedDate) {
       return { [defaultExpandedDate]: true };
@@ -167,12 +168,7 @@ export const RosterScreen: React.FC = () => {
             <h1 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
               {isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
             </h1>
-            {isEditMode && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-900/40">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse" />
-                <span>{language === 'zh' ? '编辑中' : 'Editing'}</span>
-              </span>
-            )}
+
           </div>
 
           {/* Right actions: Mode Switch Action */}
@@ -313,16 +309,7 @@ export const RosterScreen: React.FC = () => {
         </div>
       </header>
 
-      {/* Editing Mode Subtle Indicator Banner */}
-      {isEditMode && (
-        <div className="bg-blue-50/90 dark:bg-blue-950/40 border-b border-blue-100/90 dark:border-blue-900/40 px-4 py-1.5 flex items-center justify-between text-xs text-blue-900 dark:text-blue-300 animate-slide-up">
-          <span className="flex items-center gap-1.5 text-[11px] font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" />
-            <span>{language === 'zh' ? '排班编辑模式已开启，改动即时生效' : 'Editing schedule. Changes save automatically.'}</span>
-          </span>
-
-        </div>
-      )}
+      <div className="px-4 pt-2"><RosterSaveStatus /></div>
 
       {/* Roster content */}
       <div
@@ -462,7 +449,7 @@ export const RosterScreen: React.FC = () => {
                           setWhatsAppModalRoster(roster);
                         }}
                         title="预览并分享 WhatsApp 服事表"
-                        className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors active:scale-90 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
+                        className="w-11 h-11 rounded-xl flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors active:scale-90 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
                       >
                       <Share2 size={17} strokeWidth={2} />
                     </button>
@@ -549,6 +536,8 @@ export const RosterScreen: React.FC = () => {
                         date={roster.date}
                         serviceId={roster.serviceId}
                         songs={roster.songs}
+                        initiallyExpanded={roster.date === setlistDate}
+                        allowEdit={roster.date >= todayStr && !!currentUser && (roster.assignments.lead_vocal || []).includes(currentUser.id)}
                       />
                     )}
 
@@ -720,7 +709,7 @@ export const RosterScreen: React.FC = () => {
           >
             {showPast ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             {language === 'zh'
-              ? `${showPast ? '收起' : '查看'}历史服事表（${pastRosters.length}）`
+              ? `${showPast ? '收起' : '查看'}历史服事表 ${pastRosters.length}`
               : `${showPast ? 'Hide' : 'Show'} past services (${pastRosters.length})`}
           </button>
         </div>

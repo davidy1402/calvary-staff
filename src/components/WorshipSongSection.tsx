@@ -7,15 +7,20 @@ interface WorshipSongSectionProps {
   date: string;
   serviceId: string;
   songs?: WorshipSong[];
+  allowEdit?: boolean;
+  initiallyExpanded?: boolean;
 }
 
 export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
   date,
   serviceId,
   songs = [],
+  allowEdit = false,
+  initiallyExpanded = false,
 }) => {
   const { isEditMode, addSong, updateSong, removeSong, language } = useChurch();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const canEdit = isEditMode || allowEdit;
+  const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
   const [isAdding, setIsAdding] = useState(false);
   const [editingSongId, setEditingSongId] = useState<string | null>(null);
 
@@ -46,7 +51,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
 
   const handleSaveSong = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!canEdit || !title.trim()) return;
     const song = {
       title: title.trim(),
       key: key.trim(),
@@ -83,7 +88,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
         </button>
 
         <div className="flex items-center gap-2">
-          {isEditMode && !isAdding && (
+          {canEdit && !isAdding && (
             <button
               type="button"
               onClick={(e) => {
@@ -103,10 +108,10 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
       {isExpanded && (
         <div className="pt-2 space-y-1">
           {/* Song List Items */}
-          {songs.length === 0 && !(isAdding && isEditMode) ? (
+          {songs.length === 0 && !(isAdding && canEdit) ? (
             <div className="py-2 text-center text-slate-400 dark:text-zinc-500 text-xs">
               <span>{language === 'zh' ? '尚未录入本周诗歌' : 'No songs added for this service'}</span>
-              {isEditMode && (
+              {canEdit && (
                 <button
                   type="button"
                   onClick={startAdding}
@@ -147,7 +152,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
 
                       {song.notes && (
                         <span className="text-xs leading-relaxed whitespace-pre-wrap break-words text-slate-600 dark:text-zinc-400 w-full">
-                          ({song.notes})
+                          {song.notes}
                         </span>
                       )}
                     </div>
@@ -169,7 +174,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                       <Play size={14} className="fill-current" />
                     </a>
 
-                    {isEditMode && (
+                    {canEdit && (
                       <button
                         type="button"
                         onClick={() => {
@@ -188,7 +193,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                       </button>
                     )}
 
-                    {isEditMode && (
+                    {canEdit && (
                       <button
                         type="button"
                         onClick={() => {
@@ -209,7 +214,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
           )}
 
           {/* Add Song Inline Form */}
-          {isAdding && isEditMode && (
+          {isAdding && canEdit && (
             <form onSubmit={handleSaveSong} className="p-3 bg-white dark:bg-zinc-900 rounded-xl border border-blue-200 dark:border-zinc-700 space-y-2.5 shadow-xs animate-slide-up mt-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
@@ -230,7 +235,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder={language === 'zh' ? '诗歌名称 (例如: Yes Amen！ 是你的应许)' : 'Song Title'}
+                  placeholder={language === 'zh' ? '诗歌名称' : 'Song Title'}
                   className="w-full text-xs px-2.5 py-1.5 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold text-slate-900 dark:text-zinc-100"
                   aria-label={language === 'zh' ? '诗歌名称' : 'Song title'}
                   required
@@ -255,7 +260,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
               {/* Category Selector Chips */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1">
-                  {language === 'zh' ? '曲风 / 环节' : 'Category'}
+                  {language === 'zh' ? '诗歌类型' : 'Category'}
                 </label>
                 <div className="flex items-center gap-1.5">
                   {categoryPresets.map((cat) => (
@@ -279,7 +284,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1 flex items-center gap-1">
                   <Video size={12} className="text-red-500" />
-                  <span>{language === 'zh' ? 'YouTube 链接 (选填)' : 'YouTube Link (optional)'}</span>
+                  <span>{language === 'zh' ? 'YouTube 链接，可留空' : 'YouTube Link (optional)'}</span>
                 </label>
                 <input
                   type="url"
@@ -296,7 +301,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder={language === 'zh' ? '备注 (选填)' : 'Optional notes'}
+                  placeholder={language === 'zh' ? '备注，可留空' : 'Optional notes'}
                   className="w-full text-xs px-2.5 py-1 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-700 dark:text-zinc-300"
                 />
               </div>

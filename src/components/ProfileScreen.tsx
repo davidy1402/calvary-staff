@@ -30,8 +30,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
   const {
     churchState,
     currentUser,
-    currentUserId,
-    setCurrentUserId,
     userMode,
     setUserMode,
     updateCurrentUserAvatar,
@@ -41,6 +39,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
     themeMode,
     setThemeMode,
     syncStatus,
+    setIsIdentityModalOpen,
   } = useChurch();
 
   const handleSwitchToEditor = () => {
@@ -182,22 +181,19 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           </div>
         </div>
 
-        {/* Switch Identity Dropdown */}
+        {/* Switch Identity Action */}
         <div className="pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
           <span className="font-medium text-slate-600 dark:text-zinc-300">
             {language === 'zh' ? '当前同工身份:' : t('switchCoworkerIdentity', language)}
           </span>
-          <select
-            value={currentUserId}
-            onChange={(e) => setCurrentUserId(e.target.value)}
-            className="text-xs font-semibold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer max-w-[190px] truncate"
+          <button
+            type="button"
+            onClick={() => setIsIdentityModalOpen(true)}
+            className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700/80 border border-blue-200/80 dark:border-zinc-700 rounded-xl px-3 py-1.5 transition-colors cursor-pointer flex items-center gap-1.5 active:scale-95"
           >
-            {churchState.coworkers.map((cw) => (
-              <option key={cw.id} value={cw.id} className="dark:bg-zinc-800 dark:text-zinc-100">
-                {cw.name} ({cw.cellGroup})
-              </option>
-            ))}
-          </select>
+            <span>{currentUser?.name || (language === 'zh' ? '选择姓名' : 'Select Name')}</span>
+            <ChevronRight size={13} className="text-blue-500 shrink-0" />
+          </button>
         </div>
       </div>
 
