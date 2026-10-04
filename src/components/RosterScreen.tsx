@@ -145,12 +145,12 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
   return (
     <div className="min-h-full">
       {/* Centered AppBar with Permission & Mode Switcher */}
-      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200 dark:border-zinc-800 px-4 pb-0 sticky top-0 z-30 shadow-2xs">
+      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200 dark:border-zinc-800 px-4 md:px-6 pb-0 sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center justify-between pb-1">
           {/* Title & Active Edit Mode Indicator */}
           <div className="flex items-center gap-2">
-            <ChurchLogo className="w-6 h-6 object-contain shrink-0" />
-            <h1 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
+            <ChurchLogo className="w-6 h-6 md:w-7 md:h-7 object-contain shrink-0" />
+            <h1 className="text-base md:text-lg font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
               {isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
             </h1>
 
@@ -162,9 +162,9 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
               <button
                 type="button"
                 onClick={() => setUserMode('member')}
-                className="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-full flex items-center gap-1 transition-all active:scale-95 cursor-pointer shadow-sm"
+                className="text-xs md:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
               >
-                <Check size={13} strokeWidth={2.5} />
+                <Check size={14} strokeWidth={2.5} />
                 <span>{t('done', language)}</span>
               </button>
             ) : (
@@ -192,7 +192,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                     setExpandedDates({ [targetDate]: true });
                   }
                 }}
-                className={`flex-1 pb-2 pt-1 text-xs text-center transition-all duration-200 relative cursor-pointer ${
+                className={`flex-1 pb-2 pt-1 text-xs md:text-sm text-center transition-all duration-200 relative cursor-pointer ${
                   isActive
                     ? 'text-blue-900 dark:text-blue-400 font-extrabold'
                     : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 font-medium'
@@ -208,14 +208,14 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
         </div>
  
         {/* Service Timing & Venue Subheader with Edit Trigger */}
-        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-zinc-400 px-1 pt-1.5 pb-0.5">
-          <div className="flex items-center gap-2.5 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
+        <div className="flex items-center justify-between text-[11px] md:text-xs text-slate-500 dark:text-zinc-400 px-1 pt-1.5 pb-0.5">
+          <div className="flex items-center gap-3 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
             <span className="flex items-center gap-1 font-semibold text-slate-700 dark:text-zinc-300 shrink-0">
-              <Clock size={11} strokeWidth={2} className="text-blue-600 dark:text-blue-400" />
+              <Clock size={12} strokeWidth={2} className="text-blue-600 dark:text-blue-400" />
               <span>{activeService.time}</span>
             </span>
             <span className="flex items-center gap-1 text-slate-500 dark:text-zinc-400 truncate">
-              <MapPin size={11} strokeWidth={1.75} className="shrink-0" />
+              <MapPin size={12} strokeWidth={1.75} className="shrink-0" />
               <span className="truncate">{activeService.venue}</span>
             </span>
           </div>
@@ -224,25 +224,25 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
             <button
               type="button"
               onClick={() => setIsServiceModalOpen(true)}
-              className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 shrink-0 ml-2 cursor-pointer hover:underline"
+              className="text-[11px] md:text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 shrink-0 ml-2 cursor-pointer hover:underline"
             >
-              <Pencil size={11} strokeWidth={2} />
+              <Pencil size={12} strokeWidth={2} />
               <span>{language === 'zh' ? '编辑堂次' : 'Edit'}</span>
             </button>
           )}
         </div>
 
         {/* Primary views and a compact department filter */}
-        <div className="flex items-center gap-2 py-3">
+        <div className="flex items-center gap-2 py-3 overflow-x-auto no-scrollbar">
           {filterChips.slice(0, 2).map((chip) => (
             <button
               key={chip.id}
               type="button"
               aria-pressed={filterType === chip.id}
               onClick={() => setFilterType(chip.id)}
-              className={`min-h-11 px-3 rounded-lg text-sm font-semibold shrink-0 transition-colors ${
+              className={`min-h-11 px-3.5 rounded-xl text-xs md:text-sm font-semibold shrink-0 transition-colors cursor-pointer ${
                 filterType === chip.id
-                  ? 'bg-blue-900 dark:bg-blue-600 text-white'
+                  ? 'bg-blue-900 dark:bg-blue-600 text-white shadow-xs'
                   : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
               }`}
             >
@@ -253,7 +253,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
             aria-label={language === 'zh' ? '按事工筛选' : 'Filter by ministry'}
             value={filterType === 'all' || filterType === 'my' ? '' : filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-2 text-xs text-slate-700 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="min-h-11 min-w-0 flex-1 md:max-w-xs rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-xs md:text-sm text-slate-700 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="" disabled>{language === 'zh' ? '按事工筛选' : 'Ministry'}</option>
             {filterChips.slice(2).filter((chip) => activeService.categoryIds.includes(chip.id as RoleCategoryId)).map((chip) => (
@@ -263,22 +263,22 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
         </div>
       </header>
 
-      <div className="px-4 pt-2"><RosterSaveStatus /></div>
+      <div className="px-4 md:px-6 pt-2"><RosterSaveStatus /></div>
 
       {/* Roster content */}
       <div
-        className="px-4 pt-3 space-y-4 touch-pan-y min-h-[50vh] animate-slide-up"
+        className="px-4 md:px-6 pt-3 space-y-4 touch-pan-y min-h-[50vh] animate-slide-up"
       >
         {orderedRosters.length === 0 ? (
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-slate-200 dark:border-zinc-800 text-center text-slate-500 dark:text-zinc-400 animate-slide-up">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl p-8 md:p-12 border border-slate-200 dark:border-zinc-800 text-center text-slate-500 dark:text-zinc-400 animate-slide-up">
           <CalendarDays size={36} strokeWidth={1.5} className="mx-auto text-slate-300 dark:text-zinc-600 mb-2" />
-          <p className="text-base font-bold text-slate-800 dark:text-zinc-200">{pastRosters.length > 0 ? (language === 'zh' ? '暂无即将举行的聚会' : 'No upcoming services') : t('noRosterData', language)}</p>
-          <p className="text-xs text-slate-400 dark:text-zinc-500 mt-1">
+          <p className="text-base md:text-lg font-bold text-slate-800 dark:text-zinc-200">{pastRosters.length > 0 ? (language === 'zh' ? '暂无即将举行的聚会' : 'No upcoming services') : t('noRosterData', language)}</p>
+          <p className="text-xs md:text-sm text-slate-400 dark:text-zinc-500 mt-1">
             {pastRosters.length > 0 ? (language === 'zh' ? '可在下方查看历史服事表' : 'View past services below') : (isEditMode ? t('noRosterHintEdit', language) : t('noRosterHintView', language))}
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 md:space-y-6">
           {orderedRosters.map((roster, index) => {
             const isPast = roster.date < todayStr;
             const isNextUpcoming = !isPast && roster.date === upcomingRosters[0]?.date;
@@ -580,7 +580,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                       }
 
                       return (
-                        <div className="space-y-4 pt-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-1">
                           {displayedCategories.map(({ cat, allCatRoles, catRoles, catAssignedCount }) => (
                             <div key={cat.id} className="space-y-1">
                               {/* Department Header: Typographic Header with hairline divider */}

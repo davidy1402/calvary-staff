@@ -19,6 +19,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
 }) => {
   const { churchState, currentUserId, selectIdentity, addCoworker, language } = useChurch();
   const [search, setSearch] = useState('');
+  const [pendingIdentity, setPendingIdentity] = useState<string | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [regName, setRegName] = useState('');
   const [regEnglishName, setRegEnglishName] = useState('');
@@ -50,13 +51,14 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
   );
 
   const choose = (cwId: string) => {
-    selectIdentity(cwId);
-    setSearch('');
-    setIsRegistering(false);
-    onClose();
+    if (pendingIdentity !== null) return;
+    // Keep the list and underlying screen steady until the sheet has left.
+    setPendingIdentity(cwId);
   };
 
-  const close = () => {
+  const finishClose = () => {
+    if (pendingIdentity !== null) selectIdentity(pendingIdentity);
+    setPendingIdentity(null);
     setSearch('');
     setIsRegistering(false);
     onClose();
@@ -90,14 +92,15 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
 
   return (
     <BottomSheet
-      isOpen={isOpen}
-      onClose={close}
+      isOpen={isOpen && pendingIdentity === null}
+      onClose={onClose}
+      onAfterClose={finishClose}
       dismissible={canDismiss}
       labelledBy={`${id}-title`}
       maxHeight="min(90dvh, 760px)"
     >
       {isRegistering ? (
-        <div className="flex flex-col min-h-0">
+        <div className="identity-content flex flex-col min-h-0" key="register">
           <div className="px-5 pb-3 pt-1 flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 shrink-0">
             <button
               type="button"
@@ -107,7 +110,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
             >
               <ArrowLeft size={20} />
             </button>
-            <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
+            <h2 id={`${id}-title`} className="text-base font-bold text-slate-900 dark:text-zinc-100">
               {zh ? '登记为新同工' : 'Register as Volunteer'}
             </h2>
             <div className="w-6" />
@@ -185,7 +188,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
           </form>
         </div>
       ) : (
-        <div className="flex flex-col min-h-0">
+        <div className="identity-content flex flex-col min-h-0" key="select">
           <div className="px-5 pb-4 shrink-0">
             <div className="flex items-center justify-between gap-3">
               <h2
@@ -199,7 +202,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
               {canDismiss && (
                 <button
                   type="button"
-                  onClick={close}
+                  onClick={onClose}
                   aria-label={zh ? '关闭' : 'Close'}
                   className="min-h-11 min-w-11 rounded-xl flex items-center justify-center text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer"
                 >
@@ -241,24 +244,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
 
           <div className="overflow-y-auto overscroll-contain min-h-0 px-5 pb-3">
             {!search.trim() && (
-              <div className="pb-3 space-y-3">
-                <div>
-                  <p className="text-xs font-medium text-slate-600 dark:text-zinc-400 mb-2">
-                    {zh ? '常用同工' : 'Quick access'}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {pinned.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => choose(c.id)}
-                        className="min-h-11 px-3 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-medium text-slate-800 dark:text-zinc-200 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                      >
-                        {c.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              <div className="pb-3">
                 <button
                   type="button"
                   onClick={() => handleStartRegister()}
@@ -284,8 +270,8 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
                   key={c.id}
                   type="button"
                   onClick={() => choose(c.id)}
-                  aria-pressed={currentUserId === c.id}
-                  className="w-full min-h-16 flex items-center gap-3 py-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                  aria-pressed={(pendingIdentity ?? currentUserId) === c.id}
+                  className="press-feedback w-full min-h-16 flex items-center gap-3 py-3 text-left rounded-lg hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   {c.avatar ? (
                     <img src={c.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
@@ -305,7 +291,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
                       {c.cellGroup}
                     </span>
                   </span>
-                  {currentUserId === c.id && (
+                  {(pendingIdentity ?? currentUserId) === c.id && (
                     <Check size={20} className="text-blue-700 dark:text-blue-400 shrink-0" />
                   )}
                 </button>

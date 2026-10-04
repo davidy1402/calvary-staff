@@ -60,14 +60,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
   return (
     <div className="min-h-full">
       {/* Centered AppBar with Church Logo & Name */}
-      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200 dark:border-zinc-800 px-4 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
+      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200 dark:border-zinc-800 px-4 md:px-6 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <ChurchLogo className="w-8 h-8 object-contain shrink-0" />
           <div className="text-left">
-            <h1 className="text-xs font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight leading-snug">
+            <h1 className="text-xs md:text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight leading-snug">
               {language === 'zh' ? '新山加略山社区教会' : 'CCCJB Connect'}
             </h1>
-            <p className="text-[10px] font-bold text-blue-700 dark:text-blue-400 tracking-wider leading-none">
+            <p className="text-[10px] md:text-xs font-bold text-blue-700 dark:text-blue-400 tracking-wider leading-none">
               CCCJB Connect
             </p>
           </div>
@@ -75,28 +75,33 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
       </header>
 
       {/* Screen Body Content */}
-      <div className="px-4 pt-4 space-y-4 animate-slide-up">
+      <div className="px-4 md:px-6 pt-4 space-y-4 md:space-y-6 animate-slide-up">
 
-      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-xs flex items-center justify-between gap-3">
+      {/* Hero Welcome Card */}
+      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-xs flex items-center justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="text-xs text-blue-200 font-medium">{currentUser?.cellGroup || (language === 'zh' ? '新山加略山社区教会' : 'CCCJB Connect')}</p>
-          <h2 className="text-2xl font-extrabold tracking-tight mt-1">{timeGreeting}，{displayName}</h2>
-          <div className="mt-3 text-xs text-blue-100">
+          <p className="text-xs md:text-sm text-blue-200 font-medium">{currentUser?.cellGroup || (language === 'zh' ? '新山加略山社区教会' : 'CCCJB Connect')}</p>
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-1">{timeGreeting}，{displayName}</h2>
+          <div className="mt-3 text-xs md:text-sm text-blue-100">
             {currentUserId !== 'cw_guest' && <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/15 font-semibold">
               {language === 'zh' ? '本月服事：' : 'This month: '}{monthlyAssignments.length}{language === 'zh' ? ' 堂' : ' services'}
             </span>}
           </div>
         </div>
-        <button type="button" onClick={() => setIsIdentityModalOpen(true)} className="flex flex-col items-center gap-1.5 shrink-0 rounded-xl p-1 text-blue-100 hover:text-white transition-colors" aria-label={language === 'zh' ? '切换同工' : 'Switch volunteer'}>
-          {currentUser?.avatar ? <img src={currentUser.avatar} alt="" className="w-13 h-13 rounded-full object-cover border-2 border-white/30" /> : <span className="w-13 h-13 rounded-full bg-white/15 flex items-center justify-center text-xl font-bold border-2 border-white/20">{currentUser?.name?.trim()[0] || '同'}</span>}
-          <span className="text-xs">{language === 'zh' ? (currentUserId === 'cw_guest' ? '我是同工' : '切换同工') : 'Switch'}</span>
+        <button type="button" onClick={() => setIsIdentityModalOpen(true)} className="press-feedback flex flex-col items-center gap-1.5 shrink-0 rounded-xl p-1 text-blue-100 hover:text-white transition-colors cursor-pointer" aria-label={language === 'zh' ? '切换同工' : 'Switch volunteer'}>
+          {currentUser?.avatar ? <img src={currentUser.avatar} alt="" className="w-13 h-13 md:w-16 md:h-16 rounded-full object-cover border-2 border-white/30" /> : <span className="w-13 h-13 md:w-16 md:h-16 rounded-full bg-white/15 flex items-center justify-center text-xl md:text-2xl font-bold border-2 border-white/20">{currentUser?.name?.trim()[0] || '同'}</span>}
+          <span className="text-xs md:text-sm font-medium">{language === 'zh' ? (currentUserId === 'cw_guest' ? '我是同工' : '切换同工') : 'Switch'}</span>
         </button>
       </div>
-      <DailyScriptureCard />
-      <AddToHomeCard />
+
+      {/* Scripture & Quick Add Grid for iPad landscape */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <DailyScriptureCard />
+        <AddToHomeCard />
+      </div>
 
       {/* 我的服事 Section (Ergonomic Duty Passes) */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-slate-200/90 dark:border-zinc-800 shadow-xs hover:border-slate-300 dark:hover:border-zinc-700 transition-all duration-200">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl p-4 md:p-6 border border-slate-200/90 dark:border-zinc-800 shadow-xs hover:border-slate-300 dark:hover:border-zinc-700 transition-all duration-200">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
           <div className="flex items-center gap-2">
             <HeartHandshake size={18} className="text-blue-700 dark:text-blue-400" />
@@ -143,7 +148,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                   <button
                     type="button"
                     onClick={() => setSelectedDuty({ roster, service })}
-                    className="w-full text-left py-3 flex items-start gap-3 hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 rounded-xl px-1.5 transition-colors group"
+                    className="press-feedback w-full text-left py-3 flex items-start gap-3 hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 rounded-xl px-1.5 transition-colors group"
                   >
                   {/* Calendar Ticket Badge */}
                   <div className="w-13 shrink-0 bg-slate-100/80 dark:bg-zinc-800/70 rounded-xl p-1.5 text-center flex flex-col items-center justify-center">

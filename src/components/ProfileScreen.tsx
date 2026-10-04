@@ -80,17 +80,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
   return (
     <div className="min-h-full pb-8">
       {/* Centered AppBar */}
-      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200/80 dark:border-zinc-800 px-4 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
+      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200/80 dark:border-zinc-800 px-4 md:px-6 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ChurchLogo className="w-7 h-7 object-contain shrink-0" />
-          <h1 className="text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
+          <h1 className="text-sm md:text-base font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
             CCCJB Connect {t('settingsTitle', language)}
           </h1>
         </div>
 
         {/* Cloud Sync Status Indicator (Only display when active) */}
         {syncStatus !== 'offline' && (
-          <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-zinc-400">
+          <div className="flex items-center gap-1.5 text-[11px] md:text-xs font-medium text-slate-500 dark:text-zinc-400">
             <span
               className={`w-2 h-2 rounded-full ${
                 syncStatus === 'synced'
@@ -108,143 +108,148 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
       </header>
 
       {/* Screen Body Content */}
-      <div className="px-4 pt-4 space-y-4 animate-slide-up">
+      <div className="px-4 md:px-6 pt-4 space-y-4 md:space-y-6 animate-slide-up">
 
-      {/* Volunteer Identity Card */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-slate-200/90 dark:border-zinc-800 shadow-2xs space-y-3.5">
-        <div className="flex items-center gap-3.5">
-          {/* Avatar with Camera Icon Overlay */}
-          <div className="relative group shrink-0">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label={t('changeAvatar', language)}
-              className="relative w-14 h-14 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer block border-2 border-white dark:border-zinc-800 shadow-xs"
-            >
-              {currentUser?.avatar ? (
-                <img
-                  src={currentUser.avatar}
-                  alt={currentUser.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-blue-100 dark:bg-zinc-800 text-blue-900 dark:text-zinc-100 flex items-center justify-center text-xl font-black">
-                  {avatarLetter}
-                </div>
-              )}
-
-              {/* Camera Hover/Touch Overlay */}
-              <div className="absolute inset-0 bg-black/25 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera size={16} strokeWidth={2.2} />
-              </div>
-            </button>
-
-            {/* Camera badge bottom right */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label={t('changeAvatar', language)}
-              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center border-2 border-white dark:border-zinc-800 shadow-2xs cursor-pointer active:scale-95 transition-transform"
-            >
-              <Camera size={12} strokeWidth={2.5} />
-            </button>
-
-            {/* Hidden File Input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarFile}
-            />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
-                {currentUser?.name || (language === 'zh' ? 'CCCJB Connect 服事同工' : 'CCCJB Connect Volunteer')}
-              </h2>
-              {currentUser?.englishName && (
-                <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">({currentUser.englishName})</span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-zinc-700">
-                {currentUser?.cellGroup || '大专'}
-              </span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
-                {t('coworker', language)}
-              </span>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Switch Identity Action */}
-        <div className="pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
-          <span className="font-medium text-slate-600 dark:text-zinc-300">
-            {language === 'zh' ? '当前同工身份:' : t('switchCoworkerIdentity', language)}
-          </span>
-          <button
-            type="button"
-            onClick={() => setIsIdentityModalOpen(true)}
-            className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700/80 border border-blue-200/80 dark:border-zinc-700 rounded-xl px-3 py-1.5 transition-colors cursor-pointer flex items-center gap-1.5 active:scale-95"
-          >
-            <span>{currentUser?.name || (language === 'zh' ? '选择姓名' : 'Select Name')}</span>
-            <ChevronRight size={13} className="text-blue-500 shrink-0" />
-          </button>
-        </div>
-      </div>
-
-      {/* Schedule Management Access Row */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-3.5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
-            <ShieldCheck size={18} strokeWidth={2} />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-                {language === 'zh' ? '排班管理权限' : 'Schedule Access'}
-              </h3>
-              <span
-                className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
-                  userMode === 'editor'
-                    ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
-                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400'
-                }`}
+      {/* Volunteer Identity Card & Permission Card Grid on iPad */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Volunteer Identity Card */}
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-slate-200/90 dark:border-zinc-800 shadow-2xs space-y-3.5 flex flex-col justify-between">
+          <div className="flex items-center gap-3.5">
+            {/* Avatar with Camera Icon Overlay */}
+            <div className="relative group shrink-0">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                aria-label={t('changeAvatar', language)}
+                className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer block border-2 border-white dark:border-zinc-800 shadow-xs"
               >
-                {userMode === 'editor'
-                  ? (language === 'zh' ? '已开启编辑' : 'Unlocked')
-                  : (language === 'zh' ? '只读中' : 'Locked')}
-              </span>
+                {currentUser?.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt={currentUser.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-blue-100 dark:bg-zinc-800 text-blue-900 dark:text-zinc-100 flex items-center justify-center text-xl md:text-2xl font-black">
+                    {avatarLetter}
+                  </div>
+                )}
+
+                {/* Camera Hover/Touch Overlay */}
+                <div className="absolute inset-0 bg-black/25 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera size={16} strokeWidth={2.2} />
+                </div>
+              </button>
+
+              {/* Camera badge bottom right */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                aria-label={t('changeAvatar', language)}
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center border-2 border-white dark:border-zinc-800 shadow-2xs cursor-pointer active:scale-95 transition-transform"
+              >
+                <Camera size={12} strokeWidth={2.5} />
+              </button>
+
+              {/* Hidden File Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarFile}
+              />
             </div>
-            <p className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5">
-              {userMode === 'editor'
-                ? (language === 'zh' ? '可安排同工与修改聚会主题' : 'Can assign roles and edit themes')
-                : (language === 'zh' ? '默认只读防误触，需管理员 PIN 解锁' : 'Read-only, enter PIN to edit')}
-            </p>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-zinc-100">
+                  {currentUser?.name || (language === 'zh' ? 'CCCJB Connect 服事同工' : 'CCCJB Connect Volunteer')}
+                </h2>
+                {currentUser?.englishName && (
+                  <span className="text-xs md:text-sm text-slate-500 dark:text-zinc-400 font-medium">({currentUser.englishName})</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                <span className="text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-zinc-700">
+                  {currentUser?.cellGroup || '大专'}
+                </span>
+                <span className="text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+                  {t('coworker', language)}
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Switch Identity Action */}
+          <div className="pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs md:text-sm text-slate-500 dark:text-zinc-400">
+            <span className="font-medium text-slate-600 dark:text-zinc-300">
+              {language === 'zh' ? '当前同工身份:' : t('switchCoworkerIdentity', language)}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsIdentityModalOpen(true)}
+              className="text-xs md:text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700/80 border border-blue-200/80 dark:border-zinc-700 rounded-xl px-3 py-1.5 press-feedback cursor-pointer flex items-center gap-1.5 active:scale-95"
+            >
+              <span>{currentUser?.name || (language === 'zh' ? '选择姓名' : 'Select Name')}</span>
+              <ChevronRight size={13} className="text-blue-500 shrink-0" />
+            </button>
           </div>
         </div>
 
-        {userMode === 'editor' ? (
-          <button
-            type="button"
-            onClick={() => setUserMode('member')}
-            className="text-xs font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-zinc-700 transition-colors shrink-0 cursor-pointer"
-          >
-            {language === 'zh' ? '切换只读' : 'Lock'}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleSwitchToEditor}
-            className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700 px-3 py-1.5 rounded-xl border border-blue-200/80 dark:border-zinc-700 transition-colors shrink-0 cursor-pointer"
-          >
-            {language === 'zh' ? '解锁编辑' : 'Unlock'}
-          </button>
-        )}
+        {/* Schedule Management Access Row */}
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-4 md:p-5 flex flex-col justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <ShieldCheck size={20} strokeWidth={2} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-xs md:text-sm font-bold text-slate-900 dark:text-zinc-100">
+                  {language === 'zh' ? '排班管理权限' : 'Schedule Access'}
+                </h3>
+                <span
+                  className={`text-[10px] md:text-xs font-bold px-1.5 py-0.2 rounded-md ${
+                    userMode === 'editor'
+                      ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
+                      : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400'
+                  }`}
+                >
+                  {userMode === 'editor'
+                    ? (language === 'zh' ? '已开启编辑' : 'Unlocked')
+                    : (language === 'zh' ? '只读中' : 'Locked')}
+                </span>
+              </div>
+              <p className="text-[11px] md:text-xs text-slate-400 dark:text-zinc-500 mt-0.5">
+                {userMode === 'editor'
+                  ? (language === 'zh' ? '可安排同工与修改聚会主题' : 'Can assign roles and edit themes')
+                  : (language === 'zh' ? '默认只读防误触，需管理员 PIN 解锁' : 'Read-only, enter PIN to edit')}
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex justify-end">
+            {userMode === 'editor' ? (
+              <button
+                type="button"
+                onClick={() => setUserMode('member')}
+                className="text-xs md:text-sm font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 px-3.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-zinc-700 transition-colors shrink-0 cursor-pointer"
+              >
+                {language === 'zh' ? '切换只读' : 'Lock'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSwitchToEditor}
+                className="text-xs md:text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700 px-3.5 py-1.5 rounded-xl border border-blue-200/80 dark:border-zinc-700 transition-colors shrink-0 cursor-pointer"
+              >
+                {language === 'zh' ? '解锁编辑' : 'Unlock'}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Ministry & Coordination Tools */}
@@ -252,7 +257,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
         {/* WhatsApp Export */}
         <div
           onClick={() => setIsWhatsAppOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
+          className="press-feedback p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
@@ -273,7 +278,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
         {/* Volunteer Directory */}
         <div
           onClick={() => setIsCoworkersOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
+          className="press-feedback p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -294,7 +299,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
         {/* Service Settings */}
         <div
           onClick={() => setIsServicesOpen(true)}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
+          className="press-feedback p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -321,7 +326,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
               setIsUpdatesOpen(true);
             }
           }}
-          className="p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
+          className="press-feedback p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors active:bg-slate-100 dark:active:bg-zinc-800"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -345,106 +350,109 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
         </div>
       </div>
 
-      {/* Appearance / Dark Mode Card */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-3.5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            {isDarkMode ? <Moon size={17} strokeWidth={1.75} /> : <Sun size={17} strokeWidth={1.75} />}
+      {/* Appearance & Language Settings Grid on iPad */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Appearance / Dark Mode Card */}
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-3.5 md:p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              {isDarkMode ? <Moon size={18} strokeWidth={1.75} /> : <Sun size={18} strokeWidth={1.75} />}
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-xs md:text-sm font-bold text-slate-900 dark:text-zinc-100">
+                {language === 'zh' ? '外观显示' : 'Appearance'}
+              </h3>
+              <p className="text-[11px] md:text-xs text-slate-500 dark:text-zinc-400 truncate">
+                {themeMode === 'system'
+                  ? (language === 'zh'
+                      ? `跟随设备 (${isDarkMode ? '深色' : '浅色'})`
+                      : `System (${isDarkMode ? 'Dark' : 'Light'})`)
+                  : isDarkMode
+                  ? (language === 'zh' ? '已锁定深色模式' : 'Locked to Dark')
+                  : (language === 'zh' ? '已锁定浅色模式' : 'Locked to Light')}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-              {language === 'zh' ? '外观显示' : 'Appearance'}
-            </h3>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
-              {themeMode === 'system'
-                ? (language === 'zh'
-                    ? `跟随设备 (${isDarkMode ? '深色' : '浅色'})`
-                    : `System (${isDarkMode ? 'Dark' : 'Light'})`)
-                : isDarkMode
-                ? (language === 'zh' ? '已锁定深色模式' : 'Locked to Dark')
-                : (language === 'zh' ? '已锁定浅色模式' : 'Locked to Light')}
-            </p>
+
+          {/* 3-segment switch: 跟随设备 | 浅色 | 深色 */}
+          <div className="bg-slate-100 dark:bg-zinc-800 p-0.5 rounded-xl flex items-center shrink-0 border border-slate-200/60 dark:border-zinc-700">
+            <button
+              type="button"
+              onClick={() => setThemeMode('system')}
+              className={`px-2 md:px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                themeMode === 'system'
+                  ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                  : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
+              }`}
+            >
+              {language === 'zh' ? '自动' : 'Auto'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setThemeMode('light')}
+              className={`px-2 md:px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                themeMode === 'light'
+                  ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                  : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
+              }`}
+            >
+              {language === 'zh' ? '浅色' : 'Light'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setThemeMode('dark')}
+              className={`px-2 md:px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                themeMode === 'dark'
+                  ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                  : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
+              }`}
+            >
+              {language === 'zh' ? '深色' : 'Dark'}
+            </button>
           </div>
         </div>
 
-        {/* 3-segment switch: 跟随设备 | 浅色 | 深色 */}
-        <div className="bg-slate-100 dark:bg-zinc-800 p-0.5 rounded-xl flex items-center shrink-0 border border-slate-200/60 dark:border-zinc-700">
-          <button
-            type="button"
-            onClick={() => setThemeMode('system')}
-            className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              themeMode === 'system'
-                ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
-                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
-            }`}
-          >
-            {language === 'zh' ? '自动' : 'Auto'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setThemeMode('light')}
-            className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              themeMode === 'light'
-                ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
-                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
-            }`}
-          >
-            {language === 'zh' ? '浅色' : 'Light'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setThemeMode('dark')}
-            className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              themeMode === 'dark'
-                ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
-                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
-            }`}
-          >
-            {language === 'zh' ? '深色' : 'Dark'}
-          </button>
-        </div>
-      </div>
-
-      {/* Language Preference Card */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-3.5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-            <Languages size={17} strokeWidth={1.75} />
+        {/* Language Preference Card */}
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-3.5 md:p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+              <Languages size={18} strokeWidth={1.75} />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-xs md:text-sm font-bold text-slate-900 dark:text-zinc-100">
+                {t('language', language)}
+              </h3>
+              <p className="text-[11px] md:text-xs text-slate-500 dark:text-zinc-400">
+                {t('languageDesc', language)}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-              {t('language', language)}
-            </h3>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-              {t('languageDesc', language)}
-            </p>
-          </div>
-        </div>
 
-        {/* Segmented Control for Language */}
-        <div className="bg-slate-100 dark:bg-zinc-800 p-0.5 rounded-xl flex items-center shrink-0 border border-slate-200/60 dark:border-zinc-700">
-          <button
-            type="button"
-            onClick={() => setLanguage('zh')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              language === 'zh'
-                ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
-                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
-            }`}
-          >
-            中文
-          </button>
-          <button
-            type="button"
-            onClick={() => setLanguage('en')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              language === 'en'
-                ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
-                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
-            }`}
-          >
-            English
-          </button>
+          {/* Segmented Control for Language */}
+          <div className="bg-slate-100 dark:bg-zinc-800 p-0.5 rounded-xl flex items-center shrink-0 border border-slate-200/60 dark:border-zinc-700">
+            <button
+              type="button"
+              onClick={() => setLanguage('zh')}
+              className={`px-2.5 md:px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                language === 'zh'
+                  ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                  : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
+              }`}
+            >
+              中文
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage('en')}
+              className={`px-2.5 md:px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                language === 'en'
+                  ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-zinc-100 shadow-2xs'
+                  : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
+              }`}
+            >
+              English
+            </button>
+          </div>
         </div>
       </div>
 

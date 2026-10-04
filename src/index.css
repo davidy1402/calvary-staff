@@ -72,6 +72,14 @@ body {
   }
 }
 
+/* iPad & landscape safe areas for side notches / home indicators */
+@media (orientation: landscape) {
+  :root {
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -158,16 +166,133 @@ body {
   color: inherit;
   overflow: hidden;
 }
-.bottom-sheet-dialog::backdrop { background: rgb(0 0 0 / 45%); animation: fadeIn 180ms ease-out; }
+.bottom-sheet-dialog::backdrop {
+  background: rgb(15 23 42 / 0%);
+  transition: background-color 220ms ease-out;
+}
+.bottom-sheet-dialog[data-state="open"]::backdrop { background: rgb(15 23 42 / 42%); }
 .sheet-positioner { height: 100%; display: flex; align-items: flex-end; }
-.sheet-panel { transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1); }
-.bottom-sheet-dialog[open] .sheet-panel { animation: slideUpSheet 240ms cubic-bezier(0.16, 1, 0.3, 1); }
-.bottom-sheet-dialog.sheet-closing .sheet-panel { animation: sheetExit 180ms ease-in both; }
-.bottom-sheet-dialog.sheet-closing::backdrop { animation: fadeIn 180ms ease-in reverse both; }
-@keyframes sheetExit { to { transform: translateY(100%); opacity: 0; } }
+.sheet-panel {
+  transform: translate3d(0, 100%, 0);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bottom-sheet-dialog[data-state="open"] .sheet-panel { transform: translate3d(0, var(--sheet-drag, 0px), 0); }
+.bottom-sheet-dialog[data-state="closing"] .sheet-panel { transition-duration: 220ms; }
+.sheet-panel[data-dragging] { transition: none; }
+.bottom-sheet-dialog[data-state="closing"] .sheet-panel { pointer-events: none; }
 .pin-popover:popover-open { animation: popoverEnter 180ms cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes popoverEnter { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 button:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+/* Glass is reserved for navigation. A tinted surface keeps labels readable over content. */
+.bottom-nav {
+  position: fixed;
+  bottom: max(0.875rem, calc(env(safe-area-inset-bottom, 0px) + 0.375rem));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  width: calc(100% - 3rem);
+  max-width: 324px;
+  user-select: none;
+}
+.bottom-nav-glass {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 5px;
+  border: 1px solid rgb(255 255 255 / 80%);
+  border-radius: 36px;
+  background: rgb(248 250 252 / 84%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 8px 28px rgb(15 23 42 / 12%), inset 0 1px 0 rgb(255 255 255 / 90%);
+}
+.bottom-nav-indicator {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: calc((100% - 10px) / 3);
+  height: calc(100% - 10px);
+  border-radius: 30px;
+  background: rgb(15 23 42 / 8%);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 85%);
+  transform: translate3d(calc(var(--active-index, 0) * 100%), 0, 0);
+  transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.bottom-nav-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 54px;
+  border-radius: 30px;
+  color: #475569;
+  cursor: pointer;
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), color 180ms ease-out;
+}
+.bottom-nav-item span { font-size: 11px; line-height: 1.2; font-weight: 600; }
+.bottom-nav-item.is-active { color: #1d4ed8; }
+.bottom-nav-item svg { transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1); }
+.bottom-nav-item.is-active svg { transform: translateY(-1px); }
+.bottom-nav-item:active { transform: scale(0.94); }
+.dark .bottom-nav-glass {
+  background: rgb(24 24 27 / 86%);
+  border-color: rgb(255 255 255 / 18%);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 35%), inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+.dark .bottom-nav-indicator { background: rgb(255 255 255 / 12%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%); }
+.dark .bottom-nav-item { color: #d4d4d8; }
+.dark .bottom-nav-item.is-active { color: #93c5fd; }
+
+/* iPad & tablet landscape: float on the right edge (iOS 27 sidebar/side-rail ergonomic guideline) */
+@media (min-width: 768px) and (orientation: landscape) {
+  .bottom-nav {
+    bottom: auto;
+    top: 50%;
+    left: auto;
+    right: max(1.25rem, calc(env(safe-area-inset-right, 0px) + 0.75rem));
+    transform: translateY(-50%);
+    width: auto;
+    max-width: none;
+  }
+  .bottom-nav-glass {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    padding: 6px;
+    border-radius: 40px;
+    width: 68px;
+    box-shadow: 0 12px 36px rgb(15 23 42 / 16%), inset 0 1px 0 rgb(255 255 255 / 90%);
+  }
+  .bottom-nav-indicator {
+    top: 6px;
+    left: 6px;
+    width: calc(100% - 12px);
+    height: calc((100% - 12px) / 3);
+    border-radius: 32px;
+    transform: translate3d(0, calc(var(--active-index, 0) * 100%), 0);
+  }
+  .bottom-nav-item {
+    min-height: 60px;
+    width: 56px;
+    border-radius: 32px;
+    gap: 3px;
+  }
+  .bottom-nav-item span {
+    font-size: 10px;
+    transform: scale(0.95);
+  }
+}
+.press-feedback, .identity-content button {
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), background-color 180ms ease-out, color 180ms ease-out;
+}
+.press-feedback:active, .identity-content button:active { transform: scale(0.98); }
+.identity-content { animation: slideUpFade 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+@media (prefers-reduced-transparency: reduce) {
+  .bottom-nav-glass { background: #f8fafc; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .dark .bottom-nav-glass { background: #18181b; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

@@ -19,43 +19,26 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
     { id: 'profile', key: 'settings', icon: SlidersHorizontal },
   ];
 
+  const activeIndex = tabs.findIndex((tab) => tab.id === currentTab);
+
   return (
     <nav
-      aria-label="主要底部导航"
-      className="fixed bottom-[max(0.875rem,calc(env(safe-area-inset-bottom,0px)+0.375rem))] left-1/2 -translate-x-1/2 z-40 select-none w-[calc(100%-4rem)] max-w-[290px] sm:max-w-[310px] px-0.5"
+      aria-label={language === 'zh' ? '主要底部导航' : 'Main navigation'}
+      className="bottom-nav"
+      style={{ '--active-index': activeIndex } as React.CSSProperties}
     >
-      {/* iOS Liquid Glass Floating Dock Container - High Transparency & Narrowed Dock */}
-      <div className="relative backdrop-blur-2xl backdrop-saturate-200 bg-white/25 dark:bg-black/25 border border-white/50 dark:border-white/10 shadow-[0_12px_32px_-6px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.03),inset_0_1px_1px_0_rgba(255,255,255,0.7),inset_0_-1px_1px_0_rgba(0,0,0,0.02)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.6),0_4px_14px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.18),inset_0_-1px_1px_0_rgba(255,255,255,0.03)] rounded-[2rem] p-1 flex items-center justify-between gap-1 transition-all duration-300">
+      <div className="bottom-nav-glass">
+        {/* One persistent indicator keeps rapid tab changes continuous. */}
+        <span aria-hidden="true" className="bottom-nav-indicator" />
         {tabs.map((tab) => {
           const isActive = currentTab === tab.id;
           const IconComponent = tab.icon;
-          const label = t(tab.key, language);
-
           return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => onTabChange(tab.id)}
-              className={`relative flex-1 flex flex-col items-center justify-center h-12 rounded-[1.375rem] transition-all duration-200 active:scale-[0.95] cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none active:outline-none select-none [-webkit-tap-highlight-color:transparent] ${
-                isActive
-                  ? 'bg-slate-900/85 text-white dark:bg-white/85 dark:text-zinc-950 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-black/5 dark:hover:bg-white/10 active:bg-transparent'
-              }`}
-            >
-              <IconComponent
-                size={18}
-                strokeWidth={isActive ? 2.25 : 1.75}
-                className={`transition-transform duration-200 shrink-0 ${isActive ? 'scale-105' : ''}`}
-              />
-              <span
-                className={`text-[10px] tracking-tight mt-0.5 leading-none transition-colors duration-200 ${
-                  isActive
-                    ? 'font-extrabold text-white dark:text-zinc-950'
-                    : 'font-semibold text-slate-600 dark:text-zinc-400'
-                }`}
-              >
-                {label}
-              </span>
+            <button key={tab.id} type="button" onClick={() => onTabChange(tab.id)}
+              aria-current={isActive ? 'page' : undefined}
+              className={`bottom-nav-item ${isActive ? 'is-active' : ''}`}>
+              <IconComponent size={21} strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
+              <span>{t(tab.key, language)}</span>
             </button>
           );
         })}
