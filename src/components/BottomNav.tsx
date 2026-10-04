@@ -22,10 +22,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
   return (
     <nav
       aria-label="主要底部导航"
-      className="fixed bottom-[max(0.875rem,calc(env(safe-area-inset-bottom,0px)+0.375rem))] left-1/2 -translate-x-1/2 z-40 select-none w-[calc(100%-2rem)] max-w-[390px] sm:max-w-md px-1"
+      className="fixed bottom-[max(0.875rem,calc(env(safe-area-inset-bottom,0px)+0.375rem))] left-1/2 -translate-x-1/2 z-40 select-none w-[calc(100%-4rem)] max-w-[290px] sm:max-w-[310px] px-0.5"
     >
-      {/* iOS Liquid Glass Floating Dock Container */}
-      <div className="relative backdrop-blur-2xl backdrop-saturate-200 bg-white/40 dark:bg-black/40 border border-white/60 dark:border-white/15 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04),inset_0_1.5px_1px_0_rgba(255,255,255,0.85),inset_0_-1px_1px_0_rgba(0,0,0,0.03)] dark:shadow-[0_20px_44px_-8px_rgba(0,0,0,0.7),0_4px_16px_rgba(0,0,0,0.4),inset_0_1.5px_1px_0_rgba(255,255,255,0.22),inset_0_-1px_1px_0_rgba(255,255,255,0.04)] rounded-[2.25rem] p-1.5 flex items-center justify-between gap-1 transition-all duration-300">
+      {/* iOS Liquid Glass Floating Dock Container - High Transparency & Narrowed Dock */}
+      <div className="relative backdrop-blur-2xl backdrop-saturate-200 bg-white/25 dark:bg-black/25 border border-white/50 dark:border-white/10 shadow-[0_12px_32px_-6px_rgba(0,0,0,0.1),0_4px_12px_rgba(0,0,0,0.03),inset_0_1px_1px_0_rgba(255,255,255,0.7),inset_0_-1px_1px_0_rgba(0,0,0,0.02)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.6),0_4px_14px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.18),inset_0_-1px_1px_0_rgba(255,255,255,0.03)] rounded-[2rem] p-1 flex items-center justify-between gap-1 transition-all duration-300">
         {tabs.map((tab) => {
           const isActive = currentTab === tab.id;
           const IconComponent = tab.icon;
@@ -36,19 +36,19 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
               key={tab.id}
               type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`relative flex-1 flex flex-col items-center justify-center h-14 rounded-[1.5rem] transition-all duration-200 active:scale-[0.96] cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none active:outline-none select-none [-webkit-tap-highlight-color:transparent] ${
+              className={`relative flex-1 flex flex-col items-center justify-center h-12 rounded-[1.375rem] transition-all duration-200 active:scale-[0.95] cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none active:outline-none select-none [-webkit-tap-highlight-color:transparent] ${
                 isActive
-                  ? 'bg-slate-900/90 text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                  ? 'bg-slate-900/85 text-white dark:bg-white/85 dark:text-zinc-950 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-black/5 dark:hover:bg-white/10 active:bg-transparent'
               }`}
             >
               <IconComponent
-                size={20}
+                size={18}
                 strokeWidth={isActive ? 2.25 : 1.75}
                 className={`transition-transform duration-200 shrink-0 ${isActive ? 'scale-105' : ''}`}
               />
               <span
-                className={`text-[11px] tracking-tight mt-1 leading-none transition-colors duration-200 ${
+                className={`text-[10px] tracking-tight mt-0.5 leading-none transition-colors duration-200 ${
                   isActive
                     ? 'font-extrabold text-white dark:text-zinc-950'
                     : 'font-semibold text-slate-600 dark:text-zinc-400'
