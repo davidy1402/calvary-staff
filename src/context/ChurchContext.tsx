@@ -18,6 +18,16 @@ import {
 } from '../data/initialData';
 import { getUpcomingServiceDate } from '../utils/dateUtils';
 import type { Language } from '../utils/i18n';
+import { isSupabaseConfigured } from '../lib/supabase';
+import {
+  fetchRemoteChurchData,
+  seedRemoteDatabase,
+  upsertRemoteRoster,
+  upsertRemoteCoworker,
+  deleteRemoteCoworker,
+  upsertRemoteService,
+  subscribeToRealtimeChanges,
+} from '../lib/supabaseSync';
 
 interface ChurchContextType {
   churchState: ChurchState;
@@ -121,6 +131,10 @@ interface ChurchContextType {
   ) => string[];
 
   updateService: (service: ServiceDefinition) => void;
+
+  // Supabase cloud sync state
+  syncStatus: 'offline' | 'connecting' | 'synced' | 'error';
+  isCloudConnected: boolean;
 
   exportBackup: () => void;
   importBackup: (jsonText: string) => boolean;
@@ -517,6 +531,101 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [churchState]);
 
+  const [syncStatus, setSyncStatus] = useState<'offline' | 'connecting' | 'synced' | 'error'>(() =>
+    isSupabaseConfigured() ? 'connecting' : 'offline'
+  );
+  const churchStateRef = React.useRef(churchState);
+  useEffect(() => {
+    churchStateRef.current = churchState;
+  }, [churchState]);
+
+  // Initialize Supabase Cloud Sync & Realtime Listener
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    let isMounted = true;
+
+    const initCloud = async () => {
+      setSyncStatus('connecting');
+      try {
+        const remoteData = await fetchRemoteChurchData();
+        if (!isMounted) return;
+
+        if (remoteData) {
+          const hasRemoteData =
+            remoteData.coworkers.length > 0 ||
+            remoteData.services.length > 0 ||
+            Object.keys(remoteData.rosters).length > 0;
+
+          if (!hasRemoteData) {
+            // Cloud tables exist but are empty -> seed initial data automatically
+            await seedRemoteDatabase(churchStateRef.current);
+          } else {
+            // Remote has data -> merge into local state
+            setChurchState((prev) => ({
+              ...prev,
+              coworkers: remoteData.coworkers.length > 0 ? remoteData.coworkers : prev.coworkers,
+              services: remoteData.services.length > 0 ? remoteData.services : prev.services,
+              rosters:
+                Object.keys(remoteData.rosters).length > 0
+                  ? { ...prev.rosters, ...remoteData.rosters }
+                  : prev.rosters,
+            }));
+          }
+          setSyncStatus('synced');
+        } else {
+          setSyncStatus('error');
+        }
+      } catch (err) {
+        console.error('Failed to sync with Supabase', err);
+        if (isMounted) setSyncStatus('error');
+      }
+    };
+
+    initCloud();
+
+    // Real-time synchronization subscription
+    const unsubscribe = subscribeToRealtimeChanges({
+      onRosterChange: (updatedRoster) => {
+        setChurchState((prev) => ({
+          ...prev,
+          rosters: {
+            ...prev.rosters,
+            [updatedRoster.id]: updatedRoster,
+          },
+        }));
+      },
+      onCoworkerChange: (updatedCoworker) => {
+        setChurchState((prev) => {
+          const exists = prev.coworkers.some((c) => c.id === updatedCoworker.id);
+          return {
+            ...prev,
+            coworkers: exists
+              ? prev.coworkers.map((c) => (c.id === updatedCoworker.id ? updatedCoworker : c))
+              : [...prev.coworkers, updatedCoworker],
+          };
+        });
+      },
+      onCoworkerDelete: (deletedCoworkerId) => {
+        setChurchState((prev) => ({
+          ...prev,
+          coworkers: prev.coworkers.filter((c) => c.id !== deletedCoworkerId),
+        }));
+      },
+      onServiceChange: (updatedService) => {
+        setChurchState((prev) => ({
+          ...prev,
+          services: prev.services.map((s) => (s.id === updatedService.id ? updatedService : s)),
+        }));
+      },
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
+
   const rosterKey = `${selectedDate}_${activeServiceId}`;
   const currentRoster = churchState.rosters[rosterKey];
 
@@ -600,34 +709,53 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   };
 
+  const mutateRoster = (
+    targetDate: string,
+    targetSvcId: string,
+    updater: (roster: ServiceRoster) => ServiceRoster | null
+  ) => {
+    let rosterToPersist: ServiceRoster | null = null;
+    setChurchState((prev) => {
+      const { state, roster, key } = ensureRoster(prev, targetDate, targetSvcId);
+      const updated = updater(roster);
+      if (!updated) return prev;
+
+      const finalRoster: ServiceRoster = {
+        ...updated,
+        updatedAt: new Date().toISOString(),
+      };
+      rosterToPersist = finalRoster;
+
+      return {
+        ...state,
+        rosters: {
+          ...state.rosters,
+          [key]: finalRoster,
+        },
+      };
+    });
+
+    if (rosterToPersist) {
+      upsertRemoteRoster(rosterToPersist);
+    }
+  };
+
   const assignCoworker = (
     roleId: string,
     coworkerId: string,
     customDate?: string,
     customServiceId?: string
   ) => {
-    setChurchState((prev) => {
-      const targetDate = customDate || selectedDate;
-      const targetSvcId = customServiceId || activeServiceId;
-      const { state, roster, key } = ensureRoster(prev, targetDate, targetSvcId);
-
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    mutateRoster(targetDate, targetSvcId, (roster) => {
       const currentList = roster.assignments[roleId] || [];
-      if (currentList.includes(coworkerId)) return prev;
-
-      const updatedRoster: ServiceRoster = {
+      if (currentList.includes(coworkerId)) return null;
+      return {
         ...roster,
         assignments: {
           ...roster.assignments,
           [roleId]: [...currentList, coworkerId],
-        },
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...state,
-        rosters: {
-          ...state.rosters,
-          [key]: updatedRoster,
         },
       };
     });
@@ -639,28 +767,15 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     customDate?: string,
     customServiceId?: string
   ) => {
-    setChurchState((prev) => {
-      const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
-      const roster = prev.rosters[key];
-      if (!roster) return prev;
-
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    mutateRoster(targetDate, targetSvcId, (roster) => {
       const currentList = roster.assignments[roleId] || [];
-      const updatedList = currentList.filter((id) => id !== coworkerId);
-
-      const updatedRoster: ServiceRoster = {
+      return {
         ...roster,
         assignments: {
           ...roster.assignments,
-          [roleId]: updatedList,
-        },
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...prev,
-        rosters: {
-          ...prev.rosters,
-          [key]: updatedRoster,
+          [roleId]: currentList.filter((id) => id !== coworkerId),
         },
       };
     });
@@ -671,25 +786,12 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     customDate?: string,
     customServiceId?: string
   ) => {
-    setChurchState((prev) => {
-      const targetDate = customDate || selectedDate;
-      const targetSvcId = customServiceId || activeServiceId;
-      const { state, roster, key } = ensureRoster(prev, targetDate, targetSvcId);
-
-      const updatedRoster: ServiceRoster = {
-        ...roster,
-        ...meta,
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...state,
-        rosters: {
-          ...state.rosters,
-          [key]: updatedRoster,
-        },
-      };
-    });
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    mutateRoster(targetDate, targetSvcId, (roster) => ({
+      ...roster,
+      ...meta,
+    }));
   };
 
   const updateDutyNote = (
@@ -698,28 +800,15 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     customDate?: string,
     customServiceId?: string
   ) => {
-    setChurchState((prev) => {
-      const targetDate = customDate || selectedDate;
-      const targetSvcId = customServiceId || activeServiceId;
-      const { state, roster, key } = ensureRoster(prev, targetDate, targetSvcId);
-
-      const updatedRoster: ServiceRoster = {
-        ...roster,
-        dutyNotes: {
-          ...(roster.dutyNotes || {}),
-          [roleId]: note.trim(),
-        },
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...state,
-        rosters: {
-          ...state.rosters,
-          [key]: updatedRoster,
-        },
-      };
-    });
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    mutateRoster(targetDate, targetSvcId, (roster) => ({
+      ...roster,
+      dutyNotes: {
+        ...(roster.dutyNotes || {}),
+        [roleId]: note.trim(),
+      },
+    }));
   };
 
   const addSpecialEvent = (
@@ -729,27 +818,14 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   ) => {
     const cleanEvent = event.trim();
     if (!cleanEvent) return;
-
-    setChurchState((prev) => {
-      const targetDate = customDate || selectedDate;
-      const targetSvcId = customServiceId || activeServiceId;
-      const { state, roster, key } = ensureRoster(prev, targetDate, targetSvcId);
-
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    mutateRoster(targetDate, targetSvcId, (roster) => {
       const currentEvents = roster.specialEvents || [];
-      if (currentEvents.includes(cleanEvent)) return prev;
-
-      const updatedRoster: ServiceRoster = {
+      if (currentEvents.includes(cleanEvent)) return null;
+      return {
         ...roster,
         specialEvents: [...currentEvents, cleanEvent],
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...state,
-        rosters: {
-          ...state.rosters,
-          [key]: updatedRoster,
-        },
       };
     });
   };
@@ -759,23 +835,13 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     customDate?: string,
     customServiceId?: string
   ) => {
-    setChurchState((prev) => {
-      const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
-      const roster = prev.rosters[key];
-      if (!roster || !roster.specialEvents) return prev;
-
-      const updatedRoster: ServiceRoster = {
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    mutateRoster(targetDate, targetSvcId, (roster) => {
+      if (!roster.specialEvents) return null;
+      return {
         ...roster,
         specialEvents: roster.specialEvents.filter((e) => e !== event),
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...prev,
-        rosters: {
-          ...prev.rosters,
-          [key]: updatedRoster,
-        },
       };
     });
   };
@@ -785,31 +851,16 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     customDate?: string,
     customServiceId?: string
   ) => {
-    setChurchState((prev) => {
-      const targetDate = customDate || selectedDate;
-      const targetSvcId = customServiceId || activeServiceId;
-      const { state, roster, key } = ensureRoster(prev, targetDate, targetSvcId);
-
-      const existingSongs = roster.songs || [];
-      const newSong: WorshipSong = {
-        ...song,
-        id: `song_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      };
-
-      const updatedRoster: ServiceRoster = {
-        ...roster,
-        songs: [...existingSongs, newSong],
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...state,
-        rosters: {
-          ...state.rosters,
-          [key]: updatedRoster,
-        },
-      };
-    });
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    const newSong: WorshipSong = {
+      ...song,
+      id: `song_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    };
+    mutateRoster(targetDate, targetSvcId, (roster) => ({
+      ...roster,
+      songs: [...(roster.songs || []), newSong],
+    }));
   };
 
   const updateSong = (
@@ -818,23 +869,13 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     customDate?: string,
     customServiceId?: string
   ) => {
-    setChurchState((prev) => {
-      const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
-      const roster = prev.rosters[key];
-      if (!roster || !roster.songs) return prev;
-
-      const updatedRoster: ServiceRoster = {
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    mutateRoster(targetDate, targetSvcId, (roster) => {
+      if (!roster.songs) return null;
+      return {
         ...roster,
         songs: roster.songs.map((s) => (s.id === songId ? { ...s, ...updates } : s)),
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...prev,
-        rosters: {
-          ...prev.rosters,
-          [key]: updatedRoster,
-        },
       };
     });
   };
@@ -844,23 +885,13 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     customDate?: string,
     customServiceId?: string
   ) => {
-    setChurchState((prev) => {
-      const key = `${customDate || selectedDate}_${customServiceId || activeServiceId}`;
-      const roster = prev.rosters[key];
-      if (!roster || !roster.songs) return prev;
-
-      const updatedRoster: ServiceRoster = {
+    const targetDate = customDate || selectedDate;
+    const targetSvcId = customServiceId || activeServiceId;
+    mutateRoster(targetDate, targetSvcId, (roster) => {
+      if (!roster.songs) return null;
+      return {
         ...roster,
         songs: roster.songs.filter((s) => s.id !== songId),
-        updatedAt: new Date().toISOString(),
-      };
-
-      return {
-        ...prev,
-        rosters: {
-          ...prev.rosters,
-          [key]: updatedRoster,
-        },
       };
     });
   };
@@ -875,6 +906,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ...prev,
       coworkers: [...prev.coworkers, newCoworker],
     }));
+    upsertRemoteCoworker(newCoworker);
   };
 
   const updateCoworker = (coworker: Coworker) => {
@@ -882,6 +914,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ...prev,
       coworkers: prev.coworkers.map((cw) => (cw.id === coworker.id ? coworker : cw)),
     }));
+    upsertRemoteCoworker(coworker);
   };
 
   const updateCurrentUserAvatar = (avatarDataUrl: string) => {
@@ -894,6 +927,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ...prev,
       coworkers: prev.coworkers.filter((cw) => cw.id !== id),
     }));
+    deleteRemoteCoworker(id);
   };
 
   // Cross-department and cross-service conflict detection
@@ -966,6 +1000,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         svc.id === updatedService.id ? updatedService : svc
       ),
     }));
+    upsertRemoteService(updatedService);
   };
 
   const resetToDefault = () => {
@@ -1027,6 +1062,8 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateCurrentUserAvatar,
         deleteCoworker,
         updateService,
+        syncStatus,
+        isCloudConnected: syncStatus === 'synced',
         getCoworkerDateConflicts,
         getCoworkerConflictRoles,
         exportBackup,

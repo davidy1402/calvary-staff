@@ -40,6 +40,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
     isDarkMode,
     themeMode,
     setThemeMode,
+    syncStatus,
   } = useChurch();
 
   const handleSwitchToEditor = () => {
@@ -86,6 +87,26 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           <h1 className="text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
             CCCJB Connect {t('settingsTitle', language)}
           </h1>
+        </div>
+
+        {/* Cloud Sync Status Indicator */}
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-zinc-400">
+          <span
+            className={`w-2 h-2 rounded-full ${
+              syncStatus === 'synced'
+                ? 'bg-emerald-500 shadow-2xs'
+                : syncStatus === 'connecting'
+                ? 'bg-amber-500 animate-pulse'
+                : 'bg-slate-300 dark:bg-zinc-600'
+            }`}
+          />
+          <span>
+            {syncStatus === 'synced'
+              ? (language === 'zh' ? '云端同步' : 'Synced')
+              : syncStatus === 'connecting'
+              ? (language === 'zh' ? '连接中' : 'Connecting')
+              : (language === 'zh' ? '单机模式' : 'Local')}
+          </span>
         </div>
       </header>
 
