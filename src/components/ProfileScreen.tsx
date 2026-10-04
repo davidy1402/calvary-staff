@@ -464,8 +464,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           </p>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5">
             {language === 'zh'
-              ? `方式: ${authMethod === 'google' ? 'Google' : authMethod === 'apple' ? 'Apple' : authMethod === 'phone' ? '手机号码' : '访客体验'}`
-              : `Via ${authMethod}`}
+              ? `方式: ${authMethod === 'guest' ? '访客模式' : '手机登录'}`
+              : `Via ${authMethod === 'guest' ? 'Guest' : 'Phone'}`}
           </p>
         </div>
         <button
