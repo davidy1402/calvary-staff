@@ -22,10 +22,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
   return (
     <nav
       aria-label="主要底部导航"
-      className="fixed bottom-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.25rem))] inset-x-0 z-40 flex justify-center pointer-events-none select-none px-4"
+      className="fixed bottom-[max(0.875rem,calc(env(safe-area-inset-bottom,0px)+0.375rem))] left-1/2 -translate-x-1/2 z-40 select-none w-[calc(100%-2rem)] max-w-[390px] sm:max-w-md px-1"
     >
       {/* iOS Liquid Glass Floating Dock Container */}
-      <div className="pointer-events-auto inline-flex items-center p-1 rounded-full backdrop-blur-2xl backdrop-saturate-180 bg-white/80 dark:bg-zinc-900/80 border border-slate-200/70 dark:border-white/12 shadow-[0_8px_30px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.85)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all duration-300">
+      <div className="relative backdrop-blur-2xl backdrop-saturate-200 bg-white/40 dark:bg-black/40 border border-white/60 dark:border-white/15 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04),inset_0_1.5px_1px_0_rgba(255,255,255,0.85),inset_0_-1px_1px_0_rgba(0,0,0,0.03)] dark:shadow-[0_20px_44px_-8px_rgba(0,0,0,0.7),0_4px_16px_rgba(0,0,0,0.4),inset_0_1.5px_1px_0_rgba(255,255,255,0.22),inset_0_-1px_1px_0_rgba(255,255,255,0.04)] rounded-[2.25rem] p-1.5 flex items-center justify-between gap-1 transition-all duration-300">
         {tabs.map((tab) => {
           const isActive = currentTab === tab.id;
           const IconComponent = tab.icon;
@@ -36,22 +36,22 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
               key={tab.id}
               type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`relative flex flex-col items-center justify-center min-w-[76px] sm:min-w-[84px] h-11 px-3 rounded-full transition-all duration-200 active:scale-95 cursor-pointer ${
+              className={`relative flex-1 flex flex-col items-center justify-center h-14 rounded-[1.5rem] transition-all duration-200 active:scale-[0.96] cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none active:outline-none select-none [-webkit-tap-highlight-color:transparent] ${
                 isActive
-                  ? 'bg-white/95 text-blue-900 dark:bg-zinc-800/90 dark:text-zinc-100 shadow-[0_2px_8px_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.04)] border border-slate-200/60 dark:border-zinc-700/60'
-                  : 'text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-slate-100/50 dark:hover:bg-zinc-800/40'
+                  ? 'bg-slate-900/90 text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-black/5 dark:hover:bg-white/10 active:bg-transparent'
               }`}
             >
               <IconComponent
-                size={18}
-                strokeWidth={isActive ? 2 : 1.75}
-                className="transition-transform duration-200 shrink-0"
+                size={20}
+                strokeWidth={isActive ? 2.25 : 1.75}
+                className={`transition-transform duration-200 shrink-0 ${isActive ? 'scale-105' : ''}`}
               />
               <span
-                className={`text-[10px] tracking-tight mt-0.5 leading-none ${
+                className={`text-[11px] tracking-tight mt-1 leading-none transition-colors duration-200 ${
                   isActive
-                    ? 'font-bold text-blue-950 dark:text-white'
-                    : 'font-medium text-slate-500 dark:text-zinc-400'
+                    ? 'font-extrabold text-white dark:text-zinc-950'
+                    : 'font-semibold text-slate-600 dark:text-zinc-400'
                 }`}
               >
                 {label}

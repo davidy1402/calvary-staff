@@ -38,16 +38,18 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     }
     isHoldingRef.current = false;
     setPullProgress(0);
-    setDragNudge(0);
   }, []);
 
   const triggerEasterEgg = useCallback(() => {
     clearHold();
     setIsModalOpen(true);
+    setDragNudge(0);
+    tapCountRef.current = 0;
   }, [clearHold]);
 
   const startHold = useCallback(() => {
     if (isHoldingRef.current) return;
+
     isHoldingRef.current = true;
     setPullProgress(1);
 
@@ -66,11 +68,11 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
       } catch {
         // ignore
       }
-    }, 220); // 220ms * 5 ≈ 1.1s
+    }, 220);
 
     holdTimerRef.current = window.setTimeout(() => {
       triggerEasterEgg();
-    }, 1150);
+    }, 1200);
   }, [triggerEasterEgg]);
 
   useEffect(() => {
@@ -91,13 +93,10 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
         clearHold();
         return;
       }
+      const dy = Math.max(0, startYRef.current - e.touches[0].clientY);
+      setDragNudge(Math.min(12, Math.pow(dy, 0.75)));
 
-      const currentY = e.touches[0].clientY;
-      const dy = Math.max(0, startYRef.current - currentY); // pulling up past bottom
-
-      setDragNudge(Math.min(14, Math.pow(dy, 0.72)));
-
-      // When user pulls past 45px height and holds
+      // Pull past the threshold, then keep holding for a short moment.
       if (dy >= 45) {
         startHold();
       } else if (dy < 30) {
@@ -106,13 +105,16 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     };
 
     const handleTouchEnd = () => {
+      if (!isPullingRef.current || startYRef.current === null) return;
       clearHold();
+      setDragNudge(0);
       isPullingRef.current = false;
       startYRef.current = null;
     };
 
-    // Desktop trackpad / wheel hold
+    // Desktop trackpad / wheel: keep scrolling at the bottom for the same hold duration.
     let wheelHoldTimer: number | null = null;
+
     const handleWheel = (e: WheelEvent) => {
       if (!isAtBottom()) {
         clearHold();
@@ -145,27 +147,26 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     };
   }, [isAtBottom, startHold, clearHold]);
 
-  // Discrete fallback: tap 6 times on footer
+  // Discrete fallback: 10 rapid taps on bottom area
   const handleFooterTap = () => {
     tapCountRef.current += 1;
-    setPullProgress(Math.min(5, tapCountRef.current));
+    setPullProgress(Math.min(5, Math.floor(tapCountRef.current / 2)));
 
     if (tapTimerRef.current) window.clearTimeout(tapTimerRef.current);
 
-    if (tapCountRef.current >= 6) {
+    if (tapCountRef.current >= 10) {
       triggerEasterEgg();
-      tapCountRef.current = 0;
     } else {
       tapTimerRef.current = window.setTimeout(() => {
         tapCountRef.current = 0;
         setPullProgress(0);
-      }, 1500);
+      }, 1800);
     }
   };
 
   return (
     <>
-      {/* Subtle micro hint: 5 tiny dots that quietly charge up while holding */}
+      {/* Subtle, non-obvious micro hint: tiny discrete dots */}
       <div
         onClick={handleFooterTap}
         className="w-full flex items-center justify-center py-2 select-none cursor-pointer"
@@ -176,16 +177,16 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
         aria-hidden="true"
       >
         <div
-          className="flex items-center gap-1.5 transition-opacity duration-200"
+          className="flex items-center gap-1.5 transition-opacity duration-300"
           style={{
-            opacity: pullProgress > 0 ? 0.45 : 0.1,
+            opacity: pullProgress > 0 ? 0.35 : 0.1,
           }}
         >
-          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 1 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
-          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 2 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
-          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 3 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
-          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 4 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
-          <span className={`w-1 h-1 rounded-full transition-colors duration-150 ${pullProgress >= 5 ? 'bg-blue-500 scale-125' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 1 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 2 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 3 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 4 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
+          <span className={`w-1 h-1 rounded-full transition-colors duration-200 ${pullProgress >= 5 ? 'bg-blue-500' : 'bg-slate-400 dark:bg-zinc-600'}`} />
         </div>
       </div>
 

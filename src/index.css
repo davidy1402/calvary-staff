@@ -7,6 +7,20 @@
   --sab: env(safe-area-inset-bottom, 0px);
 }
 
+/* Tap highlight & outline reset for iOS PWA and mobile */
+*, *::before, *::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus,
+button:focus-visible {
+  outline: none;
+}
+
 .pt-safe-top {
   padding-top: max(0.875rem, env(safe-area-inset-top, 0px));
 }
@@ -55,6 +69,21 @@ body {
   .app-header-safe {
     padding-top: 1.25rem;
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes slideUpFade {
