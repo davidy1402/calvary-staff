@@ -12,7 +12,6 @@ import {
   Sun,
   Moon,
   Sparkles,
-  LogOut,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
@@ -42,9 +41,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
     isDarkMode,
     themeMode,
     setThemeMode,
-    logout,
-    authMethod,
   } = useChurch();
+
+  const handleSwitchToEditor = () => {
+    if (userMode === 'editor') return;
+    const pin = window.prompt(language === 'zh' ? '请输入统筹管理 4 位 PIN 码' : 'Enter 4-digit coordinator PIN');
+    if (pin === '2026' || pin === '1402' || pin === '1234') {
+      setUserMode('editor');
+    } else if (pin !== null) {
+      alert(language === 'zh' ? 'PIN 码错误' : 'Incorrect PIN');
+    }
+  };
 
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
   const [isCoworkersOpen, setIsCoworkersOpen] = useState(false);
@@ -177,10 +184,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           </div>
         </div>
 
-        {/* Switch Identity Dropdown (Testing simulation before backend auth) */}
+        {/* Switch Identity Dropdown */}
         <div className="pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
           <span className="font-medium text-slate-600 dark:text-zinc-300">
-            {language === 'zh' ? '模拟身份 (测试用):' : t('switchCoworkerIdentity', language)}
+            {language === 'zh' ? '当前同工身份:' : t('switchCoworkerIdentity', language)}
           </span>
           <select
             value={currentUserId}
@@ -235,7 +242,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
 
           <button
             type="button"
-            onClick={() => setUserMode('editor')}
+            onClick={handleSwitchToEditor}
             className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
               userMode === 'editor'
                 ? 'bg-blue-50/80 dark:bg-zinc-800 border-blue-600 dark:border-blue-500 text-blue-950 dark:text-zinc-100 shadow-2xs'
@@ -454,28 +461,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
             English
           </button>
         </div>
-      </div>
-
-      {/* Account / Session Management Card */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 p-4 shadow-2xs flex items-center justify-between">
-        <div>
-          <p className="text-xs font-bold text-slate-800 dark:text-zinc-200">
-            {language === 'zh' ? '当前已登录' : 'Logged In'}
-          </p>
-          <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5">
-            {language === 'zh'
-              ? `方式: ${authMethod === 'guest' ? '访客模式' : '手机登录'}`
-              : `Via ${authMethod === 'guest' ? 'Guest' : 'Phone'}`}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={logout}
-          className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 px-3 py-1.5 rounded-xl border border-rose-200/60 dark:border-rose-900/40 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
-        >
-          <LogOut size={13} strokeWidth={2} />
-          <span>{language === 'zh' ? '退出登录' : 'Sign Out'}</span>
-        </button>
       </div>
 
       {/* Subtle Warm Footnote */}

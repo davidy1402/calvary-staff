@@ -77,6 +77,15 @@ export const RosterScreen: React.FC = () => {
   const [editingNoteKey, setEditingNoteKey] = useState<string | null>(null);
   const [noteInput, setNoteInput] = useState<string>('');
 
+  const handleEnterEditMode = () => {
+    const pin = window.prompt(language === 'zh' ? '请输入统筹管理 4 位 PIN 码' : 'Enter 4-digit coordinator PIN');
+    if (pin === '2026' || pin === '1402' || pin === '1234') {
+      setUserMode('editor');
+    } else if (pin !== null) {
+      alert(language === 'zh' ? 'PIN 码错误' : 'Incorrect PIN');
+    }
+  };
+
   const toggleExpand = (date: string) => {
     setExpandedDates((prev) => ({
       ...prev,
@@ -90,11 +99,6 @@ export const RosterScreen: React.FC = () => {
     const weekdaysZh = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     const weekdaysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     return language === 'zh' ? weekdaysZh[date.getDay()] : weekdaysEn[date.getDay()];
-  };
-
-  const getServiceName = (serviceId: string, defaultName: string) => {
-    const key = serviceId as any;
-    return t(key, language) !== key ? t(key, language) : defaultName;
   };
 
   const getServiceShortName = (serviceId: string, defaultShortName: string) => {
@@ -230,9 +234,7 @@ export const RosterScreen: React.FC = () => {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  setUserMode('editor');
-                }}
+                onClick={handleEnterEditMode}
                 className="text-xs font-semibold text-slate-600 dark:text-zinc-300 hover:text-blue-700 dark:hover:text-blue-400 bg-slate-50 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-zinc-700 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
               >
                 <Edit2 size={13} strokeWidth={2} />
@@ -340,7 +342,6 @@ export const RosterScreen: React.FC = () => {
           {serviceRosters.map((roster, index) => {
             const isExpanded = expandedDates[roster.date] ?? (index === 0);
             const dateTitle = `${roster.date.replace(/-/g, '/')} (${getWeekdayShort(roster.date)})`;
-            const currentServiceName = getServiceName(activeService.id, activeService.name);
 
             // Active categories and roles for this service
             const activeRoles = churchState.roles.filter((r) =>
@@ -357,9 +358,9 @@ export const RosterScreen: React.FC = () => {
             return (
               <div
                 key={roster.id}
-                className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs overflow-hidden transition-all duration-200 hover:border-slate-300 dark:hover:border-zinc-700"
+                className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs overflow-hidden transition-all duration-200"
               >
-                {/* Sticky Date Card Header (Selena's readability fix: Date is never lost) */}
+                {/* Sticky Date Card Header */}
                 <div
                   onClick={() => toggleExpand(roster.date)}
                   className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 transition-colors select-none border-b border-slate-100 dark:border-zinc-800"
@@ -395,15 +396,12 @@ export const RosterScreen: React.FC = () => {
                           roster.specialEvents.map((ev) => (
                             <span
                               key={ev}
-                              className="text-[10px] font-semibold text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-1.5 py-0.5 rounded-md"
+                              className="text-[10px] font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-full"
                             >
                               {ev}
                             </span>
                           ))}
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium truncate">
-                        {currentServiceName}
-                      </p>
                     </div>
                   </div>
 
@@ -431,18 +429,18 @@ export const RosterScreen: React.FC = () => {
 
                 {/* Card Body */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 pt-2 animate-slide-up">
+                  <div className="px-4 pb-4 pt-3 animate-slide-up space-y-3">
                     {/* Theme / Scripture Bar */}
-                    <div className="py-2.5 px-3 mb-3 bg-slate-50/80 dark:bg-zinc-800/60 rounded-xl border border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-700 dark:text-zinc-300">
+                    <div className="py-1 px-0.5 flex items-center justify-between text-xs text-slate-600 dark:text-zinc-300">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <FileText size={16} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                        <FileText size={15} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
                         {editingThemeDate === roster.date ? (
                           <div className="flex items-center gap-2 flex-1 mr-2">
                             <input
                               type="text"
                               value={themeInput}
                               onChange={(e) => setThemeInput(e.target.value)}
-                              placeholder={language === 'zh' ? '输入讲道主题或经文...' : 'Enter sermon theme or scripture...'}
+                              placeholder={language === 'zh' ? '输入讲道主题或经文' : 'Enter sermon theme or scripture'}
                               className="w-full text-xs px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
                               autoFocus
                             />
@@ -452,21 +450,27 @@ export const RosterScreen: React.FC = () => {
                                 updateRosterMeta({ theme: themeInput.trim() }, roster.date, roster.serviceId);
                                 setEditingThemeDate(null);
                               }}
-                              className="px-3 py-1.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shrink-0 text-xs transition-colors active:scale-95"
+                              className="px-3 py-1.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shrink-0 text-xs transition-colors active:scale-95 cursor-pointer"
                             >
                               {t('save', language)}
                             </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingThemeDate(null)}
+                              className="px-1 text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 text-xs shrink-0 cursor-pointer"
+                            >
+                              ✕
+                            </button>
                           </div>
                         ) : (
-                          <span className="truncate">
-                            {roster.theme ? (
-                              <span className="font-semibold text-slate-900 dark:text-zinc-100">
-                                {t('theme', language)}: <strong className="font-bold text-blue-900 dark:text-blue-300">{roster.theme}</strong>
-                              </span>
-                            ) : (
-                              <span className="text-slate-400 dark:text-zinc-500 italic font-medium">{t('unfilledTheme', language)}</span>
-                            )}
-                          </span>
+                          <div className="truncate">
+                            <span className="font-semibold text-slate-400 dark:text-zinc-500 mr-1.5">
+                              {language === 'zh' ? '讲道主题:' : 'Theme:'}
+                            </span>
+                            <span className="font-medium text-slate-800 dark:text-zinc-200">
+                              {roster.theme || (isEditMode ? (language === 'zh' ? '点击右侧填写主题' : 'Click to set theme') : (language === 'zh' ? '未设定' : 'None'))}
+                            </span>
+                          </div>
                         )}
                       </div>
 
@@ -477,7 +481,7 @@ export const RosterScreen: React.FC = () => {
                             setThemeInput(roster.theme || '');
                             setEditingThemeDate(roster.date);
                           }}
-                          className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 shrink-0 ml-2 transition-colors active:scale-95 cursor-pointer"
+                          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 shrink-0 ml-2 transition-colors cursor-pointer"
                         >
                           {roster.theme ? t('modifyTheme', language) : t('fillTheme', language)}
                         </button>
@@ -495,15 +499,15 @@ export const RosterScreen: React.FC = () => {
 
                     {/* Special Event Tags Management in Edit Mode */}
                     {isEditMode && (
-                      <div className="py-2 px-3 flex items-center gap-1.5 flex-wrap bg-slate-50/50 dark:bg-zinc-800/40 rounded-xl border border-slate-100 dark:border-zinc-800 mb-3">
-                        <span className="text-xs text-slate-500 dark:text-zinc-400 font-bold">
+                      <div className="py-1 px-0.5 flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs text-slate-400 dark:text-zinc-500 font-semibold">
                           {t('specialEvents', language)}:
                         </span>
                         {roster.specialEvents &&
                           roster.specialEvents.map((ev) => (
                             <span
                               key={ev}
-                              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-2 py-0.5 rounded-lg"
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-lg"
                             >
                               <span>{ev}</span>
                               <button
@@ -525,7 +529,7 @@ export const RosterScreen: React.FC = () => {
                             );
                             if (name) addSpecialEvent(name, roster.date, roster.serviceId);
                           }}
-                          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-zinc-800 border border-blue-200 dark:border-zinc-700 transition-colors active:scale-95 cursor-pointer"
+                          className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-zinc-800 transition-colors cursor-pointer"
                         >
                           <Plus size={13} strokeWidth={2.5} />
                           <span>{t('addTag', language)}</span>
@@ -533,8 +537,8 @@ export const RosterScreen: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Department Sections (High Readability for Selena & Diana) */}
-                    <div className="space-y-4">
+                    {/* Department Sections: Clean Typographic Hierarchy with Generous Breathing Room */}
+                    <div className="space-y-4 pt-1">
                       {categoryGroups
                         .filter((cat) => {
                           if (!activeService.categoryIds.includes(cat.id)) return false;
@@ -559,22 +563,19 @@ export const RosterScreen: React.FC = () => {
                           ).length;
 
                           return (
-                            <div
-                              key={cat.id}
-                              className="bg-slate-50/70 dark:bg-zinc-900 rounded-xl border border-slate-200/80 dark:border-zinc-800 overflow-hidden shadow-2xs"
-                            >
-                              {/* Department Header with visual fill count */}
-                              <div className={`px-3.5 py-2 flex items-center justify-between border-b border-slate-200/70 dark:border-zinc-800 ${cat.accentBg}`}>
-                                <span className={`text-xs font-black tracking-tight ${cat.accentText}`}>
+                            <div key={cat.id} className="space-y-1">
+                              {/* Department Header: Typographic Header with hairline divider */}
+                              <div className="flex items-center justify-between pt-2 pb-1 border-b border-slate-100 dark:border-zinc-800">
+                                <span className="text-xs font-extrabold text-slate-800 dark:text-zinc-200 tracking-wide">
                                   {language === 'zh' ? cat.nameZh : cat.nameEn}
                                 </span>
-                                <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-slate-200/60 dark:border-zinc-700/60 shadow-2xs ${cat.accentText}`}>
+                                <span className="text-[11px] font-mono font-medium text-slate-400 dark:text-zinc-500">
                                   {catAssignedCount}/{catRoles.length}
                                 </span>
                               </div>
 
-                              {/* Department Roster Rows: High Readability, No Grey Clutter */}
-                              <div className="divide-y divide-slate-100 dark:divide-zinc-800/80 bg-white dark:bg-zinc-900">
+                              {/* Department Roster Rows */}
+                              <div className="divide-y divide-slate-100/70 dark:divide-zinc-800/50">
                                 {catRoles.map((role) => {
                                   const assignedIds = roster.assignments[role.id] || [];
                                   const assignedCoworkers = assignedIds
@@ -586,18 +587,18 @@ export const RosterScreen: React.FC = () => {
                                   return (
                                     <div
                                       key={role.id}
-                                      className="p-2.5 sm:px-3.5 flex items-center justify-between gap-3 hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition-colors"
+                                      className="py-2.5 px-1 flex items-center justify-between gap-3 hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-colors"
                                     >
-                                      {/* Left: Role Pill with fixed optical min-width */}
-                                      <div className="flex items-center gap-1.5 shrink-0">
-                                        <span className="text-xs font-bold text-slate-700 dark:text-zinc-200 bg-slate-100/90 dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700 px-2 py-0.5 rounded-md min-w-[3.5rem] text-center shrink-0">
+                                      {/* Left: Role Title (Clean readable label, no gray pill border) */}
+                                      <div className="flex items-center gap-1.5 shrink-0 min-w-[4.5rem]">
+                                        <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">
                                           {role.name}
                                         </span>
 
                                         {dutyNote && !isNoteEditing && (
                                           <span
                                             title={dutyNote}
-                                            className="text-amber-600 hover:text-amber-800 cursor-help"
+                                            className="text-amber-600 hover:text-amber-700 dark:text-amber-400 cursor-help"
                                           >
                                             <MessageSquare size={13} strokeWidth={2} />
                                           </span>
@@ -611,8 +612,8 @@ export const RosterScreen: React.FC = () => {
                                             type="text"
                                             value={noteInput}
                                             onChange={(e) => setNoteInput(e.target.value)}
-                                            placeholder={language === 'zh' ? '输入服事备注...' : 'Add note...'}
-                                            className="text-xs px-2 py-1 bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 min-w-0"
+                                            placeholder={language === 'zh' ? '输入服事备注' : 'Add note'}
+                                            className="text-xs px-2.5 py-1 bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 flex-1 min-w-0"
                                             autoFocus
                                           />
                                           <button
@@ -621,7 +622,7 @@ export const RosterScreen: React.FC = () => {
                                               updateDutyNote(role.id, noteInput, roster.date, roster.serviceId);
                                               setEditingNoteKey(null);
                                             }}
-                                            className="px-2 py-1 bg-blue-600 text-white font-bold text-xs rounded-md shrink-0 cursor-pointer"
+                                            className="px-2.5 py-1 bg-blue-600 text-white font-bold text-xs rounded-md shrink-0 cursor-pointer"
                                           >
                                             {t('save', language)}
                                           </button>
@@ -634,10 +635,10 @@ export const RosterScreen: React.FC = () => {
                                           </button>
                                         </div>
                                       ) : (
-                                        /* Center/Right: Assigned Coworkers (Large bold font for readability) */
-                                        <div className="flex-1 flex items-center justify-end gap-1.5 flex-wrap min-w-0">
+                                        /* Center/Right: Assigned Coworkers (Natural typography, no heavy nested boxes) */
+                                        <div className="flex-1 flex items-center justify-end gap-2 flex-wrap min-w-0">
                                           {assignedCoworkers.length === 0 ? (
-                                            <span className="text-xs font-semibold text-slate-400 dark:text-zinc-500 italic">
+                                            <span className="text-xs font-normal text-slate-300 dark:text-zinc-600">
                                               {t('pending', language)}
                                             </span>
                                           ) : (
@@ -649,10 +650,10 @@ export const RosterScreen: React.FC = () => {
                                               return (
                                                 <div
                                                   key={cw.id}
-                                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-black shadow-2xs ${
+                                                  className={`inline-flex items-center gap-1 text-sm font-bold ${
                                                     hasConflict
-                                                      ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-800'
-                                                      : 'bg-slate-50/90 dark:bg-zinc-800 text-slate-900 dark:text-zinc-100 border border-slate-200/90 dark:border-zinc-700'
+                                                      ? 'text-amber-700 dark:text-amber-400'
+                                                      : 'text-slate-900 dark:text-zinc-100'
                                                   }`}
                                                 >
                                                   <span>{cw.name}</span>
@@ -660,10 +661,10 @@ export const RosterScreen: React.FC = () => {
                                                   {/* Conflict Warning */}
                                                   {hasConflict && (
                                                     <span
-                                                      title={`时间撞了: 当天同时服事 ${dateConflicts.map((c) => `[${c.serviceName} ${c.roleName}]`).join('、')}`}
-                                                      className="text-amber-700 dark:text-amber-400"
+                                                      title={`时间冲突: 当天同时服事 ${dateConflicts.map((c) => `[${c.serviceName} ${c.roleName}]`).join('、')}`}
+                                                      className="text-amber-600 dark:text-amber-400"
                                                     >
-                                                      <AlertTriangle size={12} strokeWidth={2.5} />
+                                                      <AlertTriangle size={13} strokeWidth={2.5} />
                                                     </span>
                                                   )}
 
@@ -678,7 +679,7 @@ export const RosterScreen: React.FC = () => {
                                                           roster.serviceId
                                                         )
                                                       }
-                                                      className="text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 ml-0.5 cursor-pointer"
+                                                      className="text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 ml-0.5 cursor-pointer p-0.5"
                                                     >
                                                       <X size={12} strokeWidth={2.5} />
                                                     </button>
@@ -690,7 +691,7 @@ export const RosterScreen: React.FC = () => {
 
                                           {/* Actions in Edit Mode: Assign & Add Note */}
                                           {isEditMode && (
-                                            <div className="flex items-center gap-0.5 ml-1 shrink-0">
+                                            <div className="flex items-center gap-1 ml-1 shrink-0">
                                               <button
                                                 type="button"
                                                 onClick={() => {
@@ -698,7 +699,7 @@ export const RosterScreen: React.FC = () => {
                                                   setEditingNoteKey(`${roster.id}_${role.id}`);
                                                 }}
                                                 title="添加/编辑备注"
-                                                className="w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                                                className="w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                                               >
                                                 <MessageSquare size={12} strokeWidth={2} />
                                               </button>
@@ -712,7 +713,7 @@ export const RosterScreen: React.FC = () => {
                                                     serviceId: roster.serviceId,
                                                   })
                                                 }
-                                                className="w-6 h-6 rounded flex items-center justify-center text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-zinc-800 border border-blue-200/70 dark:border-zinc-700 transition-colors active:scale-90 cursor-pointer"
+                                                className="w-6 h-6 rounded flex items-center justify-center text-blue-700 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 bg-blue-50 dark:bg-zinc-800 transition-colors active:scale-90 cursor-pointer"
                                                 title={assignedCoworkers.length === 0 ? t('assign', language) : t('change', language)}
                                               >
                                                 <Plus size={12} strokeWidth={2.5} />
