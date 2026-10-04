@@ -2,7 +2,7 @@ import React from 'react';
 import { BottomSheet } from './BottomSheet';
 import { useChurch } from '../context/ChurchContext';
 import { formatDateLabel } from '../utils/dateUtils';
-import { Clock, MapPin, Music, Play, CalendarPlus } from 'lucide-react';
+import { Clock, MapPin, Music, Play, CalendarPlus, Shirt, Wine, Sparkles, BookOpen, Mic } from 'lucide-react';
 import { downloadCalendarEvent } from '../utils/calendarUtils';
 import type { ServiceRoster, ServiceDefinition, RoleCategoryId } from '../types';
 
@@ -54,11 +54,30 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
                   <h2 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 leading-tight">
                     {service.name}
                   </h2>
-                  {roster.specialEvents && roster.specialEvents.length > 0 && (
-                    <span className="text-[10px] font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-full">
-                      {roster.specialEvents[0]}
-                    </span>
-                  )}
+                  {roster.specialEvents && roster.specialEvents.length > 0 && (() => {
+                    const evt = roster.specialEvents[0];
+                    const isAttire = evt.includes('服装');
+                    const isCommunion = evt.includes('圣餐');
+                    const label = isAttire ? evt.replace(/^服装要求[:：\s]*/, '') : isCommunion ? '圣餐' : evt;
+                    return (
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                          isCommunion
+                            ? 'text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40'
+                            : 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40'
+                        }`}
+                      >
+                        {isAttire ? (
+                          <Shirt size={10} strokeWidth={2.2} />
+                        ) : isCommunion ? (
+                          <Wine size={10} strokeWidth={2.2} />
+                        ) : (
+                          <Sparkles size={10} strokeWidth={2.2} />
+                        )}
+                        <span>{label}</span>
+                      </span>
+                    );
+                  })()}
                 </div>
                 <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
                   {formatDateLabel(roster.date)} · {service.time}
@@ -102,33 +121,29 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
             <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-zinc-400 flex-wrap pb-1">
               <span className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-zinc-300">
                 <Clock size={13} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
-                <span>{service.rehearsalTime}</span>
+                <span>{service.rehearsalTime.replace(/调音|预备/g, '').trim()}</span>
               </span>
               <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
                 <MapPin size={13} strokeWidth={1.75} className="text-slate-400 dark:text-zinc-500 shrink-0" />
-                <span>{service.venue}</span>
+                <span>{language === 'zh' ? service.venue.split(' ')[0] : service.venue}</span>
               </span>
             </div>
 
-            {/* Theme / Speaker if any */}
+            {/* Theme / Speaker with icons */}
             {(roster.theme || roster.speaker) && (
-              <div className="py-2.5 px-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs space-y-1">
+              <div className="py-2.5 px-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs space-y-1.5">
                 {roster.theme && (
-                  <div className="flex items-start gap-1.5">
-                    <span className="font-semibold text-slate-400 dark:text-zinc-500 shrink-0">
-                      {language === 'zh' ? '讲道主题:' : 'Theme:'}
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <BookOpen size={13} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
                     <span className="font-bold text-slate-900 dark:text-zinc-100">
                       {roster.theme}
                     </span>
                   </div>
                 )}
                 {roster.speaker && (
-                  <div className="flex items-start gap-1.5">
-                    <span className="font-semibold text-slate-400 dark:text-zinc-500 shrink-0">
-                      {language === 'zh' ? '当天讲员:' : 'Speaker:'}
-                    </span>
-                    <span className="font-bold text-slate-900 dark:text-zinc-100">
+                  <div className="flex items-center gap-2">
+                    <Mic size={13} strokeWidth={2} className="text-slate-400 dark:text-zinc-500 shrink-0" />
+                    <span className="font-semibold text-slate-700 dark:text-zinc-300">
                       {roster.speaker}
                     </span>
                   </div>
