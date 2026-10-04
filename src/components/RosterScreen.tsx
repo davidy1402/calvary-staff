@@ -17,6 +17,7 @@ import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
 import { WorshipSongSection } from './WorshipSongSection';
 import { ServiceManagerModal } from './ServiceManagerModal';
+import { ServiceEventBadge } from './ServiceEventBadge';
 import { ChurchLogo } from './ChurchLogo';
 import { t } from '../utils/i18n';
 import type { RoleDefinition, ServiceRoster, RoleCategoryId } from '../types';
@@ -446,19 +447,9 @@ export const RosterScreen: React.FC = () => {
                             )}
                           </div>}
 
-                          {roster.specialEvents &&
-                            roster.specialEvents.map((ev) => (
-                              <span
-                                key={ev}
-                                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                                  isPast
-                                    ? 'text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800'
-                                    : 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40'
-                                }`}
-                              >
-                                {ev}
-                              </span>
-                            ))}
+                          {roster.specialEvents?.map((ev) => (
+                            <ServiceEventBadge key={ev} event={ev} />
+                          ))}
                         </div>
                       </div>
                     </button>
@@ -567,22 +558,18 @@ export const RosterScreen: React.FC = () => {
                         <span className="text-xs text-slate-400 dark:text-zinc-500 font-semibold">
                           {t('specialEvents', language)}:
                         </span>
-                        {roster.specialEvents &&
-                          roster.specialEvents.map((ev) => (
-                            <span
-                              key={ev}
-                              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-lg"
+                        {roster.specialEvents?.map((ev) => (
+                          <ServiceEventBadge key={ev} event={ev}>
+                            <button
+                              type="button"
+                              onClick={() => removeSpecialEvent(ev, roster.date, roster.serviceId)}
+                              aria-label={language === 'zh' ? `移除标签 ${ev}` : `Remove tag ${ev}`}
+                              className="hover:opacity-70 cursor-pointer ml-0.5"
                             >
-                              <span>{ev}</span>
-                              <button
-                                type="button"
-                                onClick={() => removeSpecialEvent(ev, roster.date, roster.serviceId)}
-                                className="text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 cursor-pointer ml-0.5"
-                              >
-                                <X size={12} strokeWidth={2.5} />
-                              </button>
-                            </span>
-                          ))}
+                              <X size={12} strokeWidth={2.5} />
+                            </button>
+                          </ServiceEventBadge>
+                        ))}
                         <button
                           type="button"
                           onClick={() => {

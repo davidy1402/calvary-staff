@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { ServiceEventBadge } from './ServiceEventBadge';
 import { useChurch } from '../context/ChurchContext';
 import { AddToHomeCard } from './AddToHomeCard';
-import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle, Shirt, Wine, Sparkles } from 'lucide-react';
+import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle } from 'lucide-react';
 import { t } from '../utils/i18n';
 import { ChurchLogo } from './ChurchLogo';
 import { DailyScriptureCard } from './DailyScriptureCard';
@@ -152,30 +153,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                       <h4 className="text-sm font-bold text-slate-900 dark:text-zinc-100 leading-snug">
                         {service.name}
                       </h4>
-                      {roster.specialEvents && roster.specialEvents.length > 0 && (() => {
-                        const evt = roster.specialEvents[0];
-                        const isAttire = evt.includes('服装');
-                        const isCommunion = evt.includes('圣餐');
-                        const label = isAttire ? evt.replace(/^服装要求[:：\s]*/, '') : isCommunion ? '圣餐' : evt;
-                        return (
-                          <span
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
-                              isCommunion
-                                ? 'text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40'
-                                : 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40'
-                            }`}
-                          >
-                            {isAttire ? (
-                              <Shirt size={10} strokeWidth={2.2} />
-                            ) : isCommunion ? (
-                              <Wine size={10} strokeWidth={2.2} />
-                            ) : (
-                              <Sparkles size={10} strokeWidth={2.2} />
-                            )}
-                            <span>{label}</span>
-                          </span>
-                        );
-                      })()}
+                      {roster.specialEvents && roster.specialEvents.length > 0 && (
+                    <ServiceEventBadge event={roster.specialEvents[0]} />
+                  )}
                     </div>
 
                     {/* Assigned Roles Pills */}

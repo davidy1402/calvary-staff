@@ -191,14 +191,15 @@ export const seedRemoteDatabase = async (initialState: ChurchState): Promise<boo
 };
 
 // Upsert single roster
-export const upsertRemoteRoster = async (roster: ServiceRoster): Promise<void> => {
-  if (!supabase || !isSupabaseConfigured()) return;
+export const upsertRemoteRoster = async (roster: ServiceRoster): Promise<boolean> => {
+  if (!supabase || !isSupabaseConfigured()) return false;
   try {
-    const dbRow = rosterToDB(roster);
-    const { error } = await supabase.from('rosters').upsert(dbRow);
+    const { error } = await supabase.from('rosters').upsert(rosterToDB(roster));
     if (error) console.error('Failed to upsert roster to Supabase:', error);
+    return !error;
   } catch (e) {
     console.error('Supabase roster upsert error:', e);
+    return false;
   }
 };
 
