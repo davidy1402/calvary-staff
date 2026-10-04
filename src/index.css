@@ -202,8 +202,25 @@ body {
 .sheet-panel[data-dragging] { transition: none; will-change: transform; }
 /* The sheet supplies the entrance motion; don't animate its entire contents too. */
 .sheet-panel > .identity-content { animation: none; }
-.pin-popover:popover-open { animation: popoverEnter 180ms cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes popoverEnter { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
+.pin-popover:popover-open {
+  animation: pinModalEnter 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pin-popover::backdrop {
+  background: rgb(15 23 42 / 45%);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 180ms ease-out;
+}
+@keyframes pinModalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 button:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
 /* Glass is reserved for navigation. A tinted surface keeps labels readable over content. */
 .bottom-nav {

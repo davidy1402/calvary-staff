@@ -9,15 +9,10 @@ export const CoordinatorPinPopover: React.FC = () => {
   const input = useRef<HTMLInputElement>(null);
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
-  const [position, setPosition] = useState({ top: 0, right: 16 });
   const zh = language === 'zh';
 
   return <>
     <button type="button" popoverTarget={id} aria-haspopup="dialog"
-      onClick={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        setPosition({ top: rect.bottom + 8, right: Math.max(12, window.innerWidth - rect.right) });
-      }}
       className="min-h-11 px-3 text-xs font-semibold text-slate-700 dark:text-zinc-300 rounded-lg border border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-800 inline-flex items-center gap-1.5 transition-colors">
       <Edit2 size={14} />{zh ? '管理排班' : 'Edit'}
     </button>
@@ -26,8 +21,7 @@ export const CoordinatorPinPopover: React.FC = () => {
         if (event.newState === 'open') input.current?.focus();
         else { setPin(''); setError(false); }
       }}
-      style={position}
-      className="pin-popover fixed m-0 w-[min(320px,calc(100vw-24px))] p-5 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 shadow-xl">
+      className="pin-popover fixed inset-0 m-auto w-[min(340px,calc(100vw-32px))] max-h-fit p-5 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 shadow-2xl">
       <div className="flex items-center justify-between gap-2 mb-2">
         <h2 id={`${id}-title`} className="font-bold text-base">{zh ? '统筹管理' : 'Coordinator access'}</h2>
         <button type="button" popoverTarget={id} popoverTargetAction="hide" aria-label={zh ? '关闭' : 'Close'} className="min-h-11 min-w-11 -mr-2 rounded-lg flex items-center justify-center text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800"><X size={18} /></button>
