@@ -622,16 +622,20 @@ export const RosterScreen: React.FC = () => {
                     )}
 
                     {/* Department Sections: Clean Typographic Hierarchy with Generous Breathing Room */}
-                    <div className="space-y-4 pt-1">
-                      {categoryGroups
+                    {(() => {
+                      const displayedCategories = categoryGroups
                         .filter((cat) => {
                           if (!activeService.categoryIds.includes(cat.id)) return false;
                           if (filterType === 'all' || filterType === 'my') return true;
                           return cat.id === filterType;
                         })
                         .map((cat) => {
-                          const catRoles = activeRoles.filter((r) => {
-                            if (r.category !== cat.id) return false;
+                          const allCatRoles = activeRoles.filter((r) => r.category === cat.id);
+                          const catRoles = allCatRoles.filter((r) => {
+                            if (!isEditMode) {
+                              const assignedIds = roster.assignments[r.id] || [];
+                              if (assignedIds.length === 0) return false;
+                            }
                             if (filterType === 'all') return true;
                             if (filterType === 'my') {
                               const assignedIds = roster.assignments[r.id] || [];
@@ -640,22 +644,45 @@ export const RosterScreen: React.FC = () => {
                             return cat.id === filterType;
                           });
 
-                          if (catRoles.length === 0) return null;
-
-                          const catAssignedCount = catRoles.filter(
+                          const catAssignedCount = allCatRoles.filter(
                             (r) => (roster.assignments[r.id]?.length ?? 0) > 0
                           ).length;
 
-                          return (
+                          return {
+                            cat,
+                            allCatRoles,
+                            catRoles,
+                            catAssignedCount,
+                          };
+                        })
+                        .filter((item) => item.catRoles.length > 0);
+
+                      if (displayedCategories.length === 0) {
+                        return (
+                          <div className="py-6 text-center text-xs text-slate-400 dark:text-zinc-500">
+                            {filterType === 'my'
+                              ? (language === 'zh' ? '该日无您的服事安排' : 'No duties assigned to you on this date')
+                              : !isEditMode
+                              ? (language === 'zh' ? '暂未安排服事同工' : 'No duties assigned yet')
+                              : (language === 'zh' ? '该组暂无岗位设置' : 'No roles in this group')}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="space-y-4 pt-1">
+                          {displayedCategories.map(({ cat, allCatRoles, catRoles, catAssignedCount }) => (
                             <div key={cat.id} className="space-y-1">
                               {/* Department Header: Typographic Header with hairline divider */}
                               <div className="flex items-center justify-between pt-2 pb-1 border-b border-slate-100 dark:border-zinc-800">
                                 <span className="text-xs font-extrabold text-slate-800 dark:text-zinc-200 tracking-wide">
                                   {language === 'zh' ? cat.nameZh : cat.nameEn}
                                 </span>
-                                <span className="text-[11px] font-mono font-medium text-slate-400 dark:text-zinc-500">
-                                  {catAssignedCount}/{catRoles.length}
-                                </span>
+                                {isEditMode && (
+                                  <span className="text-[11px] font-mono font-medium text-slate-400 dark:text-zinc-500">
+                                    {catAssignedCount}/{allCatRoles.length}
+                                  </span>
+                                )}
                               </div>
 
                               {/* Department Roster Rows */}
@@ -811,9 +838,10 @@ export const RosterScreen: React.FC = () => {
                                 })}
                               </div>
                             </div>
-                          );
-                        })}
-                    </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
