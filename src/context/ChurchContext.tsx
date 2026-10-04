@@ -552,7 +552,19 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const activeService =
     churchState.services.find((s) => s.id === activeServiceId) || churchState.services[0];
 
-  const currentUser = churchState.coworkers.find((c) => c.id === currentUserId);
+  const currentUser: Coworker =
+    churchState.coworkers.find((c) => c.id === currentUserId) ||
+    (currentUserId === 'cw_guest'
+      ? {
+          id: 'cw_guest',
+          name: language === 'zh' ? '主内肢体' : 'Guest',
+          englishName: 'Guest',
+          phone: '',
+          cellGroup: language === 'zh' ? '访客' : 'Visitor',
+          qualifiedRoleIds: [],
+          active: true,
+        }
+      : churchState.coworkers[0]);
 
   // Authentication State (Google, Apple, Phone)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -1033,7 +1045,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const updateCurrentUserAvatar = (avatarDataUrl: string) => {
-    if (!currentUser) return;
+    if (!currentUser || currentUser.id === 'cw_guest') return;
     updateCoworker({ ...currentUser, avatar: avatarDataUrl });
   };
 

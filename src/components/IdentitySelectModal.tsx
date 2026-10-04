@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { BottomSheet } from './BottomSheet';
 import { ChurchLogo } from './ChurchLogo';
-import { Search, X, Check, User } from 'lucide-react';
+import { Search, X, Check, User, UserCheck, ChevronRight } from 'lucide-react';
 import type { Coworker } from '../types';
 
 interface IdentitySelectModalProps {
@@ -55,6 +55,11 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
     onClose();
   };
 
+  const handleSelectGuest = () => {
+    selectIdentity('cw_guest');
+    onClose();
+  };
+
   return (
     <BottomSheet
       isOpen={isOpen}
@@ -79,12 +84,12 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
             <ChurchLogo className="w-8 h-8 object-contain" />
           </div>
           <h2 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
-            {language === 'zh' ? '平安！请认领您的姓名' : 'Welcome! Choose Your Identity'}
+            {language === 'zh' ? '平安！请问您的名字是？' : 'Welcome! Select Your Name'}
           </h2>
           <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
             {language === 'zh'
-              ? '选择后即可查看为您定制的个人服事日程'
-              : 'Select your name to load your personalized duty schedule'}
+              ? '选择您的名字以查看专属服事安排与诗歌歌单'
+              : 'Select your name to view your service schedule and setlists'}
           </p>
         </div>
 
@@ -102,7 +107,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
               onChange={(e) => setSearch(e.target.value)}
               placeholder={
                 language === 'zh'
-                  ? '搜索姓名或英文名 (如: Diana, 永益)...'
+                  ? '搜索您的姓名或英文名 (如: Diana, 永益)...'
                   : 'Search name (e.g. Diana, Yong Yi)...'
               }
               className="w-full pl-9 pr-8 py-2 bg-white dark:bg-zinc-800 text-xs text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 rounded-xl border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs"
@@ -124,7 +129,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
         {!search && (
           <div className="px-4 pt-3 pb-2 border-b border-slate-100 dark:border-zinc-800 shrink-0">
             <p className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 mb-2">
-              {language === 'zh' ? '快速认领（核心同工）' : 'Quick Access'}
+              {language === 'zh' ? '常用同工' : 'Quick Access'}
             </p>
             <div className="flex items-center gap-1.5 flex-wrap">
               {pinnedCoworkers.map((cw) => {
@@ -155,9 +160,46 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
 
         {/* All Coworkers List */}
         <div className="overflow-y-auto px-4 py-2 space-y-1.5 flex-1 divide-y divide-slate-100 dark:divide-zinc-800/80">
+          {/* Guest Option (For anyone not on the roster) */}
+          <div className="pb-1.5">
+            <button
+              type="button"
+              onClick={handleSelectGuest}
+              className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between gap-3 border ${
+                currentUserId === 'cw_guest'
+                  ? 'bg-blue-50/80 dark:bg-zinc-800 border-blue-400 dark:border-blue-500'
+                  : 'bg-slate-50/80 dark:bg-zinc-800/40 border-slate-200/80 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer active:scale-[0.99]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-100/70 dark:bg-zinc-700 text-blue-700 dark:text-blue-300 shrink-0">
+                  <UserCheck size={16} strokeWidth={2} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                    {language === 'zh' ? '不在名单上？以访客身份浏览' : 'Not on the list? Browse as Guest'}
+                  </p>
+                  <p className="text-[11px] text-slate-400 dark:text-zinc-500 truncate">
+                    {language === 'zh' ? '直接查看全堂总排班；新同工可联系统筹添加' : 'View all church schedules; contact coordinator to add name'}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight size={14} className="text-slate-400 shrink-0" />
+            </button>
+          </div>
+
           {filteredCoworkers.length === 0 ? (
-            <div className="text-center py-10 text-xs text-slate-400 dark:text-zinc-500">
-              {language === 'zh' ? '未找到对应同工' : 'No coworker found'}
+            <div className="text-center py-8 px-4 space-y-3">
+              <p className="text-xs text-slate-500 dark:text-zinc-400">
+                {language === 'zh' ? `名单中暂未找到与「${search}」匹配的同工` : `No coworker found for "${search}"`}
+              </p>
+              <button
+                type="button"
+                onClick={handleSelectGuest}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+              >
+                {language === 'zh' ? '以访客身份继续浏览全堂排班' : 'Continue as Guest'}
+              </button>
             </div>
           ) : (
             filteredCoworkers.map((cw) => {
@@ -221,15 +263,6 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
               );
             })
           )}
-        </div>
-
-        {/* Footer info note */}
-        <div className="p-3 bg-slate-50 dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800 text-center shrink-0">
-          <p className="text-[11px] text-slate-400 dark:text-zinc-500">
-            {language === 'zh'
-              ? '选定后将保存在本机；可随时在「设置」中更换'
-              : 'Saved to this device; switch anytime in Settings'}
-          </p>
         </div>
       </div>
     </BottomSheet>

@@ -16,7 +16,7 @@ interface DashboardScreenProps {
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRoster, onOpenSetlist }) => {
-  const { currentUser, getUserSeasonAssignments, language, setIsIdentityModalOpen } = useChurch();
+  const { currentUser, currentUserId, getUserSeasonAssignments, language, setIsIdentityModalOpen } = useChurch();
 
   const userAssignments = getUserSeasonAssignments(currentUser?.id);
   const [today] = useState(() => new Date().toLocaleDateString('en-CA'));
@@ -88,7 +88,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
             onClick={() => setIsIdentityModalOpen(true)}
             className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-2 py-0.5 rounded-lg hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           >
-            {language === 'zh' ? '切换同工' : 'Switch'}
+            {language === 'zh'
+              ? (currentUserId === 'cw_guest' ? '我是同工' : '切换同工')
+              : (currentUserId === 'cw_guest' ? 'I am volunteer' : 'Switch')}
           </button>
         </div>
 
@@ -104,7 +106,28 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           </span>
         </div>
 
-        {displayedAssignments.length === 0 ? (
+        {currentUserId === 'cw_guest' ? (
+          <div className="py-7 px-3 text-center space-y-3">
+            <p className="text-sm font-bold text-slate-800 dark:text-zinc-200">
+              {language === 'zh' ? '您当前以访客身份浏览全堂排班' : 'Browsing as Guest'}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-xs mx-auto leading-relaxed">
+              {language === 'zh'
+                ? '可在「总排班表」查看全堂服事人员与诗歌。如果您有服事安排，请点击右上角「我是同工」选择姓名。'
+                : 'Browse all service rosters and worship setlists. Tap "I am volunteer" above if you have duties.'}
+            </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={onNavigateToRoster}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+              >
+                <span>{language === 'zh' ? '前往查看总排班表' : 'View Full Roster'}</span>
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+        ) : displayedAssignments.length === 0 ? (
           <div className="py-8 text-center text-slate-500 dark:text-zinc-400 text-sm space-y-1">
             <p className="font-semibold text-slate-700 dark:text-zinc-200">{language === 'zh' ? '目前没有接下来的服事安排' : 'No upcoming duties'}</p>
             <p className="text-xs text-slate-400 dark:text-zinc-500 max-w-xs mx-auto leading-relaxed">{t('noDutiesHint', language)}</p>
