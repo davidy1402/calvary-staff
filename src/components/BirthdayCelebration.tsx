@@ -164,7 +164,7 @@ export const BirthdayCelebration: React.FC<BirthdayCelebrationProps> = ({ name, 
         </h2>
 
         <p className="text-xs text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
-          愿耶和华赐福给你，保护你；愿耶和华使祂的脸光照你，<br/>赐恩给你！在这特别的日子里，主恩满溢，喜乐常存！
+          愿耶和华赐福给你，保护你；愿耶和华使祂的脸光照你，<br/>赐恩给你！<br/>在这特别的日子里，主恩满溢，喜乐常存！
         </p>
 
         <div className="mt-5">
