@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { ChurchProvider } from './context/ChurchContext';
+import { ChurchProvider, useChurch } from './context/ChurchContext';
 import { DashboardScreen } from './components/DashboardScreen';
 import { RosterScreen } from './components/RosterScreen';
 import { ProfileScreen } from './components/ProfileScreen';
 import { BottomNav, type TabType } from './components/BottomNav';
 import { LatestUpdateModal } from './components/LatestUpdateModal';
+import { LoginScreen } from './components/LoginScreen';
 import { CURRENT_VERSION } from './data/updates';
 
 const MainContent: React.FC = () => {
+  const { isAuthenticated } = useChurch();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(() => {
     try {
@@ -16,6 +18,10 @@ const MainContent: React.FC = () => {
       return false;
     }
   });
+
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-zinc-100 flex flex-col selection:bg-blue-100 dark:selection:bg-zinc-800 selection:text-blue-900 dark:selection:text-zinc-100 transition-colors duration-200">

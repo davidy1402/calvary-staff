@@ -12,6 +12,7 @@ import {
   Sun,
   Moon,
   Sparkles,
+  LogOut,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
@@ -40,6 +41,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
     setLanguage,
     isDarkMode,
     toggleDarkMode,
+    logout,
+    authMethod,
   } = useChurch();
 
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
@@ -427,6 +430,28 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
             English
           </button>
         </div>
+      </div>
+
+      {/* Account / Session Management Card */}
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/90 dark:border-zinc-800 p-4 shadow-2xs flex items-center justify-between">
+        <div>
+          <p className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+            {language === 'zh' ? '当前已登录' : 'Logged In'}
+          </p>
+          <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5">
+            {language === 'zh'
+              ? `方式: ${authMethod === 'google' ? 'Google' : authMethod === 'apple' ? 'Apple' : authMethod === 'phone' ? '手机号码' : '访客体验'}`
+              : `Via ${authMethod}`}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={logout}
+          className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 px-3 py-1.5 rounded-xl border border-rose-200/60 dark:border-rose-900/40 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+        >
+          <LogOut size={13} strokeWidth={2} />
+          <span>{language === 'zh' ? '退出登录' : 'Sign Out'}</span>
+        </button>
       </div>
 
       {/* Subtle Warm Footnote */}

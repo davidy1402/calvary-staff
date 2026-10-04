@@ -35,6 +35,12 @@ interface ChurchContextType {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
 
+  // Authentication State
+  isAuthenticated: boolean;
+  authMethod: string;
+  login: (method: 'google' | 'apple' | 'phone' | 'guest', coworker?: Coworker) => void;
+  logout: () => void;
+
   // Role and Permission Modes (Member Read-Only vs Editor Mode)
   userMode: UserMode;
   setUserMode: (mode: UserMode) => void;
@@ -402,6 +408,31 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     churchState.services.find((s) => s.id === activeServiceId) || churchState.services[0];
 
   const currentUser = churchState.coworkers.find((c) => c.id === currentUserId);
+
+  // Authentication State (Google, Apple, Phone)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('calvary_is_authenticated') === 'true';
+  });
+
+  const [authMethod, setAuthMethod] = useState<string>(() => {
+    return localStorage.getItem('calvary_auth_method') || 'phone';
+  });
+
+  const login = (method: 'google' | 'apple' | 'phone' | 'guest', coworker?: Coworker) => {
+    setIsAuthenticated(true);
+    setAuthMethod(method);
+    localStorage.setItem('calvary_is_authenticated', 'true');
+    localStorage.setItem('calvary_auth_method', method);
+    if (coworker) {
+      setCurrentUserId(coworker.id);
+      localStorage.setItem('calvary_current_user_id', coworker.id);
+    }
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.setItem('calvary_is_authenticated', 'false');
+  };
 
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     return getUpcomingServiceDate(activeService.weekday);
@@ -898,6 +929,10 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         currentUserId,
         setCurrentUserId,
         currentUser,
+        isAuthenticated,
+        authMethod,
+        login,
+        logout,
         language,
         setLanguage,
         toggleLanguage,

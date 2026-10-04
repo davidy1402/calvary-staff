@@ -5,6 +5,7 @@ import { HeartHandshake, Calendar, ChevronRight, Clock, MapPin, AlertTriangle } 
 import { t } from '../utils/i18n';
 import { ChurchLogo } from './ChurchLogo';
 import { DailyScriptureCard } from './DailyScriptureCard';
+import { getTimeGreeting } from '../utils/greetingUtils';
 
 interface DashboardScreenProps {
   onNavigateToRoster: () => void;
@@ -29,6 +30,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
   };
 
   const displayName = getShortName(currentUser?.name);
+  const greetingInfo = getTimeGreeting(language);
 
   const getDateParts = (dateStr: string) => {
     const [yyyy, mm, dd] = dateStr.split('-');
@@ -68,15 +70,26 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
       {/* Screen Body Content */}
       <div className="px-4 pt-4 space-y-4 animate-slide-up">
 
-      {/* Greeting Card with Volunteer Status */}
-      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-xs flex items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-xs text-blue-200 font-medium">
-            {currentUser?.cellGroup || (language === 'zh' ? '新山加略山社区教会' : 'CCCJB Connect')}
-          </p>
-          <h2 className="text-2xl font-extrabold tracking-tight mt-1">
-            {t('welcomeBack', language)}, {displayName}!
+      {/* Greeting Card with Volunteer Status & Time-based Warmth */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-2xl p-5 shadow-xs flex items-center justify-between gap-3 relative overflow-hidden">
+        <div className="min-w-0 flex-1 z-10">
+          <div className="flex items-center gap-1.5 text-xs text-blue-200 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span>
+              {currentUser?.cellGroup || (language === 'zh' ? '新山加略山社区教会' : 'CCCJB Connect')}
+            </span>
+            <span className="text-white/40">·</span>
+            <span className="text-blue-100 font-semibold">{greetingInfo.badge}</span>
+          </div>
+
+          <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-1 leading-snug">
+            {greetingInfo.title}，{displayName}！
           </h2>
+
+          <p className="text-xs text-blue-100/90 mt-1 leading-relaxed font-normal">
+            {greetingInfo.caringWord}
+          </p>
+
           <div className="flex items-center gap-2 mt-3 text-xs text-blue-100">
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-white/15 backdrop-blur-xs font-semibold">
               {language === 'zh' ? '本月服事：' : 'This Month: '}
@@ -90,10 +103,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           <img
             src={currentUser.avatar}
             alt={currentUser.name}
-            className="w-13 h-13 rounded-full object-cover shrink-0 border-2 border-white/30 shadow-md"
+            className="w-13 h-13 rounded-full object-cover shrink-0 border-2 border-white/30 shadow-md z-10"
           />
         ) : (
-          <div className="w-13 h-13 rounded-full bg-white/15 text-white flex items-center justify-center text-xl font-bold shrink-0 border-2 border-white/20 shadow-md">
+          <div className="w-13 h-13 rounded-full bg-white/15 text-white flex items-center justify-center text-xl font-bold shrink-0 border-2 border-white/20 shadow-md z-10">
             {currentUser?.name?.trim()?.[0] || '同'}
           </div>
         )}
