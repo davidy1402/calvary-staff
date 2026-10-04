@@ -43,7 +43,7 @@ const MainContent: React.FC = () => {
       <RosterUndoNotice />
 
       <LatestUpdateModal
-        isOpen={isUpdateModalOpen}
+        isOpen={isUpdateModalOpen && !isIdentityModalOpen}
         onClose={() => setIsUpdateModalOpen(false)}
         isAutomatic={true}
       />

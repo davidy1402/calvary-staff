@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
 import { Search, Star, User, Send } from 'lucide-react';
-import { RosterSaveStatus } from './RosterSaveStatus';
+import { RosterSaveStatus, RosterUndoNotice } from './RosterSaveStatus';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 import { generateWhatsAppDutyChangeText, getWhatsAppShareUrl } from '../utils/whatsappFormatter';
@@ -299,6 +299,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
             </button>
           </div>
         )}
+        <RosterUndoNotice inline />
       </BottomSheet>
   );
 };

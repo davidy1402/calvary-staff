@@ -20,10 +20,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
 
   const userAssignments = getUserSeasonAssignments(currentUser?.id);
   const [today] = useState(() => new Date().toLocaleDateString('en-CA'));
-  const upcoming = userAssignments.filter(({ roster }) => roster.date >= today);
-  const past = userAssignments.filter(({ roster }) => roster.date < today).reverse();
-  const [showPast, setShowPast] = useState(false);
-  const displayedAssignments = [...upcoming, ...(showPast ? past : [])];
+  const displayedAssignments = userAssignments;
+  const monthlyAssignments = userAssignments.filter(({ roster }) => roster.date.slice(0, 7) === today.slice(0, 7));
 
   const [selectedDuty, setSelectedDuty] = useState<{
     roster: ServiceRoster;
@@ -79,30 +77,33 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
       {/* Screen Body Content */}
       <div className="px-4 pt-4 space-y-4 animate-slide-up">
 
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-slate-700 dark:text-zinc-300">
-            {timeGreeting}，<span className="font-bold text-slate-900 dark:text-zinc-100">{displayName}</span>
-          </p>
-          <button
-            type="button"
-            onClick={() => setIsIdentityModalOpen(true)}
-            className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-2 py-0.5 rounded-lg hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-          >
-            {language === 'zh'
-              ? (currentUserId === 'cw_guest' ? '我是同工' : '切换同工')
-              : (currentUserId === 'cw_guest' ? 'I am volunteer' : 'Switch')}
-          </button>
+      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-xs flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-blue-200 font-medium">{currentUser?.cellGroup || (language === 'zh' ? '新山加略山社区教会' : 'CCCJB Connect')}</p>
+          <h2 className="text-2xl font-extrabold tracking-tight mt-1">{timeGreeting}，{displayName}</h2>
+          <div className="mt-3 text-xs text-blue-100">
+            {currentUserId !== 'cw_guest' && <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/15 font-semibold">
+              {language === 'zh' ? '本月服事：' : 'This month: '}{monthlyAssignments.length}{language === 'zh' ? ' 堂' : ' services'}
+            </span>}
+          </div>
         </div>
+        <button type="button" onClick={() => setIsIdentityModalOpen(true)} className="flex flex-col items-center gap-1.5 shrink-0 rounded-xl p-1 text-blue-100 hover:text-white transition-colors" aria-label={language === 'zh' ? '切换同工' : 'Switch volunteer'}>
+          {currentUser?.avatar ? <img src={currentUser.avatar} alt="" className="w-13 h-13 rounded-full object-cover border-2 border-white/30" /> : <span className="w-13 h-13 rounded-full bg-white/15 flex items-center justify-center text-xl font-bold border-2 border-white/20">{currentUser?.name?.trim()[0] || '同'}</span>}
+          <span className="text-xs">{language === 'zh' ? (currentUserId === 'cw_guest' ? '我是同工' : '切换同工') : 'Switch'}</span>
+        </button>
+      </div>
+      <DailyScriptureCard />
+      <AddToHomeCard />
 
       {/* 我的服事 Section (Ergonomic Duty Passes) */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-slate-200/90 dark:border-zinc-800 shadow-xs hover:border-slate-300 dark:hover:border-zinc-700 transition-all duration-200">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
           <div className="flex items-center gap-2">
             <HeartHandshake size={18} className="text-blue-700 dark:text-blue-400" />
-            <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">{language === 'zh' ? '接下来的服事' : 'Upcoming duties'}</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">{t('myDuties', language)}</h3>
           </div>
           <span className="text-xs font-medium text-slate-400 dark:text-zinc-500">
-            {upcoming.length > 0 ? (language === 'zh' ? `${upcoming.length} 次安排` : `${upcoming.length} services`) : ''}
+            {userAssignments.length > 0 ? (language === 'zh' ? `共 ${userAssignments.length} 项排班` : `${userAssignments.length} duties`) : ''}
           </span>
         </div>
 
@@ -113,7 +114,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
             </p>
             <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-xs mx-auto leading-relaxed">
               {language === 'zh'
-                ? '可在「总排班表」查看全堂服事人员与诗歌。如果您有服事安排，请点击右上角「我是同工」选择姓名。'
+                ? '可查看全堂服事人员与歌单。有服事安排的同工可点击我是同工，选择姓名。'
                 : 'Browse all service rosters and worship setlists. Tap "I am volunteer" above if you have duties.'}
             </p>
             <div className="pt-1">
@@ -129,18 +130,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           </div>
         ) : displayedAssignments.length === 0 ? (
           <div className="py-8 text-center text-slate-500 dark:text-zinc-400 text-sm space-y-1">
-            <p className="font-semibold text-slate-700 dark:text-zinc-200">{language === 'zh' ? '目前没有接下来的服事安排' : 'No upcoming duties'}</p>
+            <p className="font-semibold text-slate-700 dark:text-zinc-200">{t('noDutiesThisSeason', language)}</p>
             <p className="text-xs text-slate-400 dark:text-zinc-500 max-w-xs mx-auto leading-relaxed">{t('noDutiesHint', language)}</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-zinc-800/80">
-            {displayedAssignments.map(({ roster, service, roles }, index) => {
+            {displayedAssignments.map(({ roster, service, roles }) => {
               const { month, day, weekday } = getDateParts(roster.date);
 
               return (
                 <div key={roster.id} className="py-2">
-                  {index === 0 && upcoming.length > 0 && <p className="px-1.5 pt-2 text-xs font-semibold text-blue-700 dark:text-blue-400">{language === 'zh' ? '下一次服事' : 'Your next service'}</p>}
-                  {roster.date === past[0]?.roster.date && showPast && <p className="px-1.5 pt-2 text-xs text-slate-600 dark:text-zinc-400">{language === 'zh' ? '已结束的服事' : 'Past duties'}</p>}
                   <button
                     type="button"
                     onClick={() => setSelectedDuty({ roster, service })}
@@ -209,7 +208,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           </div>
         )}
 
-        {past.length > 0 && <button type="button" onClick={() => setShowPast((prev) => !prev)} aria-expanded={showPast} className="min-h-11 w-full text-left text-sm text-slate-600 dark:text-zinc-400">{language === 'zh' ? (showPast ? '收起历史安排' : '查看历史安排') : (showPast ? 'Hide past duties' : 'Show past duties')}</button>}
 
         <div className="pt-3.5 border-t border-slate-100 dark:border-zinc-800 flex justify-end">
           <button
@@ -223,8 +221,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           </button>
         </div>
       </div>
-      <DailyScriptureCard />
-      <AddToHomeCard />
       </div>
 
       {/* Roster Day Detail Modal */}

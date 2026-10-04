@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface BottomSheetProps {
@@ -7,130 +7,72 @@ interface BottomSheetProps {
   children: React.ReactNode;
   className?: string;
   maxHeight?: string;
+  dismissible?: boolean;
+  labelledBy?: string;
 }
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
-  isOpen,
-  onClose,
-  children,
-  className = 'bg-white dark:bg-zinc-900',
-  maxHeight = '88vh',
+  isOpen, onClose, children, className = 'bg-white dark:bg-zinc-900',
+  maxHeight = '88dvh', dismissible = true, labelledBy,
 }) => {
-  const [isRendered, setIsRendered] = useState(isOpen);
-  const [isClosing, setIsClosing] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startY = useRef<number | null>(null);
   const [dragY, setDragY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const startYRef = useRef(0);
-  const currentYRef = useRef(0);
+  const closeCallback = useRef(onClose);
+  useEffect(() => { closeCallback.current = onClose; }, [onClose]);
 
   const triggerClose = useCallback(() => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsRendered(false);
-      setIsClosing(false);
-      setDragY(0);
-      document.body.style.overflow = '';
-      onClose();
-    }, 220);
-  }, [onClose]);
+    if (!dismissible || timeout.current || !dialog.current?.open) return;
+    dialog.current.classList.add('sheet-closing');
+    const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180;
+    timeout.current = setTimeout(() => {
+      timeout.current = null;
+      dialog.current?.close();
+      closeCallback.current();
+    }, duration);
+  }, [dismissible]);
 
   useEffect(() => {
-    if (isOpen) {
-      if (!isRendered) {
-        setIsRendered(true);
-      }
-      setIsClosing(false);
-      setDragY(0);
-      document.body.style.overflow = 'hidden';
-    } else if (isRendered) {
-      triggerClose();
-    }
-  }, [isOpen, isRendered, triggerClose]);
+    const node = dialog.current;
+    if (!node) return;
+    if (!isOpen) { node.close(); return; }
+    node.classList.remove('sheet-closing');
+    node.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    node.querySelector<HTMLElement>('[data-sheet-initial-focus]')?.focus();
+    return () => {
+      if (timeout.current) clearTimeout(timeout.current);
+      timeout.current = null;
+      node.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    startYRef.current = e.clientY;
-    currentYRef.current = e.clientY;
-    setIsDragging(true);
+  const endDrag = () => {
+    if (dragY > 75) triggerClose();
+    startY.current = null;
+    setDragY(0);
   };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    const deltaY = e.clientY - startYRef.current;
-    if (deltaY > 0) {
-      setDragY(deltaY);
-      currentYRef.current = e.clientY;
-    } else {
-      setDragY(0);
-    }
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      // Ignore if pointer capture release fails
-    }
-
-    const deltaY = currentYRef.current - startYRef.current;
-    if (deltaY > 75) {
-      triggerClose();
-    } else {
-      setDragY(0);
-    }
-  };
-
-  if (!isRendered) return null;
-
-  let transformStyle = 'translateY(0)';
-  let transitionStyle = isDragging
-    ? 'none'
-    : 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)';
-
-  if (isClosing) {
-    transformStyle = 'translateY(100%)';
-    transitionStyle = 'transform 0.22s cubic-bezier(0.32, 0.72, 0, 1)';
-  } else if (isDragging || dragY > 0) {
-    transformStyle = `translateY(${dragY}px)`;
-  }
 
   return createPortal(
-    <div
-      className={`fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs transition-opacity duration-200 ${
-        isClosing ? 'opacity-0 pointer-events-none' : 'opacity-100 animate-backdrop'
-      }`}
-      onClick={triggerClose}
-    >
-      <div
-        style={{
-          transform: transformStyle,
-          transition: transitionStyle,
-          maxHeight,
-        }}
-        className={`w-full max-w-lg mx-auto rounded-t-[28px] rounded-b-none shadow-2xl flex flex-col overflow-hidden ${
-          isClosing || isDragging || dragY > 0 ? '' : 'animate-sheet-up'
-        } ${className}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Draggable Grab Handle Zone */}
-        <div
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          className="w-full pt-3 pb-2 flex justify-center bg-inherit shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
-          title="向下拖拽关闭"
-        >
-          <div className="w-10 h-1 bg-slate-300 dark:bg-zinc-700 rounded-full hover:bg-slate-400 dark:hover:bg-zinc-600 transition-colors" />
+    <dialog ref={dialog} aria-labelledby={labelledBy} className="bottom-sheet-dialog"
+      onCancel={(event) => { event.preventDefault(); triggerClose(); }}
+      onClick={(event) => { if (event.target === event.currentTarget) triggerClose(); }}>
+      <div className="sheet-positioner" onClick={(event) => { if (event.target === event.currentTarget) triggerClose(); }}>
+        <div style={{ maxHeight, ...(dragY > 0 ? { transform: `translateY(${dragY}px)`, transition: 'none' } : {}) }}
+          className={`sheet-panel w-full max-w-lg mx-auto rounded-t-[28px] shadow-2xl flex flex-col overflow-hidden ${className}`}>
+          {dismissible ? <div
+            onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); startY.current = event.clientY; }}
+            onPointerMove={(event) => { if (startY.current !== null) setDragY(Math.max(0, event.clientY - startY.current)); }}
+            onPointerUp={endDrag} onPointerCancel={() => { startY.current = null; setDragY(0); }}
+            className="pt-3 pb-2 flex justify-center shrink-0 cursor-grab touch-none select-none" aria-hidden="true">
+            <div className="w-10 h-1 bg-slate-300 dark:bg-zinc-700 rounded-full" />
+          </div> : <div className="h-4 shrink-0" />}
+          {children}
         </div>
-
-        {/* Content */}
-        {children}
       </div>
-    </div>,
-    document.body
+    </dialog>, document.body,
   );
 };

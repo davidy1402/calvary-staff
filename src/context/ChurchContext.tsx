@@ -118,7 +118,7 @@ interface ChurchContextType {
     customDate?: string,
     customServiceId?: string
   ) => void;
-  addCoworker: (coworker: Omit<Coworker, 'id'>) => void;
+  addCoworker: (coworker: Omit<Coworker, 'id'>) => Coworker;
   updateCoworker: (coworker: Coworker) => void;
   updateCurrentUserAvatar: (avatarDataUrl: string) => void;
   deleteCoworker: (id: string) => void;
@@ -1023,7 +1023,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
   };
 
-  const addCoworker = (coworkerData: Omit<Coworker, 'id'>) => {
+  const addCoworker = (coworkerData: Omit<Coworker, 'id'>): Coworker => {
     const newCoworker: Coworker = {
       ...coworkerData,
       id: `cw_${Date.now().toString(36)}`,
@@ -1034,6 +1034,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       coworkers: [...prev.coworkers, newCoworker],
     }));
     upsertRemoteCoworker(newCoworker);
+    return newCoworker;
   };
 
   const updateCoworker = (coworker: Coworker) => {

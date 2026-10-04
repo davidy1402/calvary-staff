@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import {
   CalendarDays,
+  Pencil,
   ChevronDown,
   ChevronUp,
-  Edit2,
   Check,
   Plus,
   X,
@@ -13,6 +13,7 @@ import {
   Clock,
   MapPin,
 } from 'lucide-react';
+import { CoordinatorPinPopover } from './CoordinatorPinPopover';
 import { RosterSaveStatus } from './RosterSaveStatus';
 import { AssignModal } from './AssignModal';
 import { WhatsAppModal } from './WhatsAppModal';
@@ -93,22 +94,6 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
   const [editingThemeDate, setEditingThemeDate] = useState<string | null>(null);
   const [themeInput, setThemeInput] = useState<string>('');
 
-  const [isPinOpen, setIsPinOpen] = useState(false);
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
-
-  const handleEnterEditMode = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (['2026', '1402', '1234'].includes(pinInput)) {
-      setUserMode('editor');
-      setIsPinOpen(false);
-      setPinInput('');
-      setPinError(false);
-    } else {
-      setPinError(true);
-    }
-  };
-
   const toggleExpand = (date: string) => {
     setExpandedDates((prev) => ({
       ...prev,
@@ -183,41 +168,10 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                 <span>{t('done', language)}</span>
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={() => { setIsPinOpen(true); setPinError(false); }}
-                className="text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-800 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200/80 dark:border-zinc-800"
-                title={language === 'zh' ? '输入统筹 PIN 码管理排班' : 'Enter PIN to edit schedule'}
-              >
-                <Edit2 size={12} strokeWidth={2} />
-                <span>{language === 'zh' ? '管理排班' : 'Edit'}</span>
-              </button>
+              <CoordinatorPinPopover />
             )}
           </div>
         </div>
-
-        {isPinOpen && !isEditMode && (
-          <form onSubmit={handleEnterEditMode} className="py-3 border-t border-slate-100 dark:border-zinc-800">
-            <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300">
-              {language === 'zh' ? '统筹管理 PIN' : 'Coordinator PIN'}
-              <input
-                type="password"
-                inputMode="numeric"
-                autoComplete="off"
-                maxLength={4}
-                value={pinInput}
-                onChange={(e) => { setPinInput(e.target.value); setPinError(false); }}
-                autoFocus
-                className="mt-2 w-full min-h-11 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 text-base text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-            {pinError && <p role="alert" className="mt-2 text-sm text-rose-700 dark:text-rose-400">{language === 'zh' ? 'PIN 码错误，请重试' : 'Incorrect PIN. Try again.'}</p>}
-            <div className="mt-2 flex justify-end gap-2">
-              <button type="button" onClick={() => { setIsPinOpen(false); setPinInput(''); }} className="min-h-11 px-3 text-sm text-slate-600 dark:text-zinc-400">{language === 'zh' ? '取消' : 'Cancel'}</button>
-              <button type="submit" className="min-h-11 px-3 rounded-lg bg-blue-700 text-sm font-semibold text-white">{language === 'zh' ? '进入编辑' : 'Start editing'}</button>
-            </div>
-          </form>
-        )}
 
         {/* TabBar: Material Underline Tabs */}
         <div className="flex border-b border-slate-200/80 dark:border-zinc-800 mt-2 px-1">
@@ -272,7 +226,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
               onClick={() => setIsServiceModalOpen(true)}
               className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 shrink-0 ml-2 cursor-pointer hover:underline"
             >
-              <Edit2 size={11} strokeWidth={2} />
+              <Pencil size={11} strokeWidth={2} />
               <span>{language === 'zh' ? '编辑堂次' : 'Edit'}</span>
             </button>
           )}
