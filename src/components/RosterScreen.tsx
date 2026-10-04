@@ -431,14 +431,22 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <FileText size={15} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
                         {editingThemeDate === roster.date && isEditMode ? (
-                          <div className="flex items-center gap-2 flex-1 mr-2">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0 mr-1 animate-fade-in">
                             <input
                               type="text"
                               value={themeInput}
                               onChange={(e) => setThemeInput(e.target.value)}
-                              placeholder={language === 'zh' ? '输入讲道主题或经文' : 'Enter sermon theme or scripture'}
-                              className="w-full text-xs px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
+                              placeholder={language === 'zh' ? '输入讲道主题或经文...' : 'Enter sermon theme or scripture...'}
+                              className="w-full min-h-10 text-sm md:text-xs px-3 py-1.5 bg-white dark:bg-zinc-800 border border-blue-400 dark:border-blue-600 text-slate-900 dark:text-zinc-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium shadow-2xs"
                               autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  updateRosterMeta({ theme: themeInput.trim() }, roster.date, roster.serviceId);
+                                  setEditingThemeDate(null);
+                                } else if (e.key === 'Escape') {
+                                  setEditingThemeDate(null);
+                                }
+                              }}
                             />
                             <button
                               type="button"
@@ -446,14 +454,15 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                                 updateRosterMeta({ theme: themeInput.trim() }, roster.date, roster.serviceId);
                                 setEditingThemeDate(null);
                               }}
-                              className="px-3 py-1.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shrink-0 text-xs transition-colors active:scale-95 cursor-pointer"
+                              className="min-h-10 px-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shrink-0 text-xs transition-all active:scale-95 cursor-pointer shadow-2xs"
                             >
                               {t('save', language)}
                             </button>
                             <button
                               type="button"
                               onClick={() => setEditingThemeDate(null)}
-                              className="px-1 text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 text-xs shrink-0 cursor-pointer"
+                              className="min-h-10 min-w-8 text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 text-sm shrink-0 flex items-center justify-center cursor-pointer rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800"
+                              title="取消"
                             >
                               ✕
                             </button>
