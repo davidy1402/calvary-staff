@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import { BottomSheet } from './BottomSheet';
 import {
-  Calendar,
   Clock,
   MapPin,
   Edit2,
   Check,
-  X,
   Sparkles,
 } from 'lucide-react';
 import type { ServiceDefinition } from '../types';
@@ -90,28 +88,17 @@ export const ServiceManagerModal: React.FC<ServiceManagerModalProps> = ({
     >
       <div className="flex flex-col h-full max-h-[85vh]">
         {/* Header */}
-        <div className="px-4 py-3 bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-zinc-800 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-              <Calendar size={18} strokeWidth={2} />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-zinc-100">
-                {language === 'zh' ? '聚会堂次与时间地点设置' : 'Service Schedule & Venues'}
+        <div className="px-5 pt-2 pb-3 shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="text-left">
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 leading-tight">
+                {language === 'zh' ? '聚会堂次与时间地点' : 'Service Schedule & Venues'}
               </h2>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                {language === 'zh' ? '管理员可自定义各堂崇拜与祷告会时间地点' : 'Admins can customize times and venues'}
+              <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
+                {churchState.services.length} {language === 'zh' ? '堂聚会' : 'Services'}
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="关闭"
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-          >
-            <X size={16} strokeWidth={2} />
-          </button>
         </div>
 
         {/* Services List */}

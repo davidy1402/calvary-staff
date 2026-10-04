@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, X, Smartphone, History, ChevronDown } from 'lucide-react';
+import { Smartphone, History, ChevronDown } from 'lucide-react';
 import { CURRENT_VERSION, PAST_RELEASES, type AppRelease } from '../data/updates';
 import { useChurch } from '../context/ChurchContext';
 
@@ -81,33 +81,24 @@ export const LatestUpdateModal: React.FC<LatestUpdateModalProps> = ({
         className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Accent Gradient & Header */}
-        <div className="relative px-5 pt-5 pb-3 border-b border-slate-100 dark:border-zinc-800/80 shrink-0">
+        {/* Header */}
+        <div className="px-5 pt-5 pb-1 shrink-0">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/50">
-                <Sparkles size={18} strokeWidth={2.2} />
-              </div>
-              <div>
-                <h2 className="text-sm font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight flex items-center gap-2">
-                  <span>{language === 'zh' ? '最新更新' : 'Latest Updates'}</span>
-                  {isAutomatic && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                      NEW
-                    </span>
-                  )}
+            <div className="text-left">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-extrabold text-slate-900 dark:text-zinc-100 leading-tight">
+                  {language === 'zh' ? '最新更新' : 'Latest Updates'}
                 </h2>
+                {isAutomatic && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    NEW
+                  </span>
+                )}
               </div>
+              <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
+                v{CURRENT_VERSION.version} · {CURRENT_VERSION.releaseDate}
+              </p>
             </div>
-
-            <button
-              type="button"
-              onClick={handleDismiss}
-              aria-label="关闭"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-            >
-              <X size={16} strokeWidth={2.2} />
-            </button>
           </div>
         </div>
 

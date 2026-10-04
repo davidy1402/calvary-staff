@@ -6,8 +6,8 @@ export const INITIAL_SERVICES: ServiceDefinition[] = [
     name: '主日华语崇拜',
     shortName: '主日华语',
     weekday: 7, // Sunday
-    time: '8:30 AM / 11:00 AM',
-    rehearsalTime: '7:45 AM 彩排调音',
+    time: '10:30 AM',
+    rehearsalTime: '9:30 AM 彩排调音',
     venue: '主堂 Main Sanctuary',
     categoryIds: ['worship', 'media', 'pulpit', 'sundayschool', 'prayer', 'hospitality'],
   },

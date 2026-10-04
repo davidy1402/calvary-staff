@@ -228,15 +228,23 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     if (found) {
       let name = found.name;
       let shortName = found.shortName;
+      let time = found.time;
+      let rehearsalTime = found.rehearsalTime;
       if (name.includes('青年崇拜') || name.includes('Ignite')) {
         name = 'Fire4J';
         shortName = 'Fire4J';
+      }
+      if (initSvc.id === 'sun_mandarin' && (time.includes('8:30') || time.includes('11:00 AM'))) {
+        time = '10:30 AM';
+        rehearsalTime = '9:30 AM 彩排调音';
       }
       return {
         ...initSvc,
         ...found,
         name,
         shortName,
+        time,
+        rehearsalTime,
         categoryIds: initSvc.categoryIds,
       };
     }
