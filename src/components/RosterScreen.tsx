@@ -573,7 +573,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                             {filterType === 'my'
                               ? (language === 'zh' ? '该日无您的服侍安排' : 'No duties assigned to you on this date')
                               : !isEditMode
-                              ? (language === 'zh' ? '暂未安排服侍同工' : 'No duties assigned yet')
+                              ? (language === 'zh' ? '暂未安排服侍人员' : 'No duties assigned yet')
                               : (language === 'zh' ? '该组暂无岗位设置' : 'No roles in this group')}
                           </div>
                         );

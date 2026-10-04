@@ -104,7 +104,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
               <ArrowLeft size={20} />
             </button>
             <h2 id={`${id}-title`} className="text-base font-bold text-slate-900 dark:text-zinc-100">
-              {zh ? '登记为新同工' : 'Register as Volunteer'}
+              {zh ? '登记为服侍人员' : 'Register as Volunteer'}
             </h2>
             <div className="w-6" />
           </div>
@@ -218,7 +218,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                aria-label={zh ? '搜索同工' : 'Search volunteers'}
+                aria-label={zh ? '搜索服侍人员' : 'Search volunteers'}
                 placeholder={zh ? '搜索姓名、英文名或小组' : 'Search name or group'}
                 className="w-full min-h-12 pl-10 pr-12 rounded-xl border border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-base text-slate-900 dark:text-zinc-100 placeholder:text-slate-500 dark:placeholder:text-zinc-400 focus:ring-2 focus:ring-blue-600 focus:outline-none"
               />
@@ -252,8 +252,8 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
             <p className="text-xs font-medium text-slate-600 dark:text-zinc-400 pb-2">
               {zh
                 ? search.trim()
-                  ? `找到 ${filtered.length} 位同工`
-                  : '所有同工'
+                  ? `找到 ${filtered.length} 位服侍人员`
+                  : '所有服侍人员'
                 : `${filtered.length} volunteers`}
             </p>
 
@@ -303,7 +303,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
                     className="min-h-11 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <UserPlus size={14} />
-                    <span>{zh ? `我是新同工，登记「${search.trim()}」` : `Register "${search.trim()}"`}</span>
+                    <span>{zh ? `我是新服侍人员，登记「${search.trim()}」` : `Register "${search.trim()}"`}</span>
                   </button>
                   <button
                     type="button"

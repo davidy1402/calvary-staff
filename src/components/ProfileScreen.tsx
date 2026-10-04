@@ -163,7 +163,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-zinc-100">
-                  {currentUser?.name || (language === 'zh' ? 'CCCJB Connect 服侍同工' : 'CCCJB Connect Volunteer')}
+                  {currentUser?.name || (language === 'zh' ? 'CCCJB Connect 服侍人员' : 'CCCJB Connect Volunteer')}
                 </h2>
                 {currentUser?.englishName && (
                   <span className="text-xs md:text-sm text-slate-500 dark:text-zinc-400 font-medium">({currentUser.englishName})</span>
@@ -244,7 +244,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
               </div>
               <p className="text-[11px] md:text-xs text-slate-400 dark:text-zinc-500 mt-0.5">
                 {userMode === 'editor'
-                  ? (language === 'zh' ? '可安排同工与修改聚会主题' : 'Can assign roles and edit themes')
+                  ? (language === 'zh' ? '可安排服侍人员与修改聚会主题' : 'Can assign roles and edit themes')
                   : (language === 'zh' ? '默认只读防误触，需管理员 PIN 解锁' : 'Read-only, enter PIN to edit')}
               </p>
             </div>

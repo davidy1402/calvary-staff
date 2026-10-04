@@ -123,9 +123,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
             </span>}
           </div>
         </div>
-        <button type="button" onClick={() => setIsIdentityModalOpen(true)} className="press-feedback flex flex-col items-center gap-1.5 shrink-0 rounded-xl p-1 text-blue-100 hover:text-white transition-colors cursor-pointer" aria-label={language === 'zh' ? '切换同工' : 'Switch volunteer'}>
+        <button type="button" onClick={() => setIsIdentityModalOpen(true)} className="press-feedback flex flex-col items-center gap-1.5 shrink-0 rounded-xl p-1 text-blue-100 hover:text-white transition-colors cursor-pointer" aria-label={language === 'zh' ? '切换服侍人员' : 'Switch volunteer'}>
           {currentUser?.avatar ? <img src={currentUser.avatar} alt="" className="w-13 h-13 md:w-16 md:h-16 rounded-full object-cover border-2 border-white/30" /> : <span className="w-13 h-13 md:w-16 md:h-16 rounded-full bg-white/15 flex items-center justify-center text-xl md:text-2xl font-bold border-2 border-white/20">{currentUser?.name?.trim()[0] || '同'}</span>}
-          <span className="text-xs md:text-sm font-medium">{language === 'zh' ? (currentUserId === 'cw_guest' ? '我是同工' : '切换同工') : 'Switch'}</span>
+          <span className="text-xs md:text-sm font-medium">{language === 'zh' ? (currentUserId === 'cw_guest' ? '我是同工' : '切换服侍人员') : 'Switch'}</span>
         </button>
       </div>
 
@@ -199,12 +199,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
         {currentUserId === 'cw_guest' ? (
           <div className="py-7 px-3 text-center space-y-3">
             <p className="text-sm font-bold text-slate-800 dark:text-zinc-200">
-              {language === 'zh' ? '您当前以访客身份浏览全堂排班' : 'Browsing as Guest'}
+              {language === 'zh' ? '您当前以访客身份浏览全堂侍奉表' : 'Browsing as Guest'}
             </p>
             <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-xs mx-auto leading-relaxed">
               {language === 'zh'
-                ? '可查看全堂服侍人员与歌单。有服侍安排的同工可点击我是同工，选择姓名。'
-                : 'Browse all service rosters and worship setlists. Tap "I am volunteer" above if you have duties.'}
+                ? '可查看全堂服侍人员与歌单。有服侍安排的成员可点击上方切换姓名。'
+                : 'Browse all service rosters and worship setlists. Tap "Switch" above to select your name.'}
             </p>
             <div className="pt-1">
               <button
@@ -212,7 +212,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                 onClick={onNavigateToRoster}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
               >
-                <span>{language === 'zh' ? '前往查看总排班表' : 'View Full Roster'}</span>
+                <span>{language === 'zh' ? '前往查看总侍奉表' : 'View Full Roster'}</span>
                 <ChevronRight size={14} />
               </button>
             </div>

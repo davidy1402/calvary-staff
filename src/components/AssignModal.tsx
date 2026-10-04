@@ -127,7 +127,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
             {effectiveDate} {targetService?.name}
           </p>
           <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
-            {language === 'zh' ? '点击同工可选取或移除' : 'Tap a person to assign or remove.'}
+            {language === 'zh' ? '点击可选取或移除' : 'Tap a person to assign or remove.'}
           </p>
         </div>
         <button type="button" onClick={handleClose} className="min-h-11 px-3 rounded-lg text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 shrink-0">

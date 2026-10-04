@@ -16,26 +16,26 @@ export interface AppRelease {
 export const CURRENT_VERSION: AppRelease = {
   version: '1.6.0',
   releaseDate: '2026-10-04',
-  title: '同工生日关怀体系与权限保护升级',
-  summary: '带来同工生日彩花气球送福、全功能编辑防误触保护，并全面更新聚会场地与服侍称谓。',
+  title: '生日关怀体系与权限保护升级',
+  summary: '带来生日彩花气球送福、全功能编辑防误触保护，并全面更新聚会场地与侍奉表称谓。',
   highlights: [
     {
       category: 'feature',
       label: '生日关怀',
-      title: '同工生日彩花气球与祝福',
-      description: '寿星当天打开应用迎来生日快乐彩花与气球动画，祝贺语自动切为「生日蒙福」，其他同工首页可看到今日寿星并一键发送 WhatsApp 祝福；每人可在个人中心填写生日。',
+      title: '生日彩花气球与祝福',
+      description: '寿星当天打开应用迎来生日快乐彩花与气球动画，祝贺语自动切为「生日蒙福」，其他服侍人员首页可看到今日寿星并一键发送 WhatsApp 祝福；每人可在个人中心填写生日。',
     },
     {
       category: 'feature',
       label: '防误触保护',
       title: '严格管理权限保护',
-      description: '仅在解锁统筹管理模式（Editor）下显示排班、堂次、同工及主题的编辑与添加按钮，默认只读浏览，杜绝日常查阅时的误触改动。',
+      description: '仅在解锁统筹管理模式（Editor）下显示侍奉表、堂次、服侍人员及主题的编辑与添加按钮，默认只读浏览，杜绝日常查阅时的误触改动。',
     },
     {
       category: 'fix',
       label: '称谓规范',
       title: '场地地点与服侍称谓更新',
-      description: '规范聚会地点为 Hall 1 与 Hall 2；大门迎宾更名为「招待」，主日学主教更名为「主日学老师」，奉献点数更名为「收奉献」。',
+      description: '规范聚会地点为 Hall 1 与 Hall 2；大门迎宾更名为「招待」，主日学主教更名为「主日学老师」，奉献点数更名为「收奉献」，全站正名「侍奉表」与「服侍人员」。',
     },
   ],
 };

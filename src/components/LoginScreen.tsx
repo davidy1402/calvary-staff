@@ -165,8 +165,8 @@ export const LoginScreen: React.FC = () => {
           </p>
           <p className="text-xs text-slate-500 mt-2 font-medium">
             {language === 'zh'
-              ? '同工服侍与排班协作平台'
-              : 'Volunteer & Service Roster Platform'}
+              ? '侍奉表与排班协作平台'
+              : 'Service Roster & Ministry Platform'}
           </p>
         </div>
 
@@ -270,7 +270,7 @@ export const LoginScreen: React.FC = () => {
         <div className="mt-8 pt-5 border-t border-slate-200/80">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 mb-2.5">
             <Users size={13} strokeWidth={2} className="text-blue-600" />
-            <span>{language === 'zh' ? '快捷体验指定同工身份:' : 'Quick Demo As Co-worker:'}</span>
+            <span>{language === 'zh' ? '快捷体验指定服侍人员身份:' : 'Quick Demo As Volunteer:'}</span>
           </div>
 
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -300,7 +300,7 @@ export const LoginScreen: React.FC = () => {
             onClick={handleGuestLogin}
             className="text-xs font-medium text-slate-500 hover:text-slate-800 underline cursor-pointer"
           >
-            {language === 'zh' ? '以访客身份浏览排班表' : 'Browse schedules as Guest'}
+            {language === 'zh' ? '以访客身份浏览侍奉表' : 'Browse schedules as Guest'}
           </button>
         </div>
       </main>

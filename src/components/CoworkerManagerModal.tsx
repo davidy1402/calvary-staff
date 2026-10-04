@@ -127,8 +127,8 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                   handleStartAdd();
                 }
               }}
-              title={isFormOpen ? t('cancel', language) : '添加同工'}
-              aria-label={isFormOpen ? t('cancel', language) : '添加同工'}
+              title={isFormOpen ? t('cancel', language) : '添加服侍人员'}
+              aria-label={isFormOpen ? t('cancel', language) : '添加服侍人员'}
               className="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white flex items-center justify-center shadow-2xs transition-all cursor-pointer"
             >
               {isFormOpen ? (
@@ -179,12 +179,12 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                 {editingCoworker ? (
                   <>
                     <Pencil size={13} className="text-blue-600 dark:text-blue-400" />
-                    <span>编辑同工资料: {editingCoworker.name}</span>
+                    <span>编辑资料: {editingCoworker.name}</span>
                   </>
                 ) : (
                   <>
                     <UserPlus size={13} className="text-blue-600 dark:text-blue-400" />
-                    <span>添加新同工</span>
+                    <span>添加新服侍人员</span>
                   </>
                 )}
               </h3>
@@ -424,7 +424,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                       type="button"
                       onClick={() => handleStartEdit(cw)}
                       aria-label={`编辑 ${cw.name}`}
-                      title="编辑同工资料"
+                      title="编辑资料"
                       className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                     >
                       <Pencil size={14} strokeWidth={2} />
@@ -438,7 +438,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                         }
                       }}
                       aria-label={`移除 ${cw.name}`}
-                      title="移除同工"
+                      title="移除服侍人员"
                       className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                     >
                       <Trash2 size={14} strokeWidth={2} />

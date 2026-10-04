@@ -30,7 +30,7 @@ export function formatDayMonthWeekday(dateStr?: string): string {
 }
 
 /**
- * 模板 1：同工侍奉表 (Roster)
+ * 模板 1：侍奉表 (Roster)
  * 完全对齐教会实际发群消息的结构 (含祷告会极简版与崇拜完整版)
  */
 export function generateWhatsAppRosterText(
@@ -58,8 +58,8 @@ export function generateWhatsAppRosterText(
   if (isPrayerMeeting) {
     const dateLabel = formatDayMonthWeekday(roster?.date);
     const leadVocal = getNames('lead_vocal') || getNames('prayer_leader') || '凯曰传道';
-    const keyboard = getNames('keyboard') || '司琴同工';
-    const ppt = getNames('ppt') || '电脑同工';
+    const keyboard = getNames('keyboard') || '司琴';
+    const ppt = getNames('ppt') || '电脑';
 
     const lines: string[] = [
       `*${service.name}*`,
@@ -76,7 +76,7 @@ export function generateWhatsAppRosterText(
     return lines.join('\n');
   }
 
-  // 2. 主日崇拜 / Fire4J 排班表
+  // 2. 主日崇拜 / Fire4J 侍奉表
   const shortDate = formatShortDate(roster?.date);
   const fullDateLabel = roster?.date ? formatDateLabel(roster.date) : '待定日期';
 
@@ -148,10 +148,10 @@ export function generateWhatsAppRosterText(
 
   lines.push('─────────────────');
   lines.push('📌 温馨提醒：');
-  lines.push(`1. 请各位服侍同工准时于【${service.rehearsalTime}】到场，一同祷告预备心。`);
+  lines.push(`1. 请各位服侍人员准时于【${service.rehearsalTime}】到场，一同祷告预备心。`);
   lines.push('2. 若临时有突发状况需要调班，请尽早告知负责人，以利协调。');
   lines.push('');
-  lines.push('愿神大大恩膏并纪念各位服侍同工忠心的摆上！🙌');
+  lines.push('愿神大大恩膏并纪念各位服侍人员忠心的摆上！🙌');
 
   return lines.join('\n');
 }
@@ -169,7 +169,7 @@ export function generateWhatsAppSetlistText(
   const songs = roster?.songs || [];
 
   if (songs.length === 0) {
-    return `*${shortDate} ${service.shortName} 歌单*\n\n(目前尚未录入本周诗歌，请领诗同工尽快更新)`;
+    return `*${shortDate} ${service.shortName} 歌单*\n\n(目前尚未录入本周诗歌，请领诗尽快更新)`;
   }
 
   const lines: string[] = [
@@ -212,7 +212,7 @@ export function generateWhatsAppSetlistText(
     });
   }
 
-  lines.push('大家这个是来临聚会的歌单，请同工们提前听歌练习，谢谢合作！🙌');
+  lines.push('大家这个是来临聚会的歌单，请服侍人员提前听歌练习，谢谢合作！🙌');
 
   return lines.join('\n');
 }
@@ -297,7 +297,7 @@ export function generateWhatsAppDutyChangeText(info: DutyChangeInfo): string {
   const shortDate = formatShortDate(info.date);
   const lines: string[] = [
     `*【CCCJB 服侍人员异动通知】*`,
-    info.leaderName ? `平安 ${info.leaderName}，` : '各位同工平安，',
+    info.leaderName ? `平安 ${info.leaderName}，` : '各位服侍人员平安，',
     '',
     `📅 聚会：${shortDate} ${info.serviceName}`,
     `🎸 岗位：*${info.roleName}*`,
