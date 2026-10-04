@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Languages,
   Camera,
-  ShieldCheck,
   Sun,
   Moon,
   Sparkles,
@@ -18,9 +17,10 @@ import { ServiceManagerModal } from './ServiceManagerModal';
 import { LatestUpdateModal } from './LatestUpdateModal';
 import { ChurchLogo } from './ChurchLogo';
 import { CURRENT_VERSION } from '../data/updates';
-import { compressAvatarImage } from '../utils/imageUtils';
 import { t } from '../utils/i18n';
 import { BottomPullEasterEgg } from './BottomPullEasterEgg';
+import { CoordinatorPinPopover } from './CoordinatorPinPopover';
+import { AvatarCropperModal } from './AvatarCropperModal';
 
 interface ProfileScreenProps {
   onOpenUpdates?: () => void;
@@ -29,8 +29,7 @@ interface ProfileScreenProps {
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) => {
   const {
     currentUser,
-    userMode,
-    setUserMode,
+    isEditMode,
     updateCurrentUserAvatar,
     updateCoworker,
     language,
@@ -41,39 +40,22 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
     setIsIdentityModalOpen,
   } = useChurch();
 
-  const handleSwitchToEditor = () => {
-    if (userMode === 'editor') return;
-    const pin = window.prompt(language === 'zh' ? '请输入统筹管理 4 位 PIN 码' : 'Enter 4-digit coordinator PIN');
-    if (pin === '2026' || pin === '1402' || pin === '1234') {
-      setUserMode('editor');
-    } else if (pin !== null) {
-      alert(language === 'zh' ? 'PIN 码错误' : 'Incorrect PIN');
-    }
-  };
-
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
   const [isCoworkersOpen, setIsCoworkersOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isUpdatesOpen, setIsUpdatesOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   const avatarLetter =
     currentUser?.name?.trim()?.[0] || (language === 'zh' ? '服' : 'V');
 
-  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    try {
-      const compressedBase64 = await compressAvatarImage(file);
-      updateCurrentUserAvatar(compressedBase64);
-    } catch (err) {
-      console.error('Failed to compress/save avatar', err);
-    } finally {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
+    setAvatarFile(file);
+    e.target.value = '';
   };
 
   return (
@@ -86,6 +68,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
             CCCJB Connect {t('settingsTitle', language)}
           </h1>
         </div>
+        <CoordinatorPinPopover />
 
         {/* Cloud Sync Status Indicator (Only display when active) */}
         {/* {syncStatus !== 'offline' && (
@@ -109,19 +92,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
       {/* Screen Body Content */}
       <div className="px-4 md:px-6 pt-4 space-y-4 md:space-y-6 animate-slide-up">
 
-      {/* Volunteer Identity Card & Permission Card Grid on iPad */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Volunteer identity */}
+      <div>
         {/* Volunteer Identity Card */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-slate-200/90 dark:border-zinc-800 shadow-2xs space-y-3.5 flex flex-col justify-between">
           <div className="flex items-center gap-3.5">
             {/* Avatar with Camera Icon Overlay */}
             <div className="relative group shrink-0">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                aria-label={t('changeAvatar', language)}
-                className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer block border-2 border-white dark:border-zinc-800 shadow-xs"
-              >
+              <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-white dark:border-zinc-800 shadow-xs">
                 {currentUser?.avatar ? (
                   <img
                     src={currentUser.avatar}
@@ -134,21 +112,16 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                   </div>
                 )}
 
-                {/* Camera Hover/Touch Overlay */}
-                <div className="absolute inset-0 bg-black/25 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Camera size={16} strokeWidth={2.2} />
-                </div>
-              </button>
+              </div>
 
-              {/* Camera badge bottom right */}
-              <button
+              {isEditMode && <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 aria-label={t('changeAvatar', language)}
-                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center border-2 border-white dark:border-zinc-800 shadow-2xs cursor-pointer active:scale-95 transition-transform"
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center border-2 border-white dark:border-zinc-800 shadow-2xs cursor-pointer active:scale-95 transition-transform"
               >
-                <Camera size={12} strokeWidth={2.5} />
-              </button>
+                <Camera size={13} strokeWidth={2.5} />
+              </button>}
 
               {/* Hidden File Input */}
               <input
@@ -177,7 +150,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                 <span className="text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
                   {t('coworker', language)}
                 </span>
-                {currentUser?.id !== 'cw_guest' && (
+                {isEditMode && currentUser?.id !== 'cw_guest' && (
                   <button
                     type="button"
                     onClick={() => {
@@ -219,57 +192,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           </div>
         </div>
 
-        {/* Schedule Management Access Row */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-4 md:p-5 flex flex-col justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
-              <ShieldCheck size={20} strokeWidth={2} />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-xs md:text-sm font-bold text-slate-900 dark:text-zinc-100">
-                  {language === 'zh' ? '排班管理权限' : 'Schedule Access'}
-                </h3>
-                <span
-                  className={`text-[10px] md:text-xs font-bold px-1.5 py-0.2 rounded-md ${
-                    userMode === 'editor'
-                      ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
-                      : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400'
-                  }`}
-                >
-                  {userMode === 'editor'
-                    ? (language === 'zh' ? '已开启编辑' : 'Unlocked')
-                    : (language === 'zh' ? '只读中' : 'Locked')}
-                </span>
-              </div>
-              <p className="text-[11px] md:text-xs text-slate-400 dark:text-zinc-500 mt-0.5">
-                {userMode === 'editor'
-                  ? (language === 'zh' ? '可安排服侍人员与修改聚会主题' : 'Can assign roles and edit themes')
-                  : (language === 'zh' ? '默认只读防误触，需管理员 PIN 解锁' : 'Read-only, enter PIN to edit')}
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex justify-end">
-            {userMode === 'editor' ? (
-              <button
-                type="button"
-                onClick={() => setUserMode('member')}
-                className="text-xs md:text-sm font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 px-3.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-zinc-700 transition-colors shrink-0 cursor-pointer"
-              >
-                {language === 'zh' ? '切换只读' : 'Lock'}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSwitchToEditor}
-                className="text-xs md:text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-zinc-700 px-3.5 py-1.5 rounded-xl border border-blue-200/80 dark:border-zinc-700 transition-colors shrink-0 cursor-pointer"
-              >
-                {language === 'zh' ? '解锁编辑' : 'Unlock'}
-              </button>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Ministry & Coordination Tools */}
@@ -516,6 +438,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           onClose={() => setIsUpdatesOpen(false)}
         />
       )}
+      <AvatarCropperModal
+        file={avatarFile}
+        language={language}
+        onClose={() => setAvatarFile(null)}
+        onCrop={(avatar) => {
+          updateCurrentUserAvatar(avatar);
+          setAvatarFile(null);
+        }}
+      />
       </div>
     </div>
   );

@@ -21,6 +21,13 @@ import { getUpcomingServiceDate } from '../utils/dateUtils';
 import type { Language } from '../utils/i18n';
 import { isSupabaseConfigured } from '../lib/supabase';
 import {
+  clearAdminSession,
+  isAdminSessionActive,
+  loadAdminSession,
+  startAdminSession as verifyAdminPin,
+  type AdminSession,
+} from '../lib/adminSession';
+import {
   fetchRemoteChurchData,
   seedRemoteDatabase,
   upsertRemoteRoster,
@@ -57,11 +64,9 @@ interface ChurchContextType {
 
   // Role and Permission Modes (Member Read-Only vs Editor Mode)
   userMode: UserMode;
-  setUserMode: (mode: UserMode) => void;
-  toggleUserMode: () => void;
   isEditMode: boolean;
-  setIsEditMode: (edit: boolean) => void;
-  toggleEditMode: () => void;
+  startAdminEditing: (pin: string) => Promise<{ error?: string }>;
+  exitAdminEditing: () => void;
 
   getRostersForService: (serviceId: string) => ServiceRoster[];
   getUserSeasonAssignments: (coworkerId?: string) => Array<{
@@ -448,30 +453,20 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setThemeMode(nextMode);
   };
 
-  // User Mode (Member Read-Only vs Editor Mode)
-  const [userMode, setUserModeState] = useState<UserMode>(() => {
-    return (localStorage.getItem('calvary_user_mode') as UserMode) || 'member';
-  });
+  // Editing is unlocked only by a short-lived session returned by the server.
+  const [adminSession, setAdminSession] = useState<AdminSession | null>(() => loadAdminSession());
+  const isEditMode = isAdminSessionActive(adminSession);
+  const userMode: UserMode = isEditMode ? 'editor' : 'member';
 
-  const [isEditMode, setIsEditMode] = useState<boolean>(() => {
-    return userMode === 'editor';
-  });
-
-  const setUserMode = (mode: UserMode) => {
-    setUserModeState(mode);
-    setIsEditMode(mode === 'editor');
-    localStorage.setItem('calvary_user_mode', mode);
+  const startAdminEditing = async (pin: string) => {
+    const result = await verifyAdminPin(pin);
+    if (result.session) setAdminSession(result.session);
+    return { error: result.error };
   };
 
-  const toggleUserMode = () => {
-    setUserMode(userMode === 'member' ? 'editor' : 'member');
-  };
-
-  const toggleEditMode = () => {
-    const nextEdit = !isEditMode;
-    setIsEditMode(nextEdit);
-    setUserModeState(nextEdit ? 'editor' : 'member');
-    localStorage.setItem('calvary_user_mode', nextEdit ? 'editor' : 'member');
+  const exitAdminEditing = () => {
+    clearAdminSession();
+    setAdminSession(null);
   };
 
   const [activeServiceId, setActiveServiceId] = useState<string>(
@@ -1161,11 +1156,9 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setThemeMode,
         toggleDarkMode,
         userMode,
-        setUserMode,
-        toggleUserMode,
         isEditMode,
-        setIsEditMode,
-        toggleEditMode,
+        startAdminEditing,
+        exitAdminEditing,
         getRostersForService,
         getUserSeasonAssignments,
         assignCoworker,

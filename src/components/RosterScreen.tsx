@@ -5,7 +5,6 @@ import {
   Pencil,
   ChevronDown,
   ChevronUp,
-  Check,
   Plus,
   X,
   Share2,
@@ -39,7 +38,6 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
     activeServiceId,
     setActiveServiceId,
     activeService,
-    setUserMode,
     isEditMode,
     getRostersForService,
     updateRosterMeta,
@@ -156,20 +154,9 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
 
           </div>
 
-          {/* Right actions: Mode Switch Action */}
+          {/* Administration is intentionally kept in the overflow menu. */}
           <div className="flex items-center gap-1.5">
-            {isEditMode ? (
-              <button
-                type="button"
-                onClick={() => setUserMode('member')}
-                className="text-xs md:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
-              >
-                <Check size={14} strokeWidth={2.5} />
-                <span>{t('done', language)}</span>
-              </button>
-            ) : (
-              <CoordinatorPinPopover />
-            )}
+            <CoordinatorPinPopover />
           </div>
         </div>
 

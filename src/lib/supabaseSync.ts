@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
+import { getAdminSessionToken } from './adminSession';
 import type {
   Coworker,
   ServiceDefinition,
@@ -18,6 +19,7 @@ interface DBCoworker {
   notes: string | null;
   active: boolean;
   avatar: string | null;
+  birthday: string | null;
   updated_at: string;
 }
 
@@ -57,6 +59,7 @@ export const dbToCoworker = (db: DBCoworker): Coworker => ({
   notes: db.notes || undefined,
   active: db.active ?? true,
   avatar: db.avatar || undefined,
+  birthday: db.birthday || undefined,
 });
 
 export const coworkerToDB = (cw: Coworker): DBCoworker => ({
@@ -69,6 +72,7 @@ export const coworkerToDB = (cw: Coworker): DBCoworker => ({
   notes: cw.notes || null,
   active: cw.active,
   avatar: cw.avatar || null,
+  birthday: cw.birthday || null,
   updated_at: new Date().toISOString(),
 });
 
@@ -129,6 +133,25 @@ export interface RemoteData {
   rosters: Record<string, ServiceRoster>;
 }
 
+const writeAdminData = async (body: Record<string, unknown>): Promise<boolean> => {
+  const sessionToken = getAdminSessionToken();
+  if (!supabase || !isSupabaseConfigured() || !sessionToken) return false;
+  try {
+    const { data, error } = await supabase.functions.invoke<{ ok?: boolean }>('admin-data', {
+      body,
+      headers: { 'x-admin-session': sessionToken },
+    });
+    if (error || !data?.ok) {
+      console.error('Admin data write failed', error);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Admin data write failed', error);
+    return false;
+  }
+};
+
 // Fetch all cloud data
 export const fetchRemoteChurchData = async (): Promise<RemoteData | null> => {
   if (!supabase || !isSupabaseConfigured()) return null;
@@ -166,76 +189,32 @@ export const fetchRemoteChurchData = async (): Promise<RemoteData | null> => {
 
 // Seed remote DB with local initialState if cloud is completely empty
 export const seedRemoteDatabase = async (initialState: ChurchState): Promise<boolean> => {
-  if (!supabase || !isSupabaseConfigured()) return false;
-
-  try {
-    const dbCoworkers = initialState.coworkers.map(coworkerToDB);
-    const dbServices = initialState.services.map(serviceToDB);
-    const dbRosters = Object.values(initialState.rosters).map(rosterToDB);
-
-    if (dbCoworkers.length > 0) {
-      await supabase.from('coworkers').upsert(dbCoworkers);
-    }
-    if (dbServices.length > 0) {
-      await supabase.from('services').upsert(dbServices);
-    }
-    if (dbRosters.length > 0) {
-      await supabase.from('rosters').upsert(dbRosters);
-    }
-
-    return true;
-  } catch (err) {
-    console.error('Failed to seed Supabase database:', err);
-    return false;
-  }
+  const results = await Promise.all([
+    writeAdminData({ action: 'upsert', table: 'coworkers', records: initialState.coworkers.map(coworkerToDB) }),
+    writeAdminData({ action: 'upsert', table: 'services', records: initialState.services.map(serviceToDB) }),
+    writeAdminData({ action: 'upsert', table: 'rosters', records: Object.values(initialState.rosters).map(rosterToDB) }),
+  ]);
+  return results.every(Boolean);
 };
 
 // Upsert single roster
 export const upsertRemoteRoster = async (roster: ServiceRoster): Promise<boolean> => {
-  if (!supabase || !isSupabaseConfigured()) return false;
-  try {
-    const { error } = await supabase.from('rosters').upsert(rosterToDB(roster));
-    if (error) console.error('Failed to upsert roster to Supabase:', error);
-    return !error;
-  } catch (e) {
-    console.error('Supabase roster upsert error:', e);
-    return false;
-  }
+  return writeAdminData({ action: 'upsert', table: 'rosters', records: [rosterToDB(roster)] });
 };
 
 // Upsert single coworker
-export const upsertRemoteCoworker = async (coworker: Coworker): Promise<void> => {
-  if (!supabase || !isSupabaseConfigured()) return;
-  try {
-    const dbRow = coworkerToDB(coworker);
-    const { error } = await supabase.from('coworkers').upsert(dbRow);
-    if (error) console.error('Failed to upsert coworker to Supabase:', error);
-  } catch (e) {
-    console.error('Supabase coworker upsert error:', e);
-  }
+export const upsertRemoteCoworker = async (coworker: Coworker): Promise<boolean> => {
+  return writeAdminData({ action: 'upsert', table: 'coworkers', records: [coworkerToDB(coworker)] });
 };
 
 // Delete coworker
-export const deleteRemoteCoworker = async (coworkerId: string): Promise<void> => {
-  if (!supabase || !isSupabaseConfigured()) return;
-  try {
-    const { error } = await supabase.from('coworkers').delete().eq('id', coworkerId);
-    if (error) console.error('Failed to delete coworker from Supabase:', error);
-  } catch (e) {
-    console.error('Supabase coworker delete error:', e);
-  }
+export const deleteRemoteCoworker = async (coworkerId: string): Promise<boolean> => {
+  return writeAdminData({ action: 'delete', table: 'coworkers', id: coworkerId });
 };
 
 // Upsert service
-export const upsertRemoteService = async (service: ServiceDefinition): Promise<void> => {
-  if (!supabase || !isSupabaseConfigured()) return;
-  try {
-    const dbRow = serviceToDB(service);
-    const { error } = await supabase.from('services').upsert(dbRow);
-    if (error) console.error('Failed to upsert service to Supabase:', error);
-  } catch (e) {
-    console.error('Supabase service upsert error:', e);
-  }
+export const upsertRemoteService = async (service: ServiceDefinition): Promise<boolean> => {
+  return writeAdminData({ action: 'upsert', table: 'services', records: [serviceToDB(service)] });
 };
 
 // Subscribe to real-time changes

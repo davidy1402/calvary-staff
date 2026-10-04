@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { Coworker } from '../types';
-import { Search, Trash2, Phone, UserCheck, MessageSquare, X, Pencil, UserPlus } from 'lucide-react';
+import { Search, Trash2, Phone, UserCheck, MessageSquare, X, Pencil, UserPlus, Camera } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
+import { AvatarCropperModal } from './AvatarCropperModal';
 
 interface CoworkerManagerModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   const { churchState, addCoworker, updateCoworker, deleteCoworker, userMode, language } = useChurch();
   const [search, setSearch] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingCoworker, setEditingCoworker] = useState<Coworker | null>(null);
+  const [editingCoworkerId, setEditingCoworkerId] = useState<string | null>(null);
 
   // Form State
   const [name, setName] = useState('');
@@ -25,6 +26,13 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   const [birthday, setBirthday] = useState('');
   const [cellGroup, setCellGroup] = useState<string>('职青');
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [avatar, setAvatar] = useState<string | undefined>();
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const editingCoworker = editingCoworkerId
+    ? churchState.coworkers.find((coworker) => coworker.id === editingCoworkerId) ?? null
+    : null;
 
   if (!isOpen) return null;
 
@@ -35,7 +43,8 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
     setBirthday('');
     setCellGroup('职青');
     setSelectedRoles([]);
-    setEditingCoworker(null);
+    setEditingCoworkerId(null);
+    setAvatar(undefined);
     setIsFormOpen(false);
   };
 
@@ -45,13 +54,14 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   };
 
   const handleStartEdit = (cw: Coworker) => {
-    setEditingCoworker(cw);
+    setEditingCoworkerId(cw.id);
     setName(cw.name);
     setEnglishName(cw.englishName || '');
     setPhone(cw.phone || '');
     setBirthday(cw.birthday || '');
     setCellGroup(cw.cellGroup || '职青');
     setSelectedRoles(cw.qualifiedRoleIds || []);
+    setAvatar(cw.avatar);
     setIsFormOpen(true);
   };
 
@@ -70,15 +80,18 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
     e.preventDefault();
     if (!name.trim()) return;
 
-    if (editingCoworker) {
+    if (editingCoworkerId) {
+      const currentCoworker = churchState.coworkers.find((coworker) => coworker.id === editingCoworkerId);
+      if (!currentCoworker) return;
       updateCoworker({
-        ...editingCoworker,
+        ...currentCoworker,
         name: name.trim(),
         englishName: englishName.trim(),
         phone: phone.trim(),
         birthday: birthday.trim(),
         cellGroup: cellGroup.trim() || '同工',
         qualifiedRoleIds: selectedRoles,
+        avatar,
       });
     } else {
       addCoworker({
@@ -89,6 +102,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
         cellGroup: cellGroup.trim() || '职青',
         qualifiedRoleIds: selectedRoles,
         active: true,
+        avatar,
       });
     }
 
@@ -104,6 +118,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   const roleMap = new Map(churchState.roles.map((r) => [r.id, r]));
 
   return (
+    <>
     <BottomSheet isOpen={isOpen} onClose={onClose} className="bg-slate-50 dark:bg-black" maxHeight="88vh">
       {/* Fluid Header Area with Seamless Integrated Search */}
       <div className="px-5 pt-2 pb-3 space-y-3 shrink-0">
@@ -189,6 +204,29 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                 )}
               </h3>
               <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">必填*</span>
+            </div>
+
+            <div className="flex items-center gap-3 rounded-xl bg-slate-50 dark:bg-zinc-800 p-2.5 border border-slate-200 dark:border-zinc-700">
+              {avatar ? (
+                <img src={avatar} alt="" className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-zinc-700" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-zinc-700 text-blue-700 dark:text-blue-300 flex items-center justify-center text-base font-bold">
+                  {name.trim()[0] || '同'}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-slate-700 dark:text-zinc-200">{language === 'zh' ? '头像' : 'Photo'}</p>
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400">{language === 'zh' ? '上传后可拖动与缩放裁切。' : 'Crop by dragging and zooming after upload.'}</p>
+              </div>
+              <button type="button" onClick={() => avatarInputRef.current?.click()} className="min-h-11 px-3 rounded-xl text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-zinc-700 hover:bg-blue-100 dark:hover:bg-zinc-600 flex items-center gap-1.5">
+                <Camera size={14} />
+                {avatar ? (language === 'zh' ? '更换' : 'Change') : (language === 'zh' ? '上传' : 'Upload')}
+              </button>
+              <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) setAvatarFile(file);
+                event.target.value = '';
+              }} />
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
@@ -451,5 +489,12 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
         )}
       </div>
     </BottomSheet>
+    <AvatarCropperModal
+      file={avatarFile}
+      language={language}
+      onClose={() => setAvatarFile(null)}
+      onCrop={(croppedAvatar) => { setAvatar(croppedAvatar); setAvatarFile(null); }}
+    />
+    </>
   );
 };

@@ -25,8 +25,12 @@ create table if not exists public.coworkers (
   notes text,
   active boolean not null default true,
   avatar text,
+  birthday text,
   updated_at timestamptz not null default now()
 );
+
+-- Safe upgrade for existing projects created before birthdays were synced.
+alter table public.coworkers add column if not exists birthday text;
 
 -- 3. Rosters Table
 create table if not exists public.rosters (
@@ -43,25 +47,53 @@ create table if not exists public.rosters (
   updated_at timestamptz not null default now()
 );
 
--- 4. Enable Row Level Security (RLS)
+-- 4. Short-lived opaque editor sessions. Only Edge Functions use this table.
+create table if not exists public.admin_sessions (
+  token_hash text primary key,
+  expires_at timestamptz not null,
+  created_at timestamptz not null default now()
+);
+
+-- 5. Enable Row Level Security (RLS)
 alter table public.services enable row level security;
 alter table public.coworkers enable row level security;
 alter table public.rosters enable row level security;
+alter table public.admin_sessions enable row level security;
 
--- 5. Policies for Volunteer App (Anon access)
-create policy "Allow anon all on services" on public.services
-  for all using (true) with check (true);
+-- 6. Volunteers can read the schedule. Edge Functions use the service role for changes.
+drop policy if exists "Allow anon all on services" on public.services;
+drop policy if exists "Allow anon all on coworkers" on public.coworkers;
+drop policy if exists "Allow anon all on rosters" on public.rosters;
+drop policy if exists "Allow anon read on services" on public.services;
+drop policy if exists "Allow anon read on coworkers" on public.coworkers;
+drop policy if exists "Allow anon read on rosters" on public.rosters;
 
-create policy "Allow anon all on coworkers" on public.coworkers
-  for all using (true) with check (true);
+create policy "Allow anon read on services" on public.services for select using (true);
+create policy "Allow anon read on coworkers" on public.coworkers for select using (true);
+create policy "Allow anon read on rosters" on public.rosters for select using (true);
 
-create policy "Allow anon all on rosters" on public.rosters
-  for all using (true) with check (true);
+-- 7. Enable Realtime Replication
+-- Existing projects may already have these tables in the publication.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'services'
+  ) then
+    execute 'alter publication supabase_realtime add table public.services';
+  end if;
 
--- 6. Enable Realtime Replication
-begin;
-  -- Drop publication if exists or alter
-  alter publication supabase_realtime add table public.services;
-  alter publication supabase_realtime add table public.coworkers;
-  alter publication supabase_realtime add table public.rosters;
-commit;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'coworkers'
+  ) then
+    execute 'alter publication supabase_realtime add table public.coworkers';
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'rosters'
+  ) then
+    execute 'alter publication supabase_realtime add table public.rosters';
+  end if;
+end $$;
