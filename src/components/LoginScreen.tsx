@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useChurch } from '../context/ChurchContext';
-import { ChurchLogo } from './ChurchLogo';
 import {
   ArrowRight,
-  Sun,
-  Moon,
   Languages,
   CheckCircle2,
   Users,
@@ -30,7 +27,6 @@ export const LoginScreen: React.FC = () => {
     language,
     toggleLanguage,
     isDarkMode,
-    toggleDarkMode,
   } = useChurch();
 
   const [selectedCountry, setSelectedCountry] = useState('+60');
@@ -40,6 +36,20 @@ export const LoginScreen: React.FC = () => {
   const [codeSent, setCodeSent] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Force light theme appearance for LoginScreen and restore on unmount
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    const metas = document.querySelectorAll('meta[name="theme-color"]');
+    metas.forEach((meta) => meta.setAttribute('content', '#f8fafc'));
+
+    return () => {
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark');
+        metas.forEach((meta) => meta.setAttribute('content', '#000000'));
+      }
+    };
+  }, [isDarkMode]);
 
   useEffect(() => {
     let timer: number | null = null;
@@ -114,59 +124,46 @@ export const LoginScreen: React.FC = () => {
     }, 200);
   };
 
+  const base = import.meta.env.BASE_URL || './';
+  const logoUrl = `${base}logo.png`;
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-zinc-100 flex flex-col justify-between selection:bg-blue-100 dark:selection:bg-zinc-800 transition-colors duration-200">
-      {/* Top Bar with Language and Theme Toggles */}
-      <header className="app-header-safe px-5 pb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ChurchLogo className="w-8 h-8 object-contain shrink-0" />
-          <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-            CCCJB Connect
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Language Switch */}
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="h-8 px-2.5 rounded-full bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 text-xs font-semibold text-slate-600 dark:text-zinc-300 flex items-center gap-1.5 shadow-2xs hover:bg-slate-50 dark:hover:bg-zinc-800 active:scale-95 transition-all cursor-pointer"
-            aria-label="切换语言"
-          >
-            <Languages size={13} strokeWidth={2} className="text-blue-600 dark:text-blue-400" />
-            <span>{language === 'zh' ? 'EN' : '中文'}</span>
-          </button>
-
-          {/* Dark Mode Toggle */}
-          <button
-            type="button"
-            onClick={toggleDarkMode}
-            className="w-8 h-8 rounded-full bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 flex items-center justify-center text-slate-600 dark:text-zinc-300 shadow-2xs hover:bg-slate-50 dark:hover:bg-zinc-800 active:scale-95 transition-all cursor-pointer"
-            aria-label="切换深浅外观"
-          >
-            {isDarkMode ? (
-              <Sun size={14} strokeWidth={2} className="text-amber-400" />
-            ) : (
-              <Moon size={14} strokeWidth={2} className="text-slate-600" />
-            )}
-          </button>
-        </div>
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between selection:bg-blue-100 selection:text-blue-900 transition-colors duration-200">
+      {/* Top Bar with Language Toggle (Right Aligned, No Top-Left Logo, No Dark Mode Toggle) */}
+      <header className="app-header-safe px-5 pb-3 flex items-center justify-end">
+        <button
+          type="button"
+          onClick={toggleLanguage}
+          className="h-8 px-2.5 rounded-full bg-white border border-slate-200/90 text-xs font-semibold text-slate-600 flex items-center gap-1.5 shadow-2xs hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
+          aria-label="切换语言"
+        >
+          <Languages size={13} strokeWidth={2} className="text-blue-600" />
+          <span>{language === 'zh' ? 'EN' : '中文'}</span>
+        </button>
       </header>
 
       {/* Main Content Form */}
       <main className="flex-1 max-w-sm w-full mx-auto px-5 py-6 flex flex-col justify-center animate-slide-up">
-        {/* Church Identity Header */}
+        {/* Church Identity Header (Centered Logo without Background Container) */}
         <div className="text-center mb-8">
-          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-blue-900 to-indigo-800 shadow-md mb-3 border border-white/20">
-            <ChurchLogo className="w-12 h-12 object-contain" />
-          </div>
-          <h1 className="text-xl font-black text-slate-900 dark:text-zinc-100 tracking-tight">
+          <img
+            src={logoUrl}
+            alt="CCCJB Connect"
+            className="w-20 h-20 object-contain mx-auto mb-3"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src !== './logo.png') {
+                target.src = './logo.png';
+              }
+            }}
+          />
+          <h1 className="text-xl font-black text-slate-900 tracking-tight">
             {language === 'zh' ? '新山加略山社区教会' : 'Calvary Community Church JB'}
           </h1>
-          <p className="text-xs font-bold text-blue-700 dark:text-blue-400 tracking-wider mt-0.5">
+          <p className="text-xs font-bold text-blue-700 tracking-wider mt-0.5">
             CCCJB Connect
           </p>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-2 font-medium">
+          <p className="text-xs text-slate-500 mt-2 font-medium">
             {language === 'zh'
               ? '同工服事与排班协作平台'
               : 'Volunteer & Service Roster Platform'}
@@ -177,14 +174,14 @@ export const LoginScreen: React.FC = () => {
         <form onSubmit={handlePhoneLogin} className="space-y-3.5">
           {/* Country and Phone input group */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
               {language === 'zh' ? '手机号码' : 'Phone Number'}
             </label>
-            <div className="flex rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden shadow-2xs focus-within:border-blue-600 dark:focus-within:border-blue-500 transition-colors">
+            <div className="flex rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs focus-within:border-blue-600 transition-colors">
               <select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
-                className="bg-slate-50 dark:bg-zinc-800 text-xs font-bold text-slate-800 dark:text-zinc-200 px-3 py-3 border-r border-slate-200 dark:border-zinc-700 outline-none cursor-pointer"
+                className="bg-slate-50 text-xs font-bold text-slate-800 px-3 py-3 border-r border-slate-200 outline-none cursor-pointer"
               >
                 {COUNTRY_CODES.map((c) => (
                   <option key={c.code} value={c.code}>
@@ -200,7 +197,7 @@ export const LoginScreen: React.FC = () => {
                   setErrorMessage('');
                 }}
                 placeholder="012-345 6789"
-                className="flex-1 px-3 py-3 text-sm font-medium bg-transparent text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 outline-none"
+                className="flex-1 px-3 py-3 text-sm font-medium bg-transparent text-slate-900 placeholder:text-slate-400 outline-none"
                 autoFocus
               />
             </div>
@@ -210,14 +207,14 @@ export const LoginScreen: React.FC = () => {
           {codeSent && (
             <div className="animate-slide-up">
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                <label className="text-xs font-bold text-slate-700">
                   {language === 'zh' ? '短信验证码' : 'Verification Code'}
                 </label>
                 <button
                   type="button"
                   disabled={countdown > 0}
                   onClick={handleSendCode}
-                  className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 disabled:text-slate-400 dark:disabled:text-zinc-500 cursor-pointer"
+                  className="text-[11px] font-semibold text-blue-600 disabled:text-slate-400 cursor-pointer"
                 >
                   {countdown > 0
                     ? `${countdown}s ${language === 'zh' ? '后重新获取' : 'resend'}`
@@ -226,14 +223,14 @@ export const LoginScreen: React.FC = () => {
                     : 'Resend'}
                 </button>
               </div>
-              <div className="flex rounded-2xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden shadow-2xs focus-within:border-blue-600 dark:focus-within:border-blue-500">
+              <div className="flex rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs focus-within:border-blue-600">
                 <input
                   type="text"
                   maxLength={6}
                   value={smsCode}
                   onChange={(e) => setSmsCode(e.target.value)}
                   placeholder="123456"
-                  className="flex-1 px-3 py-3 text-base tracking-widest font-mono font-bold bg-transparent text-slate-900 dark:text-zinc-100 placeholder:text-slate-300 dark:placeholder:text-zinc-600 outline-none text-center"
+                  className="flex-1 px-3 py-3 text-base tracking-widest font-mono font-bold bg-transparent text-slate-900 placeholder:text-slate-300 outline-none text-center"
                 />
               </div>
 
@@ -242,7 +239,7 @@ export const LoginScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSmsCode('123456')}
-                  className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 hover:underline cursor-pointer"
+                  className="text-[10px] text-emerald-600 font-medium flex items-center gap-1 hover:underline cursor-pointer"
                 >
                   <CheckCircle2 size={11} />
                   <span>{language === 'zh' ? '填入测试验证码 123456' : 'Fill demo code 123456'}</span>
@@ -253,7 +250,7 @@ export const LoginScreen: React.FC = () => {
 
           {/* Error Message Alert */}
           {errorMessage && (
-            <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <p className="text-xs text-rose-600 font-medium">
               {errorMessage}
             </p>
           )}
@@ -270,9 +267,9 @@ export const LoginScreen: React.FC = () => {
         </form>
 
         {/* Quick Co-worker Experience Demo Chips */}
-        <div className="mt-8 pt-5 border-t border-slate-200/80 dark:border-zinc-800">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-zinc-400 mb-2.5">
-            <Users size={13} strokeWidth={2} className="text-blue-600 dark:text-blue-400" />
+        <div className="mt-8 pt-5 border-t border-slate-200/80">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 mb-2.5">
+            <Users size={13} strokeWidth={2} className="text-blue-600" />
             <span>{language === 'zh' ? '快捷体验指定同工身份:' : 'Quick Demo As Co-worker:'}</span>
           </div>
 
@@ -288,7 +285,7 @@ export const LoginScreen: React.FC = () => {
                 key={cw.id}
                 type="button"
                 onClick={() => handleQuickCoworkerLogin(cw.id)}
-                className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-blue-50 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-slate-700 hover:text-blue-700 dark:text-zinc-300 dark:hover:text-blue-300 text-xs font-semibold border border-slate-200/60 dark:border-zinc-700/60 active:scale-95 transition-all cursor-pointer"
+                className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-xs font-semibold border border-slate-200/60 active:scale-95 transition-all cursor-pointer"
               >
                 {cw.name}
               </button>
@@ -301,7 +298,7 @@ export const LoginScreen: React.FC = () => {
           <button
             type="button"
             onClick={handleGuestLogin}
-            className="text-xs font-medium text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 underline cursor-pointer"
+            className="text-xs font-medium text-slate-500 hover:text-slate-800 underline cursor-pointer"
           >
             {language === 'zh' ? '以访客身份浏览排班表' : 'Browse schedules as Guest'}
           </button>
@@ -309,7 +306,7 @@ export const LoginScreen: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="text-center py-4 text-[11px] text-slate-400 dark:text-zinc-600 pb-safe-bottom">
+      <footer className="text-center py-4 text-[11px] text-slate-400 pb-safe-bottom">
         <p>新山加略山社区教会 · CCCJB Connect</p>
       </footer>
     </div>
