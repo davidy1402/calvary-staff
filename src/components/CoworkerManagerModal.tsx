@@ -13,7 +13,7 @@ interface CoworkerManagerModalProps {
 const CHURCH_GROUPS = ['职青', '大专', '青少年', '牧者', '同工'] as const;
 
 export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOpen, onClose }) => {
-  const { churchState, addCoworker, updateCoworker, deleteCoworker, language } = useChurch();
+  const { churchState, addCoworker, updateCoworker, deleteCoworker, userMode, language } = useChurch();
   const [search, setSearch] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCoworker, setEditingCoworker] = useState<Coworker | null>(null);
@@ -22,6 +22,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
   const [name, setName] = useState('');
   const [englishName, setEnglishName] = useState('');
   const [phone, setPhone] = useState('');
+  const [birthday, setBirthday] = useState('');
   const [cellGroup, setCellGroup] = useState<string>('职青');
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
@@ -31,6 +32,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
     setName('');
     setEnglishName('');
     setPhone('');
+    setBirthday('');
     setCellGroup('职青');
     setSelectedRoles([]);
     setEditingCoworker(null);
@@ -47,6 +49,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
     setName(cw.name);
     setEnglishName(cw.englishName || '');
     setPhone(cw.phone || '');
+    setBirthday(cw.birthday || '');
     setCellGroup(cw.cellGroup || '职青');
     setSelectedRoles(cw.qualifiedRoleIds || []);
     setIsFormOpen(true);
@@ -58,7 +61,8 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
     return (
       cw.name.toLowerCase().includes(q) ||
       cw.englishName.toLowerCase().includes(q) ||
-      cw.cellGroup.toLowerCase().includes(q)
+      cw.cellGroup.toLowerCase().includes(q) ||
+      (cw.birthday && cw.birthday.includes(q))
     );
   });
 
@@ -72,6 +76,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
         name: name.trim(),
         englishName: englishName.trim(),
         phone: phone.trim(),
+        birthday: birthday.trim(),
         cellGroup: cellGroup.trim() || '同工',
         qualifiedRoleIds: selectedRoles,
       });
@@ -80,6 +85,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
         name: name.trim(),
         englishName: englishName.trim(),
         phone: phone.trim(),
+        birthday: birthday.trim(),
         cellGroup: cellGroup.trim() || '职青',
         qualifiedRoleIds: selectedRoles,
         active: true,
@@ -111,25 +117,27 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              if (isFormOpen) {
-                resetForm();
-              } else {
-                handleStartAdd();
-              }
-            }}
-            title={isFormOpen ? t('cancel', language) : '添加同工'}
-            aria-label={isFormOpen ? t('cancel', language) : '添加同工'}
-            className="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white flex items-center justify-center shadow-2xs transition-all cursor-pointer"
-          >
-            {isFormOpen ? (
-              <X size={16} strokeWidth={2.2} />
-            ) : (
-              <UserPlus size={16} strokeWidth={2.2} />
-            )}
-          </button>
+          {userMode === 'editor' && (
+            <button
+              type="button"
+              onClick={() => {
+                if (isFormOpen) {
+                  resetForm();
+                } else {
+                  handleStartAdd();
+                }
+              }}
+              title={isFormOpen ? t('cancel', language) : '添加同工'}
+              aria-label={isFormOpen ? t('cancel', language) : '添加同工'}
+              className="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white flex items-center justify-center shadow-2xs transition-all cursor-pointer"
+            >
+              {isFormOpen ? (
+                <X size={16} strokeWidth={2.2} />
+              ) : (
+                <UserPlus size={16} strokeWidth={2.2} />
+              )}
+            </button>
+          )}
         </div>
 
         {/* Seamless Floating Search Bar */}
@@ -211,17 +219,31 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
               </div>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1">
-                WhatsApp 电话
-              </label>
-              <input
-                type="text"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="例如：012-3456789"
-                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1">
+                  WhatsApp 电话
+                </label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="例如：012-3456789"
+                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1">
+                  生日日期
+                </label>
+                <input
+                  type="text"
+                  value={birthday}
+                  onChange={(e) => setBirthday(e.target.value)}
+                  placeholder="例如：10-30 或 1998-10-30"
+                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
             </div>
 
             {/* Group Selector Chips (职青 / 大专 / 青少年 / 牧者 / 同工) + Direct Tag Editing */}
@@ -260,7 +282,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
             {/* Qualified Roles */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1.5">
-                服事专长（可多选）
+                服侍专长（可多选）
               </label>
               <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2.5 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700">
                 {churchState.roles.map((r) => {
@@ -343,6 +365,12 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                       <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-zinc-800 px-2 py-0.5 rounded-lg border border-blue-100 dark:border-zinc-700">
                         {cw.cellGroup}
                       </span>
+                      {cw.birthday && (
+                        <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-lg border border-amber-200/60 dark:border-amber-900/60 flex items-center gap-1">
+                          <span>🎂</span>
+                          <span>{cw.birthday}</span>
+                        </span>
+                      )}
                     </div>
 
                     {cw.phone && (
@@ -389,32 +417,34 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                   </div>
                 </div>
 
-                {/* Edit and Delete Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => handleStartEdit(cw)}
-                    aria-label={`编辑 ${cw.name}`}
-                    title="编辑同工资料"
-                    className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                  >
-                    <Pencil size={14} strokeWidth={2} />
-                  </button>
+                {/* Edit and Delete Actions - only visible in admin/editor mode */}
+                {userMode === 'editor' && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleStartEdit(cw)}
+                      aria-label={`编辑 ${cw.name}`}
+                      title="编辑同工资料"
+                      className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    >
+                      <Pencil size={14} strokeWidth={2} />
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (window.confirm(`确定要移除服侍人员 ${cw.name} 吗？`)) {
-                        deleteCoworker(cw.id);
-                      }
-                    }}
-                    aria-label={`移除 ${cw.name}`}
-                    title="移除同工"
-                    className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                  >
-                    <Trash2 size={14} strokeWidth={2} />
-                  </button>
-                </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`确定要移除服侍人员 ${cw.name} 吗？`)) {
+                          deleteCoworker(cw.id);
+                        }
+                      }}
+                      aria-label={`移除 ${cw.name}`}
+                      title="移除同工"
+                      className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    >
+                      <Trash2 size={14} strokeWidth={2} />
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })

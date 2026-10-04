@@ -274,7 +274,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
           <CalendarDays size={36} strokeWidth={1.5} className="mx-auto text-slate-300 dark:text-zinc-600 mb-2" />
           <p className="text-base md:text-lg font-bold text-slate-800 dark:text-zinc-200">{pastRosters.length > 0 ? (language === 'zh' ? '暂无即将举行的聚会' : 'No upcoming services') : t('noRosterData', language)}</p>
           <p className="text-xs md:text-sm text-slate-400 dark:text-zinc-500 mt-1">
-            {pastRosters.length > 0 ? (language === 'zh' ? '可在下方查看历史服事表' : 'View past services below') : (isEditMode ? t('noRosterHintEdit', language) : t('noRosterHintView', language))}
+            {pastRosters.length > 0 ? (language === 'zh' ? '可在下方查看历史侍奉表' : 'View past services below') : (isEditMode ? t('noRosterHintEdit', language) : t('noRosterHintView', language))}
           </p>
         </div>
       ) : (
@@ -402,7 +402,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                           e.stopPropagation();
                           setWhatsAppModalRoster(roster);
                         }}
-                        title="预览并分享 WhatsApp 服事表"
+                        title="预览并分享 WhatsApp 侍奉表"
                         className="w-11 h-11 rounded-xl flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors active:scale-90 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
                       >
                       <Share2 size={17} strokeWidth={2} />
@@ -571,9 +571,9 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                         return (
                           <div className="py-6 text-center text-xs text-slate-400 dark:text-zinc-500">
                             {filterType === 'my'
-                              ? (language === 'zh' ? '该日无您的服事安排' : 'No duties assigned to you on this date')
+                              ? (language === 'zh' ? '该日无您的服侍安排' : 'No duties assigned to you on this date')
                               : !isEditMode
-                              ? (language === 'zh' ? '暂未安排服事同工' : 'No duties assigned yet')
+                              ? (language === 'zh' ? '暂未安排服侍同工' : 'No duties assigned yet')
                               : (language === 'zh' ? '该组暂无岗位设置' : 'No roles in this group')}
                           </div>
                         );
@@ -663,7 +663,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
           >
             {showPast ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             {language === 'zh'
-              ? `${showPast ? '收起' : '查看'}历史服事表 ${pastRosters.length}`
+              ? `${showPast ? '收起' : '查看'}历史侍奉表 ${pastRosters.length}`
               : `${showPast ? 'Hide' : 'Show'} past services (${pastRosters.length})`}
           </button>
         </div>

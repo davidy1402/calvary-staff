@@ -8,7 +8,7 @@ export const INITIAL_SERVICES: ServiceDefinition[] = [
     weekday: 7, // Sunday
     time: '10:30 AM',
     rehearsalTime: '9:30 AM 彩排调音',
-    venue: '主堂 Main Sanctuary',
+    venue: 'Hall 1',
     categoryIds: ['worship', 'media', 'pulpit', 'sundayschool', 'prayer', 'hospitality'],
   },
   {
@@ -18,7 +18,7 @@ export const INITIAL_SERVICES: ServiceDefinition[] = [
     weekday: 6, // Saturday
     time: '7:30 PM',
     rehearsalTime: '6:15 PM 彩排调音',
-    venue: '青年中心 Youth Center',
+    venue: 'Hall 2',
     categoryIds: ['worship', 'media', 'pulpit', 'hospitality'],
   },
   {
@@ -38,13 +38,13 @@ export const INITIAL_SERVICES: ServiceDefinition[] = [
     weekday: 5, // Friday
     time: '8:00 PM',
     rehearsalTime: '7:45 PM 预备',
-    venue: '主日学 Hall 2',
+    venue: 'Hall 2',
     categoryIds: ['prayer', 'worship', 'media'],
   },
 ];
 
 export const INITIAL_ROLES: RoleDefinition[] = [
-  // 敬拜赞美团 (对齐教会真实服事表)
+  // 敬拜赞美团 (对齐教会真实侍奉表)
   { id: 'lead_vocal', name: '领唱', shortName: '领唱', category: 'worship', description: '带领会众进入敬拜赞美' },
   { id: 'backing_vocal', name: '伴唱', shortName: '伴唱', category: 'worship', description: '和声与配唱' },
   { id: 'keyboard', name: '司琴', shortName: '司琴', category: 'worship', description: '钢琴伴奏与音乐过渡' },
@@ -67,7 +67,7 @@ export const INITIAL_ROLES: RoleDefinition[] = [
   { id: 'scripture', name: '读经', shortName: '读经', category: 'pulpit', description: '带领读经' },
 
   // 主日学
-  { id: 'sunday_school_leader', name: '主日学主教', shortName: '主教', category: 'sundayschool', description: '儿童崇拜与圣经真理授课' },
+  { id: 'sunday_school_leader', name: '主日学老师', shortName: '老师', category: 'sundayschool', description: '儿童崇拜与圣经真理授课' },
   { id: 'sunday_school_helper', name: '主日学助教', shortName: '助教', category: 'sundayschool', description: '协助手作与看护儿童安全' },
 
   // 守望代祷
@@ -76,8 +76,8 @@ export const INITIAL_ROLES: RoleDefinition[] = [
 
   // 接待与关怀
   { id: 'chief_usher', name: '招待长', shortName: '招待长', category: 'hospitality', description: '动线指引与聚会关怀' },
-  { id: 'greeter', name: '大门迎宾', shortName: '迎宾', category: 'hospitality', description: '派发周报与引导会友' },
-  { id: 'offering', name: '奉献点数', shortName: '奉献', category: 'hospitality', description: '收取与核点奉献' },
+  { id: 'greeter', name: '招待', shortName: '招待', category: 'hospitality', description: '派发周报与引导会友' },
+  { id: 'offering', name: '收奉献', shortName: '奉献', category: 'hospitality', description: '收取与核点奉献' },
 ];
 
 export const INITIAL_COWORKERS: Coworker[] = [
@@ -88,15 +88,15 @@ export const INITIAL_COWORKERS: Coworker[] = [
   { id: 'cw_wensen', name: '文森', englishName: 'Vincent', phone: '016-1122334', cellGroup: '牧者', qualifiedRoleIds: ['director', 'sound_pa'], active: true },
   { id: 'cw_sam', name: 'Sam', englishName: 'Sam', phone: '', cellGroup: '同工', qualifiedRoleIds: ['prayer_leader', 'lead_vocal'], active: true },
 
-  // 核心家庭与服事团队
+  // 核心家庭与服侍团队
   { id: 'cw_selena', name: 'Selena', englishName: 'Selena Yong', phone: '012-9988112', cellGroup: '职青', qualifiedRoleIds: ['backing_vocal', 'tambourine', 'lead_vocal', 'sunday_school_leader', 'announcements', 'ppt'], active: true },
   { id: 'cw_yongyi', name: '永益', englishName: 'Yong Yi', phone: '016-7788990', cellGroup: '职青', qualifiedRoleIds: ['keyboard', 'lead_vocal', 'prayer_leader', 'chief_usher'], active: true },
   { id: 'cw_diana', name: 'Diana', englishName: 'Diana Yong', phone: '017-3322110', cellGroup: '大专', qualifiedRoleIds: ['ppt', 'sound_pa', 'greeter', 'offering'], active: true },
   { id: 'cw_zongyan', name: '宗晏', englishName: 'Zong Yan', phone: '018-4455667', cellGroup: '大专', qualifiedRoleIds: ['drums', 'bass', 'camera'], active: true },
-  { id: 'cw_david', name: '杨家维', englishName: 'David Yong', phone: '012-7654321', cellGroup: '大专', qualifiedRoleIds: ['guitar', 'sound_pa', 'announcements'], active: true },
+  { id: 'cw_david', name: '杨家维', englishName: 'David Yong', phone: '012-7654321', cellGroup: '大专', qualifiedRoleIds: ['guitar', 'sound_pa', 'announcements'], active: true, birthday: '2005-02-14' },
   { id: 'cw_jiakai', name: '嘉凯', englishName: 'Jia Kai', phone: '', cellGroup: '职青', qualifiedRoleIds: ['ppt'], active: true },
 
-  // 敬拜团服事人员 (职青与同工)
+  // 敬拜团服侍人员 (职青与同工)
   { id: 'cw_qiuyi', name: '秋仪', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['lead_vocal'], active: true },
   { id: 'cw_wentian', name: '文添', englishName: 'Enoch', phone: '', cellGroup: '职青', qualifiedRoleIds: ['lead_vocal', 'keyboard'], active: true },
   { id: 'cw_yunqing', name: '云青', englishName: '', phone: '', cellGroup: '职青', qualifiedRoleIds: ['backing_vocal'], active: true },
@@ -112,7 +112,7 @@ export const INITIAL_COWORKERS: Coworker[] = [
   { id: 'cw_baohui', name: '保辉', englishName: '', phone: '', cellGroup: '同工', qualifiedRoleIds: ['backing_vocal'], active: true },
   { id: 'cw_meifang', name: '梅芳', englishName: '', phone: '', cellGroup: '同工', qualifiedRoleIds: ['lead_vocal'], active: true },
 
-  // 影音多媒体服事人员 (大专与青少年)
+  // 影音多媒体服侍人员 (大专与青少年)
   { id: 'cw_josh', name: 'Josh', englishName: 'Josh', phone: '', cellGroup: '大专', qualifiedRoleIds: ['sound_pa'], active: true },
   { id: 'cw_leelian', name: 'LEELIAN', englishName: 'Leelian', phone: '', cellGroup: '大专', qualifiedRoleIds: ['ppt'], active: true },
   { id: 'cw_elleyna', name: 'ELLEYNA', englishName: 'Elleyna', phone: '', cellGroup: '青少年', qualifiedRoleIds: ['ppt'], active: true },

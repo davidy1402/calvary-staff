@@ -14,33 +14,59 @@ export interface AppRelease {
 }
 
 export const CURRENT_VERSION: AppRelease = {
-  version: '1.5.0',
+  version: '1.6.0',
   releaseDate: '2026-10-04',
-  title: '弹窗手感与同工身份切换体验升级',
-  summary: '带来 iOS 级原生流畅弹窗手感、新同工自主登记与 iPad 横屏大屏适配。',
+  title: '同工生日关怀体系与权限保护升级',
+  summary: '带来同工生日彩花气球送福、全功能编辑防误触保护，并全面更新聚会场地与服侍称谓。',
   highlights: [
     {
-      category: 'ui',
-      label: '原生手感',
-      title: 'Bottom Sheet 流畅上下滑行动画',
-      description: '弹窗展开由下而上、关闭由上至下平滑滑出，搭配 iOS 级阻尼曲线与手势拖拽关闭，告别突兀闪退。',
+      category: 'feature',
+      label: '生日关怀',
+      title: '同工生日彩花气球与祝福',
+      description: '寿星当天打开应用迎来生日快乐彩花与气球动画，祝贺语自动切为「生日蒙福」，其他同工首页可看到今日寿星并一键发送 WhatsApp 祝福；每人可在个人中心填写生日。',
     },
     {
       category: 'feature',
-      label: '同工登记',
-      title: '新同工快速登记与访客浏览',
-      description: '首次访问可轻松选取自己的名字；新加入服事的同工可直接登记姓名进入系统，或选择以访客身份浏览。',
+      label: '防误触保护',
+      title: '严格管理权限保护',
+      description: '仅在解锁统筹管理模式（Editor）下显示排班、堂次、同工及主题的编辑与添加按钮，默认只读浏览，杜绝日常查阅时的误触改动。',
     },
     {
-      category: 'ui',
-      label: '大屏适配',
-      title: 'iPad / 平板横屏悬浮导览轨',
-      description: '在平板与桌面横屏下自动转换为右侧悬浮胶囊导览轨，视野更广，查阅排班更轻松。',
+      category: 'fix',
+      label: '称谓规范',
+      title: '场地地点与服侍称谓更新',
+      description: '规范聚会地点为 Hall 1 与 Hall 2；大门迎宾更名为「招待」，主日学主教更名为「主日学老师」，奉献点数更名为「收奉献」。',
     },
   ],
 };
 
 export const PAST_RELEASES: AppRelease[] = [
+  {
+    version: '1.5.0',
+    releaseDate: '2026-10-04',
+    title: '弹窗手感与同工身份切换体验升级',
+    summary: '带来 iOS 级原生流畅弹窗手感、新同工自主登记与 iPad 横屏大屏适配。',
+    highlights: [
+      {
+        category: 'ui',
+        label: '原生手感',
+        title: 'Bottom Sheet 流畅上下滑行动画',
+        description: '弹窗展开由下而上、关闭由上至下平滑滑出，搭配 iOS 级阻尼曲线与手势拖拽关闭，告别突兀闪退。',
+      },
+      {
+        category: 'feature',
+        label: '同工登记',
+        title: '新同工快速登记与访客浏览',
+        description: '首次访问可轻松选取自己的名字；新加入服侍的同工可直接登记姓名进入系统，或选择以访客身份浏览。',
+      },
+      {
+        category: 'ui',
+        label: '大屏适配',
+        title: 'iPad / 平板横屏悬浮导览轨',
+        description: '在平板与桌面横屏下自动转换为右侧悬浮胶囊导览轨，视野更广，查阅排班更轻松。',
+      },
+    ],
+  },
   {
     version: '1.4.0',
     releaseDate: '2026-10-04',
@@ -101,7 +127,7 @@ export const PAST_RELEASES: AppRelease[] = [
         category: 'feature',
         label: '云端上线',
         title: '专属网址免安装访问',
-        description: '支持手机浏览器直接打开与保存到桌面主屏幕，随时随地查阅个人服事表与排班动态。',
+        description: '支持手机浏览器直接打开与保存到桌面主屏幕，随时随地查阅个人侍奉表与排班动态。',
       },
     ],
   },

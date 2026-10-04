@@ -165,7 +165,7 @@ export const LoginScreen: React.FC = () => {
           </p>
           <p className="text-xs text-slate-500 mt-2 font-medium">
             {language === 'zh'
-              ? '同工服事与排班协作平台'
+              ? '同工服侍与排班协作平台'
               : 'Volunteer & Service Roster Platform'}
           </p>
         </div>

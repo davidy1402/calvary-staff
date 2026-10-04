@@ -211,7 +211,7 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
   // Ensure all initial coworkers exist, purge legacy mock demo ids (cw_01 to cw_12), and strictly normalize groups
   const isLegacyMockId = (id: string) => /^cw_\d{2}$/.test(id);
   const initialCoworkerMap = new Map(INITIAL_COWORKERS.map((c) => [c.id, c]));
-  const mergedCoworkers = saved.coworkers
+  const mergedCoworkers: Coworker[] = saved.coworkers
     .filter((cw) => !isLegacyMockId(cw.id))
     .map((cw) => {
       const init = initialCoworkerMap.get(cw.id);
@@ -221,6 +221,7 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
         ...cw,
         cellGroup: newGroup,
         qualifiedRoleIds: cleanQualified,
+        birthday: cw.birthday || init?.birthday,
       };
     });
 
@@ -247,7 +248,7 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
     cw_12: 'cw_diana',
   };
 
-  // Ensure all initial services have updated categories and normalized names (Fire4J)
+  // Ensure all initial services have updated categories and normalized names/venues (Hall 1, Hall 2)
   const mergedServices = INITIAL_SERVICES.map((initSvc) => {
     const found = saved.services?.find((s) => s.id === initSvc.id);
     if (found) {
@@ -255,13 +256,25 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
       let shortName = found.shortName;
       let time = found.time;
       let rehearsalTime = found.rehearsalTime;
+      let venue = found.venue;
       if (name.includes('青年崇拜') || name.includes('Ignite')) {
         name = 'Fire4J';
         shortName = 'Fire4J';
       }
-      if (initSvc.id === 'sun_mandarin' && (time.includes('8:30') || time.includes('11:00 AM'))) {
-        time = '10:30 AM';
-        rehearsalTime = '9:30 AM 彩排调音';
+      if (initSvc.id === 'sun_mandarin') {
+        if (time.includes('8:30') || time.includes('11:00 AM')) {
+          time = '10:30 AM';
+          rehearsalTime = '9:30 AM 彩排调音';
+        }
+        if (venue.includes('主堂')) {
+          venue = 'Hall 1';
+        }
+      }
+      if (initSvc.id === 'sat_youth' && (venue.includes('青年中心') || venue.includes('Youth Center'))) {
+        venue = 'Hall 2';
+      }
+      if (initSvc.id === 'fri_prayer' && venue.includes('主日学 Hall 2')) {
+        venue = 'Hall 2';
       }
       return {
         ...initSvc,
@@ -270,6 +283,7 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
         shortName,
         time,
         rehearsalTime,
+        venue,
         categoryIds: initSvc.categoryIds,
       };
     }
@@ -1103,7 +1117,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `加略山社区教会_服事表备份_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `加略山社区教会_侍奉表备份_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

@@ -25,7 +25,6 @@ export const ServiceManagerModal: React.FC<ServiceManagerModalProps> = ({
     churchState,
     updateService,
     userMode,
-    setUserMode,
     language,
   } = useChurch();
 
@@ -188,7 +187,7 @@ export const ServiceManagerModal: React.FC<ServiceManagerModalProps> = ({
                         type="text"
                         value={formData.venue}
                         onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
-                        placeholder="例如：青年中心 Youth Center"
+                        placeholder="例如：Hall 1 / Hall 2"
                         className="w-full text-xs font-semibold px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
@@ -230,20 +229,17 @@ export const ServiceManagerModal: React.FC<ServiceManagerModalProps> = ({
                       {svc.time}
                     </span>
 
-                    {/* Edit action button */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (userMode !== 'editor') {
-                          setUserMode('editor');
-                        }
-                        handleStartEdit(svc);
-                      }}
-                      title={language === 'zh' ? '编辑此堂次信息' : 'Edit service details'}
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                    >
-                      <Edit2 size={13} strokeWidth={2} />
-                    </button>
+                    {/* Edit action button - only visible in admin/editor mode */}
+                    {userMode === 'editor' && (
+                      <button
+                        type="button"
+                        onClick={() => handleStartEdit(svc)}
+                        title={language === 'zh' ? '编辑此堂次信息' : 'Edit service details'}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                      >
+                        <Edit2 size={13} strokeWidth={2} />
+                      </button>
+                    )}
                   </div>
                 </div>
 

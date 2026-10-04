@@ -30,7 +30,7 @@ export function formatDayMonthWeekday(dateStr?: string): string {
 }
 
 /**
- * 模板 1：同工服事表 (Roster)
+ * 模板 1：同工侍奉表 (Roster)
  * 完全对齐教会实际发群消息的结构 (含祷告会极简版与崇拜完整版)
  */
 export function generateWhatsAppRosterText(
@@ -81,7 +81,7 @@ export function generateWhatsAppRosterText(
   const fullDateLabel = roster?.date ? formatDateLabel(roster.date) : '待定日期';
 
   const lines: string[] = [
-    `*${shortDate} ${service.name} 服事表*`,
+    `*${shortDate} ${service.name} 侍奉表*`,
     `📅 日期：${fullDateLabel}`,
     `📍 地点：${service.venue}`,
     `⏰ 时间：${service.time}`,
@@ -148,10 +148,10 @@ export function generateWhatsAppRosterText(
 
   lines.push('─────────────────');
   lines.push('📌 温馨提醒：');
-  lines.push(`1. 请各位服事同工准时于【${service.rehearsalTime}】到场，一同祷告预备心。`);
+  lines.push(`1. 请各位服侍同工准时于【${service.rehearsalTime}】到场，一同祷告预备心。`);
   lines.push('2. 若临时有突发状况需要调班，请尽早告知负责人，以利协调。');
   lines.push('');
-  lines.push('愿神大大恩膏并纪念各位服事同工忠心的摆上！🙌');
+  lines.push('愿神大大恩膏并纪念各位服侍同工忠心的摆上！🙌');
 
   return lines.join('\n');
 }
@@ -291,12 +291,12 @@ export interface DutyChangeInfo {
 }
 
 /**
- * 模板 4：服事人员异动 / 调班通知（发领诗或群聊）
+ * 模板 4：服侍人员异动 / 调班通知（发领诗或群聊）
  */
 export function generateWhatsAppDutyChangeText(info: DutyChangeInfo): string {
   const shortDate = formatShortDate(info.date);
   const lines: string[] = [
-    `*【CCCJB 服事人员异动通知】*`,
+    `*【CCCJB 服侍人员异动通知】*`,
     info.leaderName ? `平安 ${info.leaderName}，` : '各位同工平安，',
     '',
     `📅 聚会：${shortDate} ${info.serviceName}`,

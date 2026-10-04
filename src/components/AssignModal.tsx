@@ -138,9 +138,9 @@ export const AssignModal: React.FC<AssignModalProps> = ({
       {showNoteEditor && (
         <div className="px-4 py-3 border-b border-slate-100 dark:border-zinc-800 shrink-0">
           <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300">
-            {language === 'zh' ? '服事备注' : 'Duty note'}
+            {language === 'zh' ? '服侍备注' : 'Duty note'}
             <textarea
-              aria-label={language === 'zh' ? '服事备注' : 'Duty note'}
+              aria-label={language === 'zh' ? '服侍备注' : 'Duty note'}
               value={note}
               onChange={(e) => setNote(e.target.value)}
               onBlur={saveNote}
@@ -292,7 +292,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
               type="button"
               onClick={handleNotifyLeader}
               className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shrink-0 flex items-center gap-1.5 active:scale-95 transition-all shadow-xs cursor-pointer"
-              title={language === 'zh' ? '通过 WhatsApp 立即通知领诗或服事群' : 'Notify via WhatsApp'}
+              title={language === 'zh' ? '通过 WhatsApp 立即通知领诗或服侍群' : 'Notify via WhatsApp'}
             >
               <Send size={12} strokeWidth={2.2} />
               <span>{leadVocalNames ? `通知领诗` : (language === 'zh' ? '发异动通知' : 'Notify')}</span>

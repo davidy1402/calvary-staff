@@ -102,7 +102,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
 
   const templates: { id: WhatsAppTemplateType; label: string; icon: React.ReactNode }[] = [
-    { id: 'roster', label: language === 'zh' ? '服事人员' : 'Roster', icon: <Users size={12} strokeWidth={2} /> },
+    { id: 'roster', label: language === 'zh' ? '服侍人员' : 'Roster', icon: <Users size={12} strokeWidth={2} /> },
     { id: 'setlist', label: language === 'zh' ? '赞美歌单' : 'Setlist', icon: <Music size={12} strokeWidth={2} /> },
     { id: 'rundown', label: language === 'zh' ? '崇拜流程' : 'Rundown', icon: <Clock size={12} strokeWidth={2} /> },
   ];

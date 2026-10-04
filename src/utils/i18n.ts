@@ -4,16 +4,16 @@ export const TRANSLATIONS = {
   zh: {
     // Navigation
     home: '首页',
-    roster: '服事表',
+    roster: '侍奉表',
     settings: '设置',
     profile: '设置',
 
     // Home Screen
     welcomeBack: '欢迎回来',
-    myDuties: '我的服事',
-    viewFullRoster: '查看完整服事表',
-    noDutiesThisSeason: '本月暂无排到服事',
-    noDutiesHint: '若有变动可联系干事或于服事表查看各周安排',
+    myDuties: '我的服侍',
+    viewFullRoster: '查看完整侍奉表',
+    noDutiesThisSeason: '本月暂无排到服侍',
+    noDutiesHint: '若有变动可联系干事或于侍奉表查看各周安排',
 
     // Scripture
     todaysScripture: '经文',
@@ -30,11 +30,11 @@ export const TRANSLATIONS = {
     hideInstallSteps: '收起说明',
 
     // Roster Screen
-    rosterTitle: '服事表',
-    editRosterTitle: '编辑服事表',
+    rosterTitle: '侍奉表',
+    editRosterTitle: '编辑侍奉表',
     editRosterTooltip: '切换至编辑模式',
     done: '完成',
-    noRosterData: '此类别目前没有服事资讯',
+    noRosterData: '此类别目前没有服侍资讯',
     noRosterHintView: '管理员建立后会在此显示',
     noRosterHintEdit: '点击右上角新增排班日期',
     theme: '主题',
@@ -51,7 +51,7 @@ export const TRANSLATIONS = {
 
     // Roster Filters
     filterAll: '全部',
-    filterMyDuties: '我的服事',
+    filterMyDuties: '我的服侍',
     filterPulpit: '讲台报告',
     filterWorship: '敬拜赞美',
     filterMedia: '影音多媒体',
@@ -71,18 +71,18 @@ export const TRANSLATIONS = {
     settingsTitle: '设置与个人中心',
     personalCenter: '设置与个人中心',
     sectionVolunteer: '服侍人员身份与分组',
-    sectionMinistry: '服事与协调工具',
+    sectionMinistry: '服侍与协调工具',
     sectionSystem: '系统偏好设置',
     sectionAbout: '关于系统与数据',
     coworker: '服侍人员',
     admin: '管理员',
     switchCoworkerIdentity: '切换当前服侍人员',
-    shareWhatsAppTitle: 'WhatsApp 服事表分享',
-    shareWhatsAppDesc: '预览、一键复制或直接唤醒 WhatsApp 发送',
+    shareWhatsAppTitle: '侍奉表分享到WhatsApp',
+    shareWhatsAppDesc: '预览和一键复制或直接自动WhatsApp发送',
     coworkerDirectoryTitle: '服侍人员名单',
-    coworkerDirectoryDesc: '录入、修改服侍人员电话与服事专长',
+    coworkerDirectoryDesc: '新增或修改服侍人员资料',
     serviceSettingsTitle: '聚会设定',
-    serviceSettingsDesc: '检视各堂会聚会时间、彩排与场地',
+    serviceSettingsDesc: '查看各会堂聚会时间、彩排与地点',
     backupRestoreTitle: '数据备份与还原',
     backupRestoreDesc: '导出 JSON 档案或导入恢复排班数据',
     updatedAt: '更新于',
@@ -97,14 +97,14 @@ export const TRANSLATIONS = {
     systemVersion: '系统版本',
 
     // Modals & Actions
-    assignRole: '安排服事人员',
+    assignRole: '安排服侍人员',
     searchCoworker: '搜索服侍人员姓名、英文名或小组...',
     noCoworkerFound: '没有找到符合条件的服侍人员',
     todayAssigned: '本日已排',
     regularRole: '常用',
     completeSelection: '完成选择',
     selectCoworkerHint: '点击服侍人员名字即可分配或取消分配',
-    whatsappNotification: 'WhatsApp 服事通知',
+    whatsappNotification: 'WhatsApp 服侍通知',
     copyAllText: '复制全部文字',
     copiedAll: '已复制全部',
     openWhatsApp: '打开 WhatsApp',

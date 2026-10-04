@@ -73,8 +73,8 @@ export function generateIcsContent(event: CalendarEventData): string {
   const nowStamp = `${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
 
   const descriptionLines: string[] = [
-    `【CCCJB 教会服事通知】`,
-    `服事岗位：${event.rolesSummary}`,
+    `【CCCJB 教会服侍通知】`,
+    `服侍岗位：${event.rolesSummary}`,
     `聚会：${event.serviceName}`,
     `彩排时间：${event.rehearsalTime || '请留意群通知'}`,
     `聚会地点：${event.serviceVenue || '加略山社区教会'}`,
@@ -87,9 +87,9 @@ export function generateIcsContent(event: CalendarEventData): string {
     descriptionLines.push(`讲员：${event.speaker}`);
   }
 
-  descriptionLines.push(`\n提前一周及提前一天会收到手机提醒。感谢您的忠心服事！`);
+  descriptionLines.push(`\n提前一周及提前一天会收到手机提醒。感谢您的忠心服侍！`);
 
-  const escapedSummary = escapeIcsText(`【服事】${event.serviceName} - ${event.rolesSummary}`);
+  const escapedSummary = escapeIcsText(`【服侍】${event.serviceName} - ${event.rolesSummary}`);
   const escapedDescription = escapeIcsText(descriptionLines.join('\n'));
   const escapedLocation = escapeIcsText(event.serviceVenue || '新山加略山社区教会');
 
@@ -111,19 +111,19 @@ export function generateIcsContent(event: CalendarEventData): string {
     // Alarm 1: 1 week before (7 days)
     'BEGIN:VALARM',
     'ACTION:DISPLAY',
-    'DESCRIPTION:服事提前 1 周提醒：下周有教会服事',
+    'DESCRIPTION:服侍提前 1 周提醒：下周有教会服侍',
     'TRIGGER:-P7D',
     'END:VALARM',
     // Alarm 2: 1 day before (24 hours)
     'BEGIN:VALARM',
     'ACTION:DISPLAY',
-    'DESCRIPTION:服事提前 1 天提醒：明天主日服事，请预备心',
+    'DESCRIPTION:服侍提前 1 天提醒：明天主日服侍，请预备心',
     'TRIGGER:-P1D',
     'END:VALARM',
     // Alarm 3: 2 hours before rehearsal
     'BEGIN:VALARM',
     'ACTION:DISPLAY',
-    'DESCRIPTION:服事当天提醒：请准时到场彩排',
+    'DESCRIPTION:服侍当天提醒：请准时到场彩排',
     'TRIGGER:-PT2H',
     'END:VALARM',
     'END:VEVENT',
@@ -137,7 +137,7 @@ export function generateIcsContent(event: CalendarEventData): string {
 export function downloadCalendarEvent(event: CalendarEventData): void {
   const icsData = generateIcsContent(event);
   const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
-  const filename = `CCCJB-服事-${event.dateStr}.ics`;
+  const filename = `CCCJB-服侍-${event.dateStr}.ics`;
 
   const link = document.createElement('a');
   link.href = window.URL.createObjectURL(blob);
@@ -152,9 +152,9 @@ export function downloadCalendarEvent(event: CalendarEventData): void {
  */
 export function getGoogleCalendarUrl(event: CalendarEventData): string {
   const { start, end } = formatIcsDateTime(event.dateStr, event.rehearsalTime);
-  const title = encodeURIComponent(`【服事】${event.serviceName} - ${event.rolesSummary}`);
+  const title = encodeURIComponent(`【服侍】${event.serviceName} - ${event.rolesSummary}`);
   const details = encodeURIComponent(
-    `【CCCJB 教会服事】\n岗位：${event.rolesSummary}\n彩排：${event.rehearsalTime || ''}\n地点：${event.serviceVenue || ''}`
+    `【CCCJB 教会服侍】\n岗位：${event.rolesSummary}\n彩排：${event.rehearsalTime || ''}\n地点：${event.serviceVenue || ''}`
   );
   const location = encodeURIComponent(event.serviceVenue || '新山加略山社区教会');
 

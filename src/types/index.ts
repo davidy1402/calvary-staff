@@ -52,6 +52,7 @@ export interface Coworker {
   notes?: string;
   active: boolean;
   avatar?: string; // base64 or URL
+  birthday?: string; // YYYY-MM-DD or MM-DD
 }
 
 export interface WorshipSong {

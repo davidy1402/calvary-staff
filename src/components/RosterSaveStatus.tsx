@@ -27,7 +27,7 @@ export const RosterUndoNotice = ({ inline = false }: { inline?: boolean }) => {
   if (!canUndoRosterChange) return null;
   return (
     <div className={`${inline ? 'shrink-0 mx-4 my-2 animate-fade-in' : 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] max-w-sm'} bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl px-4 py-1 flex items-center justify-between gap-3 shadow-md`} role="status">
-      <span className="text-sm">{language === 'zh' ? '已更新服事表' : 'Roster updated'}</span>
+      <span className="text-sm">{language === 'zh' ? '已更新侍奉表' : 'Roster updated'}</span>
       <button type="button" onClick={undoRosterChange} className="min-h-11 px-2 font-semibold text-sm">{language === 'zh' ? '撤销' : 'Undo'}</button>
     </div>
   );

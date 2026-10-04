@@ -22,7 +22,7 @@ export const DailyScriptureCard: React.FC = () => {
       <div className="flex items-center gap-1.5 text-blue-800 dark:text-blue-300 mb-2">
         <Sparkles size={13} aria-hidden="true" />
         <span className="text-xs font-bold tracking-tight">
-          {language === 'zh' ? '今日服事经文' : 'Daily Scripture'}
+          {language === 'zh' ? '今日服侍经文' : 'Daily Scripture'}
         </span>
       </div>
 

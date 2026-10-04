@@ -205,7 +205,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
             </div>
             <p className="text-sm leading-relaxed text-slate-600 dark:text-zinc-400 mt-2">
               {zh
-                ? '选择自己的名字，查看您的服事安排与诗歌歌单。'
+                ? '选择自己的名字，查看您的服侍安排与诗歌歌单。'
                 : 'Choose your name to see your duties and setlists.'}
             </p>
             <div className="relative mt-4">
@@ -244,7 +244,7 @@ export const IdentitySelectModal: React.FC<IdentitySelectModalProps> = ({
                   className="w-full text-center py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center justify-center gap-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   <UserPlus size={13} />
-                  <span>{zh ? '新加入服事？登记姓名加入名单' : 'New volunteer? Register your name'}</span>
+                  <span>{zh ? '新加入服侍？登记姓名加入名单' : 'New volunteer? Register your name'}</span>
                 </button>
               </div>
             )}

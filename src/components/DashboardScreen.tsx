@@ -8,6 +8,7 @@ import { ChurchLogo } from './ChurchLogo';
 import { DailyScriptureCard } from './DailyScriptureCard';
 import { getTimeGreeting } from '../utils/greetingUtils';
 import { RosterDetailModal } from './RosterDetailModal';
+import { BirthdayCelebration } from './BirthdayCelebration';
 import type { ServiceRoster, ServiceDefinition } from '../types';
 
 interface DashboardScreenProps {
@@ -16,10 +17,42 @@ interface DashboardScreenProps {
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRoster, onOpenSetlist }) => {
-  const { currentUser, currentUserId, getUserSeasonAssignments, language, setIsIdentityModalOpen } = useChurch();
+  const { churchState, currentUser, currentUserId, getUserSeasonAssignments, language, setIsIdentityModalOpen } = useChurch();
 
   const userAssignments = getUserSeasonAssignments(currentUser?.id);
   const [today] = useState(() => new Date().toLocaleDateString('en-CA'));
+  const todayMMDD = today.slice(5); // e.g. "10-04"
+
+  const isCurrentUserBirthday = Boolean(
+    currentUser?.birthday &&
+      (currentUser.birthday === today || currentUser.birthday.endsWith(todayMMDD))
+  );
+
+  const [showBirthdayCelebration, setShowBirthdayCelebration] = useState(() => {
+    if (!isCurrentUserBirthday || !currentUser) return false;
+    try {
+      const key = `calvary_birthday_seen_${currentUser.id}_${today}`;
+      return !localStorage.getItem(key);
+    } catch {
+      return true;
+    }
+  });
+
+  const handleCloseBirthdayCelebration = () => {
+    setShowBirthdayCelebration(false);
+    if (currentUser) {
+      try {
+        localStorage.setItem(`calvary_birthday_seen_${currentUser.id}_${today}`, 'true');
+      } catch {}
+    }
+  };
+
+  // Other peers who celebrate their birthday today
+  const peerBirthdayCoworkers = churchState.coworkers.filter((cw) => {
+    if (cw.id === currentUserId || !cw.active || !cw.birthday) return false;
+    return cw.birthday === today || cw.birthday.endsWith(todayMMDD);
+  });
+
   const displayedAssignments = userAssignments;
   const monthlyAssignments = userAssignments.filter(({ roster }) => roster.date.slice(0, 7) === today.slice(0, 7));
 
@@ -42,7 +75,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
   };
 
   const displayName = getShortName(currentUser?.name);
-  const timeGreeting = getTimeGreeting(language);
+  const timeGreeting = isCurrentUserBirthday
+    ? (language === 'zh' ? '生日蒙福' : 'Happy Birthday')
+    : getTimeGreeting(language);
 
   const getDateParts = (dateStr: string) => {
     const [yyyy, mm, dd] = dateStr.split('-');
@@ -84,7 +119,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-1">{timeGreeting}，{displayName}</h2>
           <div className="mt-3 text-xs md:text-sm text-blue-100">
             {currentUserId !== 'cw_guest' && <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/15 font-semibold">
-              {language === 'zh' ? '本月服事：' : 'This month: '}{monthlyAssignments.length}{language === 'zh' ? ' 堂' : ' services'}
+              {language === 'zh' ? '本月服侍：' : 'This month: '}{monthlyAssignments.length}{language === 'zh' ? ' 堂' : ' services'}
             </span>}
           </div>
         </div>
@@ -94,13 +129,62 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
         </button>
       </div>
 
+      {/* Birthday Celebration for current user */}
+      {showBirthdayCelebration && currentUser && (
+        <BirthdayCelebration
+          name={displayName}
+          onClose={handleCloseBirthdayCelebration}
+        />
+      )}
+
+      {/* Peer Birthday Notification Banner */}
+      {peerBirthdayCoworkers.length > 0 && (
+        <div className="bg-gradient-to-r from-amber-50 to-rose-50 dark:from-amber-950/40 dark:to-rose-950/30 border border-amber-200/80 dark:border-amber-800/60 rounded-2xl p-4 shadow-2xs flex items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 to-rose-400 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+              🎂
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-200/70 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
+                  {language === 'zh' ? '今日寿星' : 'Birthday Today'}
+                </span>
+                <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
+                  {peerBirthdayCoworkers.map((c) => c.name).join('、')}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-zinc-400 mt-0.5 leading-snug">
+                {language === 'zh'
+                  ? '今天过生日！遇见时别忘了向寿星道一句「生日蒙福」🎂'
+                  : 'Celebrating birthday today! Wish them a blessed birthday!'}
+              </p>
+            </div>
+          </div>
+          {peerBirthdayCoworkers[0]?.phone && (
+            <a
+              href={`https://wa.me/60${peerBirthdayCoworkers[0].phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                language === 'zh'
+                  ? `平安！${peerBirthdayCoworkers[0].name}，祝你生日蒙福！愿耶和华赐福给你，主恩满溢！🎂✨`
+                  : `Happy Blessed Birthday ${peerBirthdayCoworkers[0].name}! May God bless you abundantly! 🎂`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
+              title="发送 WhatsApp 祝福"
+            >
+              <span>祝贺</span>
+            </a>
+          )}
+        </div>
+      )}
+
       {/* Scripture & Quick Add Grid for iPad landscape */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <DailyScriptureCard />
         <AddToHomeCard />
       </div>
 
-      {/* 我的服事 Section (Ergonomic Duty Passes) */}
+      {/* 我的服侍 Section (Ergonomic Duty Passes) */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl p-4 md:p-6 border border-slate-200/90 dark:border-zinc-800 shadow-xs hover:border-slate-300 dark:hover:border-zinc-700 transition-all duration-200">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
           <div className="flex items-center gap-2">
@@ -119,7 +203,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
             </p>
             <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-xs mx-auto leading-relaxed">
               {language === 'zh'
-                ? '可查看全堂服事人员与歌单。有服事安排的同工可点击我是同工，选择姓名。'
+                ? '可查看全堂服侍人员与歌单。有服侍安排的同工可点击我是同工，选择姓名。'
                 : 'Browse all service rosters and worship setlists. Tap "I am volunteer" above if you have duties.'}
             </p>
             <div className="pt-1">

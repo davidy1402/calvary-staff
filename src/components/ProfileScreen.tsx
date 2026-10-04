@@ -28,17 +28,16 @@ interface ProfileScreenProps {
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) => {
   const {
-    churchState,
     currentUser,
     userMode,
     setUserMode,
     updateCurrentUserAvatar,
+    updateCoworker,
     language,
     setLanguage,
     isDarkMode,
     themeMode,
     setThemeMode,
-    syncStatus,
     setIsIdentityModalOpen,
   } = useChurch();
 
@@ -89,7 +88,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
         </div>
 
         {/* Cloud Sync Status Indicator (Only display when active) */}
-        {syncStatus !== 'offline' && (
+        {/* {syncStatus !== 'offline' && (
           <div className="flex items-center gap-1.5 text-[11px] md:text-xs font-medium text-slate-500 dark:text-zinc-400">
             <span
               className={`w-2 h-2 rounded-full ${
@@ -104,7 +103,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                 : (language === 'zh' ? '连接中' : 'Connecting')}
             </span>
           </div>
-        )}
+        )} */}
       </header>
 
       {/* Screen Body Content */}
@@ -164,7 +163,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-zinc-100">
-                  {currentUser?.name || (language === 'zh' ? 'CCCJB Connect 服事同工' : 'CCCJB Connect Volunteer')}
+                  {currentUser?.name || (language === 'zh' ? 'CCCJB Connect 服侍同工' : 'CCCJB Connect Volunteer')}
                 </h2>
                 {currentUser?.englishName && (
                   <span className="text-xs md:text-sm text-slate-500 dark:text-zinc-400 font-medium">({currentUser.englishName})</span>
@@ -178,6 +177,27 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                 <span className="text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
                   {t('coworker', language)}
                 </span>
+                {currentUser?.id !== 'cw_guest' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = window.prompt(
+                        language === 'zh'
+                          ? '请输入您的生日日期 (例如：10-30 或 1998-10-30)'
+                          : 'Enter your birthday (e.g. 10-30 or 1998-10-30)',
+                        currentUser?.birthday || ''
+                      );
+                      if (input !== null && currentUser) {
+                        updateCoworker({ ...currentUser, birthday: input.trim() });
+                      }
+                    }}
+                    className="text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/60 flex items-center gap-1 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors cursor-pointer"
+                    title={language === 'zh' ? '修改我的生日' : 'Edit birthday'}
+                  >
+                    <span>🎂</span>
+                    <span>{currentUser?.birthday || (language === 'zh' ? '填写生日' : 'Set Birthday')}</span>
+                  </button>
+                )}
               </div>
 
             </div>
@@ -186,7 +206,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           {/* Switch Identity Action */}
           <div className="pt-2.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs md:text-sm text-slate-500 dark:text-zinc-400">
             <span className="font-medium text-slate-600 dark:text-zinc-300">
-              {language === 'zh' ? '当前同工身份:' : t('switchCoworkerIdentity', language)}
+              {language === 'zh' ? '当前身份:' : t('switchCoworkerIdentity', language)}
             </span>
             <button
               type="button"
@@ -289,7 +309,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                 {t('coworkerDirectoryTitle', language)}
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                {t('coworkerDirectoryDesc', language)} ({churchState.coworkers.length})
+                {t('coworkerDirectoryDesc', language)} 
               </p>
             </div>
           </div>
@@ -362,7 +382,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
               <h3 className="text-xs md:text-sm font-bold text-slate-900 dark:text-zinc-100">
                 {language === 'zh' ? '外观显示' : 'Appearance'}
               </h3>
-              <p className="text-[11px] md:text-xs text-slate-500 dark:text-zinc-400 truncate">
+              {/* <p className="text-[11px] md:text-xs text-slate-500 dark:text-zinc-400 truncate">
                 {themeMode === 'system'
                   ? (language === 'zh'
                       ? `跟随设备 (${isDarkMode ? '深色' : '浅色'})`
@@ -370,7 +390,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                   : isDarkMode
                   ? (language === 'zh' ? '已锁定深色模式' : 'Locked to Dark')
                   : (language === 'zh' ? '已锁定浅色模式' : 'Locked to Light')}
-              </p>
+              </p> */}
             </div>
           </div>
 
@@ -422,9 +442,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
               <h3 className="text-xs md:text-sm font-bold text-slate-900 dark:text-zinc-100">
                 {t('language', language)}
               </h3>
-              <p className="text-[11px] md:text-xs text-slate-500 dark:text-zinc-400">
+              {/* <p className="text-[11px] md:text-xs text-slate-500 dark:text-zinc-400">
                 {t('languageDesc', language)}
-              </p>
+              </p> */}
             </div>
           </div>
 

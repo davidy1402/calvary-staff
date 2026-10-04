@@ -184,7 +184,7 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
             {/* Department Roster Assignments */}
             <div className="space-y-3 pt-1">
               <h3 className="text-xs font-bold text-slate-500 dark:text-zinc-400 tracking-wider">
-                {language === 'zh' ? '当日服事名单' : 'Duty Roster'}
+                {language === 'zh' ? '当日服侍名单' : 'Duty Roster'}
               </h3>
               {categoryGroups
                 .filter((cat) => service.categoryIds.includes(cat.id))
