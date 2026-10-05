@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { Coworker } from '../types';
-import { Search, Trash2, Phone, UserCheck, MessageSquare, X, Pencil, UserPlus, Camera } from 'lucide-react';
+import { Search, Trash2, Phone, UserCheck, X, Pencil, UserPlus, Camera } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 import { AvatarCropperModal } from './AvatarCropperModal';
@@ -183,11 +183,17 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
 
       {/* Scrollable Content */}
       <div className="p-4 overflow-y-auto flex-1 space-y-3 pb-8 sm:pb-6">
-        {/* Add / Edit Form Card */}
+        {/* Add / Edit Form Sheet */}
         {isFormOpen && (
+          <BottomSheet
+            isOpen={isFormOpen}
+            onClose={resetForm}
+            className="bg-slate-50 dark:bg-black"
+            maxHeight="88dvh"
+          >
           <form
             onSubmit={handleSubmit}
-            className="p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-blue-200 dark:border-zinc-700 shadow-xs space-y-3.5 animate-slide-up"
+            className="p-4 overflow-y-auto flex-1 bg-white dark:bg-zinc-900 space-y-3.5"
           >
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
@@ -214,11 +220,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                   {name.trim()[0] || '同'}
                 </div>
               )}
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-slate-700 dark:text-zinc-200">{language === 'zh' ? '头像' : 'Photo'}</p>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400">{language === 'zh' ? '上传后可拖动与缩放裁切。' : 'Crop by dragging and zooming after upload.'}</p>
-              </div>
-              <button type="button" onClick={() => avatarInputRef.current?.click()} className="min-h-11 px-3 rounded-xl text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-zinc-700 hover:bg-blue-100 dark:hover:bg-zinc-600 flex items-center gap-1.5">
+              <button type="button" onClick={() => avatarInputRef.current?.click()} className="ml-auto min-h-11 px-3 rounded-xl text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-zinc-700 hover:bg-blue-100 dark:hover:bg-zinc-600 flex items-center gap-1.5">
                 <Camera size={14} />
                 {avatar ? (language === 'zh' ? '更换' : 'Change') : (language === 'zh' ? '上传' : 'Upload')}
               </button>
@@ -361,6 +363,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
               </button>
             </div>
           </form>
+          </BottomSheet>
         )}
 
         {/* List of Coworkers */}
@@ -412,22 +415,23 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                     </div>
 
                     {cw.phone && (
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-zinc-400 mt-1 flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Phone size={11} strokeWidth={1.75} className="text-slate-400 dark:text-zinc-500" />
-                          <span>{cw.phone}</span>
-                        </span>
-                        {cleanPhone && (
+                      <div className="mt-1 flex items-center text-[11px] text-slate-500 dark:text-zinc-400">
+                        {cleanPhone ? (
                           <a
                             href={`https://wa.me/60${cleanPhone}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200/70 dark:border-emerald-800/70 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg text-emerald-700 dark:text-emerald-300 font-medium hover:text-emerald-800 dark:hover:text-emerald-200 hover:underline underline-offset-2 transition-colors cursor-pointer"
                             title="打开 WhatsApp 发送消息"
                           >
-                            <MessageSquare size={10} strokeWidth={2} />
-                            <span>WhatsApp</span>
+                            <Phone size={12} strokeWidth={1.9} />
+                            <span>{cw.phone}</span>
                           </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Phone size={12} strokeWidth={1.75} className="text-slate-400 dark:text-zinc-500" />
+                            <span>{cw.phone}</span>
+                          </span>
                         )}
                       </div>
                     )}
@@ -463,7 +467,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                       onClick={() => handleStartEdit(cw)}
                       aria-label={`编辑 ${cw.name}`}
                       title="编辑资料"
-                      className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                     >
                       <Pencil size={14} strokeWidth={2} />
                     </button>
@@ -477,7 +481,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                       }}
                       aria-label={`移除 ${cw.name}`}
                       title="移除服侍人员"
-                      className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                     >
                       <Trash2 size={14} strokeWidth={2} />
                     </button>

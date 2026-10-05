@@ -14,11 +14,12 @@ export const RosterSaveStatus = () => {
   );
 };
 
-export const RosterUndoNotice = ({ inline = false }: { inline?: boolean }) => {
-  const { canUndoRosterChange, undoRosterChange, language } = useChurch();
+export const RosterUndoNotice = () => {
+  const { churchState, canUndoRosterChange, undoRosterChange, language } = useChurch();
   if (!canUndoRosterChange) return null;
+  const rosterRevision = Object.values(churchState.rosters).map((roster) => roster.updatedAt || '').join('|');
   return (
-    <div className={`${inline ? 'shrink-0 mx-4 my-2 animate-fade-in' : 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] max-w-sm'} bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl px-4 py-1 flex items-center justify-between gap-3 shadow-md`} role="status">
+    <div key={rosterRevision} className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] max-w-sm bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl px-4 py-1 flex items-center justify-between gap-3 shadow-md" role="status" style={{ animation: 'fadeIn 180ms ease-out 500ms both' }}>
       <span className="text-sm">{language === 'zh' ? '已更新侍奉表' : 'Roster updated'}</span>
       <button type="button" onClick={undoRosterChange} className="min-h-11 px-2 font-semibold text-sm">{language === 'zh' ? '撤销' : 'Undo'}</button>
     </div>

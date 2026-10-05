@@ -23,6 +23,7 @@ import { BottomPullEasterEgg } from './BottomPullEasterEgg';
 import { CoordinatorPinPopover } from './CoordinatorPinPopover';
 import { AvatarCropperModal } from './AvatarCropperModal';
 import { SeniorCareSettingsScreen } from './SeniorCareSettingsScreen';
+import { BirthdayPickerSheet } from './BirthdayPickerSheet';
 
 interface ProfileScreenProps {
   onOpenUpdates?: () => void;
@@ -47,6 +48,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
   const [isCoworkersOpen, setIsCoworkersOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isUpdatesOpen, setIsUpdatesOpen] = useState(false);
+  const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -150,22 +152,18 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                 {currentUser?.id !== 'cw_guest' && (
                   <button
                     type="button"
-                    onClick={() => {
-                      const input = window.prompt(
-                        language === 'zh'
-                          ? '请输入您的生日日期 (例如：10-30 或 1998-10-30)'
-                          : 'Enter your birthday (e.g. 10-30 or 1998-10-30)',
-                        currentUser?.birthday || ''
-                      );
-                      if (input !== null && currentUser) {
-                        updateCoworker({ ...currentUser, birthday: input.trim() });
-                      }
-                    }}
+                    onClick={() => setIsBirthdayPickerOpen(true)}
                     className="text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/60 flex items-center gap-1 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors cursor-pointer"
                     title={language === 'zh' ? '修改我的生日' : 'Edit birthday'}
                   >
                     <span>🎂</span>
-                    <span>{currentUser?.birthday || (language === 'zh' ? '填写生日' : 'Set Birthday')}</span>
+                    <span>{currentUser?.birthday
+                      ? (() => {
+                        const [yearOrMonth, monthOrDay, day] = currentUser.birthday.split('-');
+                        if (day) return language === 'zh' ? `${yearOrMonth}年${Number(monthOrDay)}月${Number(day)}日` : `${monthOrDay}/${day}/${yearOrMonth}`;
+                        return language === 'zh' ? `${Number(yearOrMonth)}月${Number(monthOrDay)}日` : `${yearOrMonth}/${monthOrDay}`;
+                      })()
+                      : (language === 'zh' ? '填写生日' : 'Set Birthday')}</span>
                   </button>
                 )}
               </div>
@@ -414,11 +412,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
             aria-checked={isElderMode}
             aria-label={t('elderMode', language)}
             onClick={() => setIsElderMode(!isElderMode)}
-            className={`min-w-14 min-h-11 p-1 rounded-full transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${
-              isElderMode ? 'bg-blue-700 dark:bg-blue-500' : 'bg-slate-200 dark:bg-zinc-700'
-            }`}
+            className="min-w-11 min-h-11 p-0 flex items-center justify-center shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
-            <span className={`block w-9 h-9 rounded-full bg-white shadow-sm transition-transform ${isElderMode ? 'translate-x-3' : 'translate-x-0'}`} />
+            <span
+              className={`flex h-[30px] w-[52px] items-center rounded-full p-[3px] transition-colors ${
+                isElderMode ? 'bg-blue-700 dark:bg-blue-500' : 'bg-slate-200 dark:bg-zinc-700'
+              }`}
+            >
+              <span className={`block h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${isElderMode ? 'translate-x-[22px]' : 'translate-x-0'}`} />
+            </span>
           </button>
         </div>
       </div>
@@ -475,6 +477,16 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
           setAvatarFile(null);
         }}
       />
+      {currentUser && currentUser.id !== 'cw_guest' && (
+        <BirthdayPickerSheet
+          key={currentUser.birthday || 'empty'}
+          isOpen={isBirthdayPickerOpen}
+          birthday={currentUser.birthday}
+          language={language}
+          onClose={() => setIsBirthdayPickerOpen(false)}
+          onSave={(birthday) => updateCoworker({ ...currentUser, birthday })}
+        />
+      )}
       </div>
     </div>
   );

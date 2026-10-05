@@ -15,39 +15,60 @@ export interface AppRelease {
 }
 
 export const CURRENT_VERSION: AppRelease = {
-  version: '1.7.1',
+  version: '1.7.2',
   releaseDate: '2026-10-05',
-  title: '权限开放与互动细节修复',
-  summary: '开放个人资料照片与生日日期的自主更新，并修复 WhatsApp 弹层滑动时误触底部彩蛋的问题。',
+  title: '生日滚轮选择器与排班分配体验细化',
+  summary: '用原生滚轮弹层取代文字输入框来选择生日，优化分配弹窗与同工管理列表的交互细节，并修正长者模式开关外观。',
   showOnLaunch: false,
   highlights: [
     {
       category: 'feature',
-      label: '个人资料',
-      title: '开放照片与生日日期更新',
-      description: '服侍人员可以上传或更换个人照片，也可以自行修改生日日期，让个人资料保持最新。',
-    },
-    {
-      category: 'fix',
-      label: '手势修复',
-      title: 'WhatsApp 弹层不再误触彩蛋',
-      description: '打开 WhatsApp Bottom Sheet 后，上滑、滚动与弹层内的触摸操作不会再触发设置页底部彩蛋。',
+      label: '生日填写',
+      title: '滚轮弹层选择生日',
+      description: '点击生日按钮后弹出 iOS 式滚轮选择器，上下滑动直接选年、月、日；年份可留空，日期格式自动适配中英文显示。',
     },
     {
       category: 'ui',
-      label: '更新方式',
-      title: '小更新不打断开屏体验',
-      description: '本次版本仍会记录在设置里的更新历史，但不会在应用启动时自动弹出提示。',
+      label: '分配弹窗',
+      title: '分配与同工管理列表细节优化',
+      description: '分配弹窗（AssignModal）与同工管理（CoworkerManagerModal）的列表排版与交互细节进一步打磨，常用标签更名为「近期服侍」，分类更贴近实际使用习惯。',
+    },
+    {
+      category: 'fix',
+      label: '开关修正',
+      title: '长者模式切换开关外观修正',
+      description: '修正长者模式 Toggle 的尺寸与滑块位移，确保开关在开启与关闭状态下均能正确呈现圆形滑块与背景色变化。',
     },
   ],
 };
 
 export const PAST_RELEASES: AppRelease[] = [
   {
+    version: '1.7.1',
+    releaseDate: '2026-10-05',
+    title: '权限开放与互动细节修复',
+    summary: '开放个人资料照片与生日日期的自主更新，并修复 WhatsApp 弹层滑动时误触底部彩蛋的问题。',
+    highlights: [
+      {
+        category: 'feature',
+        label: '个人资料',
+        title: '开放照片与生日日期更新',
+        description: '服侍人员可以上传或更换个人照片，也可以自行修改生日日期，让个人资料保持最新。',
+      },
+      {
+        category: 'fix',
+        label: '手势修复',
+        title: 'WhatsApp 弹层不再误触彩蛋',
+        description: '打开 WhatsApp Bottom Sheet 后，上滑、滚动与弹层内的触摸操作不会再触发设置页底部彩蛋。',
+      },
+    ],
+  },
+  {
     version: '1.7.0',
     releaseDate: '2026-10-05',
     title: '长者关怀模式与首页详情升级',
     summary: '为长者提供更大、更清楚、更专注的服侍查阅体验，并让首页聚会详情与敬拜歌单一眼看懂。',
+
     highlights: [
       {
         category: 'feature',

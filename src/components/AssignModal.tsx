@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
 import type { RoleDefinition } from '../types';
-import { Search, Star, User, Send } from 'lucide-react';
-import { RosterSaveStatus, RosterUndoNotice } from './RosterSaveStatus';
+import { Search, User, Send } from 'lucide-react';
+import { RosterSaveStatus } from './RosterSaveStatus';
 import { BottomSheet } from './BottomSheet';
 import { t } from '../utils/i18n';
 import { generateWhatsAppDutyChangeText, getWhatsAppShareUrl } from '../utils/whatsappFormatter';
+import { formatDateLabel } from '../utils/dateUtils';
 
 interface AssignModalProps {
   role: RoleDefinition;
@@ -47,6 +48,21 @@ export const AssignModal: React.FC<AssignModalProps> = ({
   const rosterKey = `${effectiveDate}_${effectiveServiceId}`;
   const targetRoster = churchState.rosters[rosterKey];
   const targetService = churchState.services.find((s) => s.id === effectiveServiceId);
+  const [recentScheduleWindow] = useState(() => {
+    const today = new Date();
+    const cutoff = new Date(today);
+    cutoff.setDate(cutoff.getDate() - 90);
+    const toDateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return { today: toDateKey(today), cutoff: toDateKey(cutoff) };
+  });
+  const recentlyScheduledCoworkerIds = useMemo(() => {
+    const counts = new Map<string, number>();
+    Object.values(churchState.rosters).forEach((roster) => {
+      if (roster.date < recentScheduleWindow.cutoff || roster.date > recentScheduleWindow.today || !roster.assignments?.[role.id]) return;
+      roster.assignments[role.id].forEach((coworkerId) => counts.set(coworkerId, (counts.get(coworkerId) || 0) + 1));
+    });
+    return new Set([...counts].filter(([, count]) => count >= 2).map(([coworkerId]) => coworkerId));
+  }, [churchState.rosters, role.id, recentScheduleWindow]);
   const [note, setNote] = useState(() => targetRoster?.dutyNotes?.[role.id] || '');
   const saveNote = () => {
     if (showNoteEditor && note !== (targetRoster?.dutyNotes?.[role.id] || '')) {
@@ -105,14 +121,14 @@ export const AssignModal: React.FC<AssignModalProps> = ({
       if (aAssigned && !bAssigned) return -1;
       if (!aAssigned && bAssigned) return 1;
 
-      const aQualified = a.qualifiedRoleIds.includes(role.id);
-      const bQualified = b.qualifiedRoleIds.includes(role.id);
-      if (aQualified && !bQualified) return -1;
-      if (!aQualified && bQualified) return 1;
+      const aRecentlyScheduled = recentlyScheduledCoworkerIds.has(a.id);
+      const bRecentlyScheduled = recentlyScheduledCoworkerIds.has(b.id);
+      if (aRecentlyScheduled && !bRecentlyScheduled) return -1;
+      if (!aRecentlyScheduled && bRecentlyScheduled) return 1;
 
       return a.name.localeCompare(b.name, 'zh-CN');
     });
-  }, [filteredCoworkers, assignedIds, role.id]);
+  }, [filteredCoworkers, assignedIds, recentlyScheduledCoworkerIds]);
 
   if (!isOpen) return null;
 
@@ -121,14 +137,16 @@ export const AssignModal: React.FC<AssignModalProps> = ({
       <div className="px-4 pb-3 pt-0.5 border-b border-slate-100 dark:border-zinc-800 shrink-0 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
-            {showNoteEditor ? (language === 'zh' ? '编辑岗位' : 'Edit role') : t('assignRole', language)} {role.name}
+            {showNoteEditor
+              ? (language === 'zh' ? `编辑${role.name}` : `Edit ${role.name}`)
+              : `${t('assignRole', language)} ${role.name}`}
           </h2>
           <p className="text-xs leading-relaxed text-slate-600 dark:text-zinc-400 mt-1">
-            {effectiveDate} {targetService?.name}
+            {formatDateLabel(effectiveDate, language)} {targetService?.name}
           </p>
-          <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
+          {/* <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
             {language === 'zh' ? '点击可选取或移除' : 'Tap a person to assign or remove.'}
-          </p>
+          </p> */}
         </div>
         <button type="button" onClick={handleClose} className="min-h-11 px-3 rounded-lg text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 shrink-0">
           {t('done', language)}
@@ -182,7 +200,7 @@ export const AssignModal: React.FC<AssignModalProps> = ({
         ) : (
           sortedCoworkers.map((cw) => {
             const isAssigned = assignedIds.includes(cw.id);
-            const isQualified = cw.qualifiedRoleIds.includes(role.id);
+            const isRecentlyScheduled = recentlyScheduledCoworkerIds.has(cw.id);
 
             return (
               <button
@@ -245,9 +263,9 @@ export const AssignModal: React.FC<AssignModalProps> = ({
                           ({cw.englishName})
                         </span>
                       )}
-                      {isQualified && (
+                      {isRecentlyScheduled && (
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-zinc-400">
-                          <Star size={10} strokeWidth={2} />
+                          <span aria-hidden="true">·</span>
                           {t('regularRole', language)}
                         </span>
                       )}
@@ -277,12 +295,12 @@ export const AssignModal: React.FC<AssignModalProps> = ({
         {lastChange && (assignedIds.includes(lastChange.coworkerId) === (lastChange.action === 'assigned')) && (
           <div className="px-4 py-3 bg-blue-50/95 dark:bg-zinc-800/95 border-t border-blue-200/80 dark:border-zinc-700 flex items-center justify-between gap-3 shrink-0 animate-slide-up">
             <div className="min-w-0">
-              <p className="text-xs font-bold text-blue-900 dark:text-zinc-100 truncate">
+              {/* <p className="text-xs font-bold text-blue-900 dark:text-zinc-100 truncate">
                 {lastChange.action === 'assigned'
-                  ? `已指派: ${lastChange.coworkerName}`
+                  ? `已安排: ${lastChange.coworkerName}`
                   : `已移除: ${lastChange.coworkerName}`}
-              </p>
-              <p className="text-[10px] text-blue-700 dark:text-zinc-400 truncate">
+              </p> */}
+              <p className="text-[12px] text-blue-700 dark:text-zinc-400 truncate">
                 {leadVocalNames
                   ? `本次领诗：${leadVocalNames}`
                   : (language === 'zh' ? '可直接发送异动通知' : 'Ready to notify team')}
@@ -299,7 +317,6 @@ export const AssignModal: React.FC<AssignModalProps> = ({
             </button>
           </div>
         )}
-        <RosterUndoNotice inline />
       </BottomSheet>
   );
 };
