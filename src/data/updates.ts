@@ -62,6 +62,32 @@ export const CURRENT_VERSION: AppRelease = {
 
 export const PAST_RELEASES: AppRelease[] = [
   {
+    version: '1.7.2',
+    releaseDate: '2026-10-05',
+    title: '生日更容易填、排班更好用',
+    summary: '生日日期现在可以直接滑动选择，不再需要手动输入；分配服侍人员的标签也更新得更清楚了。',
+    highlights: [
+      {
+        category: 'feature',
+        label: '生日填写',
+        title: '滑动选择生日，不用再手动打字',
+        description: '点击个人资料的生日按钮，会弹出滑动选择器，上下滑动就能选好年、月、日。年份不想填可以留空，日期显示也会自动换算成易读的格式。',
+      },
+      {
+        category: 'ui',
+        label: '排班分配',
+        title: '「近期服侍」标签让分配更一目了然',
+        description: '在分配服侍人员时，原本的「常用」分类已更名为「近期服侍」，更准确反映实际意思，方便快速找到合适人选。',
+      },
+      {
+        category: 'fix',
+        label: '显示修正',
+        title: '长者模式开关现在看起来正常了',
+        description: '设置页里的「长者模式」开关外观已修正，开启和关闭的状态都能清楚看出来，不再显示异常。',
+      },
+    ],
+  },
+  {
     version: '1.7.1',
     releaseDate: '2026-10-05',
     title: '权限开放与互动细节修复',
