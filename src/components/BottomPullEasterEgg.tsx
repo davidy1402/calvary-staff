@@ -3,9 +3,10 @@ import { EasterEggModal } from './EasterEggModal';
 
 interface BottomPullEasterEggProps {
   language: 'zh' | 'en';
+  disabled?: boolean;
 }
 
-export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ language }) => {
+export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ language, disabled = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pullProgress, setPullProgress] = useState(0); // 0 to 5 dots
   const [dragNudge, setDragNudge] = useState(0);
@@ -76,7 +77,16 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
   }, [triggerEasterEgg]);
 
   useEffect(() => {
+    const isInsideOpenDialog = (target: EventTarget | null) =>
+      target instanceof Element && Boolean(target.closest('dialog[open]'));
+
     const handleTouchStart = (e: TouchEvent) => {
+      if (disabled || isInsideOpenDialog(e.target)) {
+        clearHold();
+        startYRef.current = null;
+        isPullingRef.current = false;
+        return;
+      }
       if (isAtBottom()) {
         startYRef.current = e.touches[0].clientY;
         isPullingRef.current = true;
@@ -88,6 +98,7 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (disabled || isInsideOpenDialog(e.target)) return;
       if (!isPullingRef.current || startYRef.current === null) return;
       if (!isAtBottom()) {
         clearHold();
@@ -116,6 +127,10 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
     let wheelHoldTimer: number | null = null;
 
     const handleWheel = (e: WheelEvent) => {
+      if (disabled || isInsideOpenDialog(e.target)) {
+        clearHold();
+        return;
+      }
       if (!isAtBottom()) {
         clearHold();
         return;
@@ -145,7 +160,7 @@ export const BottomPullEasterEgg: React.FC<BottomPullEasterEggProps> = ({ langua
       clearHold();
       if (wheelHoldTimer) window.clearTimeout(wheelHoldTimer);
     };
-  }, [isAtBottom, startHold, clearHold]);
+  }, [disabled, isAtBottom, startHold, clearHold]);
 
   // Discrete fallback: 10 rapid taps on bottom area
   const handleFooterTap = () => {

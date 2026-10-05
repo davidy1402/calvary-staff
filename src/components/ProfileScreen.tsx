@@ -112,14 +112,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
 
               </div>
 
-              {isEditMode && <button
+              <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 aria-label={t('changeAvatar', language)}
                 className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center border-2 border-white dark:border-zinc-800 shadow-2xs cursor-pointer active:scale-95 transition-transform"
               >
                 <Camera size={13} strokeWidth={2.5} />
-              </button>}
+              </button>
 
               {/* Hidden File Input */}
               <input
@@ -148,7 +148,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                 <span className="text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
                   {t('coworker', language)}
                 </span>
-                {isEditMode && currentUser?.id !== 'cw_guest' && (
+                {currentUser?.id !== 'cw_guest' && (
                   <button
                     type="button"
                     onClick={() => {
@@ -431,7 +431,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
       </div>
 
       {/* Secret Pull-Down Bottom Easter Egg */}
-      <BottomPullEasterEgg language={language} />
+      <BottomPullEasterEgg
+        language={language}
+        disabled={isWhatsAppOpen || isCoworkersOpen || isServicesOpen || isUpdatesOpen}
+      />
 
       {/* WhatsApp Bottom Sheet Modal */}
       {isWhatsAppOpen && (

@@ -260,7 +260,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                         {language === 'zh' ? '查看完整资料' : 'View full details'} <ChevronRight size={22} strokeWidth={2.25} aria-hidden="true" />
                       </span>
                     </button>
-                    {roster.date >= today && currentUser && (roster.assignments.lead_vocal || []).includes(currentUser.id) && (
+                    {roster.date >= today && currentUser && !isElderMode &&(roster.assignments.lead_vocal || []).includes(currentUser.id) && (
                       <button type="button" onClick={() => onOpenSetlist(roster.date, service.id)} className="mt-3 min-h-14 w-full rounded-2xl border-2 border-blue-800 bg-white px-4 text-lg font-extrabold text-blue-800 transition-colors hover:bg-blue-50 dark:border-blue-400 dark:bg-zinc-900 dark:text-blue-300 dark:hover:bg-zinc-800">
                         {language === 'zh' ? '更新这次的歌单' : 'Update this setlist'}
                       </button>

@@ -92,7 +92,7 @@ export const TRANSLATIONS = {
     languageOptionZh: '简体中文',
     languageOptionEn: 'English',
     elderMode: '长者关怀模式',
-    elderModeDesc: '超大字号、关键信息简化，一屏看懂服侍',
+    elderModeDesc: '超大字号，简化信息',
     userGuide: '使用指南',
     userGuideDesc: '3步轻松上手：认领姓名、查看服侍与一键存日历',
     offlineStatus: '数据保存在本地浏览器，断网亦可顺畅查阅',
