@@ -10,17 +10,19 @@ import {
   Sun,
   Moon,
   Sparkles,
+  Heart,
 } from 'lucide-react';
 import { WhatsAppModal } from './WhatsAppModal';
 import { CoworkerManagerModal } from './CoworkerManagerModal';
 import { ServiceManagerModal } from './ServiceManagerModal';
 import { LatestUpdateModal } from './LatestUpdateModal';
-import { ChurchLogo } from './ChurchLogo';
+import { AppHeader } from './AppHeader';
 import { CURRENT_VERSION } from '../data/updates';
 import { t } from '../utils/i18n';
 import { BottomPullEasterEgg } from './BottomPullEasterEgg';
 import { CoordinatorPinPopover } from './CoordinatorPinPopover';
 import { AvatarCropperModal } from './AvatarCropperModal';
+import { SeniorCareSettingsScreen } from './SeniorCareSettingsScreen';
 
 interface ProfileScreenProps {
   onOpenUpdates?: () => void;
@@ -37,6 +39,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
     isDarkMode,
     themeMode,
     setThemeMode,
+    isElderMode,
+    setIsElderMode,
     setIsIdentityModalOpen,
   } = useChurch();
 
@@ -58,17 +62,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
     e.target.value = '';
   };
 
+  if (isElderMode) return <SeniorCareSettingsScreen />;
+
   return (
     <div className="min-h-full pb-8">
-      {/* Centered AppBar */}
-      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200/80 dark:border-zinc-800 px-4 md:px-6 pb-3 sticky top-0 z-30 shadow-2xs flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ChurchLogo className="w-7 h-7 object-contain shrink-0" />
-          <h1 className="text-sm md:text-base font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
-            CCCJB Connect {t('settingsTitle', language)}
-          </h1>
-        </div>
-        <CoordinatorPinPopover />
+      <AppHeader title={t('settingsTitle', language)} action={<CoordinatorPinPopover />}>
 
         {/* Cloud Sync Status Indicator (Only display when active) */}
         {/* {syncStatus !== 'offline' && (
@@ -87,7 +85,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
             </span>
           </div>
         )} */}
-      </header>
+      </AppHeader>
 
       {/* Screen Body Content */}
       <div className="px-4 md:px-6 pt-4 space-y-4 md:space-y-6 animate-slide-up">
@@ -107,7 +105,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-blue-100 dark:bg-zinc-800 text-blue-900 dark:text-zinc-100 flex items-center justify-center text-xl md:text-2xl font-black">
+                  <div className="w-full h-full bg-blue-100 dark:bg-zinc-800 text-blue-900 dark:text-blue-200 flex items-center justify-center text-xl md:text-2xl font-black">
                     {avatarLetter}
                   </div>
                 )}
@@ -395,6 +393,34 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) =
               English
             </button>
           </div>
+        </div>
+
+        <div className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl md:rounded-3xl border border-slate-200/90 dark:border-zinc-800 shadow-2xs p-3.5 md:p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0">
+              <Heart size={21} strokeWidth={2} aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-sm md:text-base font-bold text-slate-900 dark:text-zinc-100">
+                {t('elderMode', language)}
+              </h3>
+              <p className="mt-0.5 text-xs md:text-sm leading-5 text-slate-600 dark:text-zinc-300">
+                {t('elderModeDesc', language)}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isElderMode}
+            aria-label={t('elderMode', language)}
+            onClick={() => setIsElderMode(!isElderMode)}
+            className={`min-w-14 min-h-11 p-1 rounded-full transition-colors shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${
+              isElderMode ? 'bg-blue-700 dark:bg-blue-500' : 'bg-slate-200 dark:bg-zinc-700'
+            }`}
+          >
+            <span className={`block w-9 h-9 rounded-full bg-white shadow-sm transition-transform ${isElderMode ? 'translate-x-3' : 'translate-x-0'}`} />
+          </button>
         </div>
       </div>
 

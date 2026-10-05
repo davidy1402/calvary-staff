@@ -17,6 +17,7 @@ import {
   INITIAL_ROSTERS,
 } from '../data/initialData';
 import { RosterSyncQueue } from '../utils/rosterSyncQueue';
+import { getStoredElderMode, saveElderMode } from '../utils/elderMode';
 import { getUpcomingServiceDate } from '../utils/dateUtils';
 import type { Language } from '../utils/i18n';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -55,6 +56,9 @@ interface ChurchContextType {
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => void;
   toggleDarkMode: () => void;
+  isElderMode: boolean;
+  setIsElderMode: (enabled: boolean) => void;
+  toggleElderMode: () => void;
 
   // Authentication State
   isAuthenticated: boolean;
@@ -425,6 +429,26 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     mediaQuery.addEventListener('change', handleMediaChange);
     return () => mediaQuery.removeEventListener('change', handleMediaChange);
   }, [themeMode]);
+
+  // Elder / Senior Citizen Mode (Larger fonts, high contrast, simplified display)
+  const [isElderMode, setIsElderModeState] = useState<boolean>(() => {
+    try {
+      return getStoredElderMode(localStorage);
+    } catch {
+      return false;
+    }
+  });
+
+  const setIsElderMode = (enabled: boolean) => {
+    setIsElderModeState(enabled);
+    try {
+      saveElderMode(localStorage, enabled);
+    } catch {}
+  };
+
+  const toggleElderMode = () => {
+    setIsElderMode(!isElderMode);
+  };
 
   // Synchronize root HTML class and dynamic theme-color meta tag
   useEffect(() => {
@@ -1155,6 +1179,9 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         themeMode,
         setThemeMode,
         toggleDarkMode,
+        isElderMode,
+        setIsElderMode,
+        toggleElderMode,
         userMode,
         isEditMode,
         startAdminEditing,

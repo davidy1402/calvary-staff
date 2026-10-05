@@ -7,7 +7,6 @@ import {
   ChevronUp,
   Plus,
   X,
-  Share2,
   FileText,
   Clock,
   MapPin,
@@ -19,7 +18,8 @@ import { WhatsAppModal } from './WhatsAppModal';
 import { WorshipSongSection } from './WorshipSongSection';
 import { ServiceManagerModal } from './ServiceManagerModal';
 import { ServiceEventBadge } from './ServiceEventBadge';
-import { ChurchLogo } from './ChurchLogo';
+import { AppHeader } from './AppHeader';
+import { SeniorCareRosterScreen } from './SeniorCareRosterScreen';
 import { t } from '../utils/i18n';
 import type { RoleDefinition, ServiceRoster, RoleCategoryId } from '../types';
 
@@ -44,7 +44,10 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
     addSpecialEvent,
     removeSpecialEvent,
     language,
+    isElderMode,
   } = useChurch();
+
+  if (isElderMode) return <SeniorCareRosterScreen />;
 
   // Selected role for AssignModal
   const [selectedRoleForAssign, setSelectedRoleForAssign] = useState<{
@@ -142,23 +145,10 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
 
   return (
     <div className="min-h-full">
-      {/* Centered AppBar with Permission & Mode Switcher */}
-      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200 dark:border-zinc-800 px-4 md:px-6 pb-0 sticky top-0 z-30 shadow-2xs">
-        <div className="flex items-center justify-between pb-1">
-          {/* Title & Active Edit Mode Indicator */}
-          <div className="flex items-center gap-2">
-            <ChurchLogo className="w-6 h-6 md:w-7 md:h-7 object-contain shrink-0" />
-            <h1 className="text-base md:text-lg font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
-              {isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
-            </h1>
-
-          </div>
-
-          {/* Administration is intentionally kept in the overflow menu. */}
-          <div className="flex items-center gap-1.5">
-            <CoordinatorPinPopover />
-          </div>
-        </div>
+      <AppHeader
+        title={isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
+        action={<CoordinatorPinPopover />}
+      >
 
         {/* TabBar: Material Underline Tabs */}
         <div className="flex border-b border-slate-200/80 dark:border-zinc-800 mt-2 px-1">
@@ -181,13 +171,13 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                 }}
                 className={`flex-1 pb-2 pt-1 text-xs md:text-sm text-center transition-all duration-200 relative cursor-pointer ${
                   isActive
-                    ? 'text-blue-900 dark:text-blue-400 font-extrabold'
+                    ? 'text-blue-800 dark:text-blue-300 font-extrabold'
                     : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 font-medium'
                 }`}
               >
                 <span>{tabLabel}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-blue-900 dark:bg-blue-400 rounded-full transition-all duration-200" />
+                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-blue-800 dark:bg-blue-300 rounded-full transition-all duration-200" />
                 )}
               </button>
             );
@@ -229,7 +219,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
               onClick={() => setFilterType(chip.id)}
               className={`min-h-11 px-3.5 rounded-xl text-xs md:text-sm font-semibold shrink-0 transition-colors cursor-pointer ${
                 filterType === chip.id
-                  ? 'bg-blue-900 dark:bg-blue-600 text-white shadow-xs'
+                  ? 'bg-blue-800 dark:bg-blue-600 text-white shadow-xs'
                   : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
               }`}
             >
@@ -248,7 +238,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
             ))}
           </select>
         </div>
-      </header>
+      </AppHeader>
 
       <div className="px-4 md:px-6 pt-2"><RosterSaveStatus /></div>
 
@@ -336,11 +326,14 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                           </span>
 
                           {isPast ? (
-                            <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
-                              {language === 'zh' ? '已结束' : 'Past'}
-                            </span>
+                            <>
+                              <br />
+                              <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                                {language === 'zh' ? '已结束' : 'Past'}
+                              </span>
+                            </>
                           ) : isNextUpcoming ? (
-                            <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200/70 dark:border-blue-900/50">
+                            <span className="text-[10px] font-bold text-blue-500 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200/70 dark:border-blue-900/50">
                               {roster.date === todayStr ? (language === 'zh' ? '今日聚会' : 'Today') : (language === 'zh' ? '来临主日' : 'Upcoming')}
                             </span>
                           ) : null}
@@ -383,17 +376,17 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                     </button>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <button
+                      {/* <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setWhatsAppModalRoster(roster);
                         }}
                         title="预览并分享 WhatsApp 侍奉表"
-                        className="w-11 h-11 rounded-xl flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors active:scale-90 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
+                        className="w-11 h-11 rounded-xl flex items-center justify-center text-blue-700 dark:text-blue-300 hover:text-emerald-800 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors active:scale-90 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
                       >
                       <Share2 size={17} strokeWidth={2} />
-                    </button>
+                    </button> */}
                     <button
                       type="button"
                       onClick={() => toggleExpand(roster.date)}

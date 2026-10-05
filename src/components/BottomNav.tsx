@@ -2,6 +2,7 @@ import React from 'react';
 import { Home, CalendarDays, SlidersHorizontal } from 'lucide-react';
 import { useChurch } from '../context/ChurchContext';
 import { t, type TranslationKey } from '../utils/i18n';
+import { getSeniorCareNavigation } from '../utils/seniorCare';
 
 export type TabType = 'dashboard' | 'roster' | 'profile';
 
@@ -11,7 +12,7 @@ interface BottomNavProps {
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange }) => {
-  const { language } = useChurch();
+  const { language, isElderMode } = useChurch();
 
   const tabs: Array<{ id: TabType; key: TranslationKey; icon: typeof Home }> = [
     { id: 'dashboard', key: 'home', icon: Home },
@@ -20,6 +21,32 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
   ];
 
   const activeIndex = tabs.findIndex((tab) => tab.id === currentTab);
+
+  if (isElderMode) {
+    const seniorTabs = getSeniorCareNavigation(language);
+    return (
+      <nav aria-label={language === 'zh' ? '长者模式主要导航' : 'Senior Care main navigation'} className="senior-care-nav">
+        <div className="senior-care-nav-inner">
+          {seniorTabs.map((tab) => {
+            const isActive = currentTab === tab.id;
+            const IconComponent = tabs.find((item) => item.id === tab.id)?.icon ?? Home;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onTabChange(tab.id)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`senior-care-nav-item ${isActive ? 'is-active' : ''}`}
+              >
+                <IconComponent size={24} strokeWidth={2.25} aria-hidden="true" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav
