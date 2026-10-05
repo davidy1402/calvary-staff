@@ -10,7 +10,6 @@ import { getTimeGreeting } from '../utils/greetingUtils';
 import { RosterDetailModal } from './RosterDetailModal';
 import { BirthdayCelebration } from './BirthdayCelebration';
 import { UserGuideSheet } from './UserGuideSheet';
-import { getClosestDatedItems } from '../utils/closestAssignments';
 import { getSeniorCareScheduleRows, isRedundantDutyNote } from '../utils/seniorCare';
 import { formatDateLabel } from '../utils/dateUtils';
 import type { ServiceRoster, ServiceDefinition } from '../types';
@@ -57,10 +56,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
     return cw.birthday === today || cw.birthday.endsWith(todayMMDD);
   });
 
-  const displayedAssignments = userAssignments;
+  // Keep all future duties visible, including in senior-care mode. Past duties remain available on demand.
+  const upcomingAssignments = userAssignments.filter(({ roster }) => roster.date >= today);
+  const pastAssignments = userAssignments
+    .filter(({ roster }) => roster.date < today)
+    .sort((a, b) => b.roster.date.localeCompare(a.roster.date));
+  const [showPastDuties, setShowPastDuties] = useState(false);
+  const displayedAssignments = [...upcomingAssignments, ...(showPastDuties ? pastAssignments : [])];
   const monthlyAssignments = userAssignments.filter(({ roster }) => roster.date.slice(0, 7) === today.slice(0, 7));
-  const elderAssignments = getClosestDatedItems(userAssignments, today);
-  const assignmentsToDisplay = isElderMode ? elderAssignments : displayedAssignments;
+  const assignmentsToDisplay = displayedAssignments;
 
   const [selectedDuty, setSelectedDuty] = useState<{
     roster: ServiceRoster;
@@ -216,16 +220,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
               </button>
             </div>
           </div>
-        ) : assignmentsToDisplay.length === 0 ? (
+        ) : userAssignments.length === 0 ? (
           <div className="py-8 text-center text-slate-500 dark:text-zinc-400 text-sm space-y-1">
             <p className="font-semibold text-slate-700 dark:text-zinc-200">{t('noDutiesThisSeason', language)}</p>
             <p className="text-xs text-slate-400 dark:text-zinc-500 max-w-xs mx-auto leading-relaxed">{t('noDutiesHint', language)}</p>
           </div>
         ) : (
+          <>
+          {assignmentsToDisplay.length > 0 ? (
           <div className="divide-y divide-slate-100 dark:divide-zinc-800/80">
-            {assignmentsToDisplay.map(({ roster, service, roles }) => {
+            {assignmentsToDisplay.map(({ roster, service, roles }, index) => {
               const { month, day, weekday } = getDateParts(roster.date);
               const dateLabel = formatDateLabel(roster.date, language);
+              const isPast = roster.date < today;
+              const isFirstPast = isPast && index === upcomingAssignments.length;
               const notes = Object.entries(roster.assignments)
                 .filter(([, ids]) => currentUser && ids.includes(currentUser.id))
                 .map(([roleId]) => roster.dutyNotes?.[roleId])
@@ -242,7 +250,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                 }, language);
 
                 return (
-                  <article key={roster.id} className="py-4 first:pt-1">
+                  <React.Fragment key={roster.id}>
+                  {isFirstPast && (
+                    <div className="pt-5 pb-2 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
+                      <span className="text-sm font-bold text-slate-500 dark:text-zinc-400">{language === 'zh' ? '已结束的服侍' : 'Completed duties'}</span>
+                      <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
+                    </div>
+                  )}
+                  <article className={`py-4 first:pt-1 ${isPast ? 'opacity-60 grayscale-[0.25]' : ''}`}>
                     <button
                       type="button"
                       onClick={() => setSelectedDuty({ roster, service })}
@@ -268,15 +284,23 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                       </button>
                     )}
                   </article>
+                  </React.Fragment>
                 );
               }
 
               return (
                 <div key={roster.id} className={isElderMode ? 'py-3' : 'py-2'}>
+                  {isFirstPast && (
+                    <div className="pt-3 pb-2 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
+                      <span className="text-[11px] font-semibold text-slate-400 dark:text-zinc-500">{language === 'zh' ? '已结束的服侍' : 'Completed duties'}</span>
+                      <div className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => setSelectedDuty({ roster, service })}
-                    className={`press-feedback w-full text-left ${isElderMode ? 'py-4 px-2 gap-4' : 'py-3 px-1.5 gap-3'} flex items-start hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 rounded-xl transition-colors group`}
+                    className={`press-feedback w-full text-left ${isElderMode ? 'py-4 px-2 gap-4' : 'py-3 px-1.5 gap-3'} flex items-start hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 rounded-xl transition-colors group ${isPast ? 'opacity-60 grayscale-[0.25]' : ''}`}
                   >
                   {/* Calendar Ticket Badge */}
                   <div className={`${isElderMode ? 'w-16 min-h-22 p-2' : 'w-13 p-1.5'} shrink-0 bg-slate-100/80 dark:bg-zinc-800/70 rounded-xl text-center flex flex-col items-center justify-center`}>
@@ -343,6 +367,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
               );
             })}
           </div>
+          ) : (
+            <div className="py-6 text-center text-sm text-slate-500 dark:text-zinc-400">
+              {language === 'zh' ? '目前没有即将到来的服侍安排' : 'No upcoming duties'}
+            </div>
+          )}
+
+          {pastAssignments.length > 0 && (
+            <button
+              type="button"
+              aria-expanded={showPastDuties}
+              onClick={() => setShowPastDuties((visible) => !visible)}
+              className={`${isElderMode ? 'min-h-14 text-base' : 'min-h-11 text-xs'} mt-2 w-full rounded-xl font-semibold text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors`}
+            >
+              {language === 'zh'
+                ? `${showPastDuties ? '收起' : '查看'}已结束的服侍（${pastAssignments.length}）`
+                : `${showPastDuties ? 'Hide' : 'View'} completed duties (${pastAssignments.length})`}
+            </button>
+          )}
+          </>
         )}
 
 

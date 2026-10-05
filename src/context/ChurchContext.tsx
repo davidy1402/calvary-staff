@@ -3,6 +3,7 @@ import type {
   ChurchState,
   ServiceDefinition,
   ServiceRoster,
+  ServiceException,
   Coworker,
   UserMode,
   ConflictItem,
@@ -35,6 +36,8 @@ import {
   upsertRemoteCoworker,
   deleteRemoteCoworker,
   upsertRemoteService,
+  upsertRemoteServiceException,
+  deleteRemoteServiceException,
   subscribeToRealtimeChanges,
 } from '../lib/supabaseSync';
 
@@ -73,6 +76,9 @@ interface ChurchContextType {
   exitAdminEditing: () => void;
 
   getRostersForService: (serviceId: string) => ServiceRoster[];
+  getServiceExceptions: (serviceId: string) => ServiceException[];
+  saveServiceException: (exception: Omit<ServiceException, 'id' | 'updatedAt'>) => void;
+  removeServiceException: (date: string, serviceId: string) => void;
   getUserSeasonAssignments: (coworkerId?: string) => Array<{
     roster: ServiceRoster;
     service: ServiceDefinition;
@@ -329,6 +335,7 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
       ...INITIAL_ROSTERS,
       ...cleanedSavedRosters,
     },
+    serviceExceptions: saved.serviceExceptions || {},
   };
 };
 
@@ -720,6 +727,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 Object.keys(remoteData.rosters).length > 0
                   ? { ...prev.rosters, ...Object.fromEntries(Object.entries(remoteData.rosters).filter(([id]) => !rosterQueue.has(id) && !editedRosterIds.current.has(id))) }
                   : prev.rosters,
+              serviceExceptions: remoteData.serviceExceptions,
             }));
           }
           setSyncStatus('synced');
@@ -770,6 +778,18 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           services: prev.services.map((s) => (s.id === updatedService.id ? updatedService : s)),
         }));
       },
+      onServiceExceptionChange: (updatedException) => {
+        setChurchState((prev) => ({
+          ...prev,
+          serviceExceptions: { ...prev.serviceExceptions, [updatedException.id]: updatedException },
+        }));
+      },
+      onServiceExceptionDelete: (deletedExceptionId) => {
+        setChurchState((prev) => {
+          const { [deletedExceptionId]: _removed, ...serviceExceptions } = prev.serviceExceptions;
+          return { ...prev, serviceExceptions };
+        });
+      },
     });
 
     return () => {
@@ -785,6 +805,31 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return Object.values(churchState.rosters)
       .filter((r) => r.serviceId === serviceId)
       .sort((a, b) => a.date.localeCompare(b.date));
+  };
+
+  const getServiceExceptions = (serviceId: string): ServiceException[] => {
+    return Object.values(churchState.serviceExceptions)
+      .filter((exception) => exception.serviceId === serviceId)
+      .sort((a, b) => a.date.localeCompare(b.date));
+  };
+
+  const saveServiceException = (input: Omit<ServiceException, 'id' | 'updatedAt'>) => {
+    const id = `${input.date}_${input.serviceId}`;
+    const exception: ServiceException = { ...input, id, updatedAt: new Date().toISOString() };
+    setChurchState((prev) => ({
+      ...prev,
+      serviceExceptions: { ...prev.serviceExceptions, [id]: exception },
+    }));
+    void upsertRemoteServiceException(exception);
+  };
+
+  const removeServiceException = (date: string, serviceId: string) => {
+    const id = `${date}_${serviceId}`;
+    setChurchState((prev) => {
+      const { [id]: _removed, ...serviceExceptions } = prev.serviceExceptions;
+      return { ...prev, serviceExceptions };
+    });
+    void deleteRemoteServiceException(id);
   };
 
   const getUserSeasonAssignments = (coworkerId?: string) => {
@@ -1123,7 +1168,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       const parsed = JSON.parse(jsonText);
       if (parsed.churchName && Array.isArray(parsed.services) && Array.isArray(parsed.coworkers)) {
-        setChurchState(parsed);
+        setChurchState(mergeStateWithInitial(parsed));
         return true;
       }
     } catch (e) {
@@ -1187,6 +1232,9 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         startAdminEditing,
         exitAdminEditing,
         getRostersForService,
+        getServiceExceptions,
+        saveServiceException,
+        removeServiceException,
         getUserSeasonAssignments,
         assignCoworker,
         removeAssignment,

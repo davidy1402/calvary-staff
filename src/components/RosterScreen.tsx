@@ -7,9 +7,11 @@ import {
   ChevronUp,
   Plus,
   X,
+  Share2,
   FileText,
   Clock,
   MapPin,
+  CalendarOff,
 } from 'lucide-react';
 import { CoordinatorPinPopover } from './CoordinatorPinPopover';
 import { RosterSaveStatus } from './RosterSaveStatus';
@@ -18,11 +20,12 @@ import { WhatsAppModal } from './WhatsAppModal';
 import { WorshipSongSection } from './WorshipSongSection';
 import { ServiceManagerModal } from './ServiceManagerModal';
 import { ServiceEventBadge } from './ServiceEventBadge';
-import { formatDateLabel } from '../utils/dateUtils';
-import { AppHeader } from './AppHeader';
+import { ChurchLogo } from './ChurchLogo';
+import { ServiceExceptionsModal } from './ServiceExceptionsModal';
 import { SeniorCareRosterScreen } from './SeniorCareRosterScreen';
 import { t } from '../utils/i18n';
 import type { RoleDefinition, ServiceRoster, RoleCategoryId } from '../types';
+import { getUpcomingServiceDates } from '../utils/dateUtils';
 
 const getTodayDateStr = () => {
   const now = new Date();
@@ -41,14 +44,13 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
     activeService,
     isEditMode,
     getRostersForService,
+    getServiceExceptions,
     updateRosterMeta,
     addSpecialEvent,
     removeSpecialEvent,
     language,
     isElderMode,
   } = useChurch();
-
-  if (isElderMode) return <SeniorCareRosterScreen />;
 
   // Selected role for AssignModal
   const [selectedRoleForAssign, setSelectedRoleForAssign] = useState<{
@@ -65,14 +67,39 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
 
   // Service Edit Modal
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [isExceptionsModalOpen, setIsExceptionsModalOpen] = useState(false);
 
   const todayStr = getTodayDateStr();
   const allServiceRosters = getRostersForService(activeServiceId);
+  const serviceExceptions = getServiceExceptions(activeServiceId);
+  const exceptionsByDate = new Map(serviceExceptions.map((exception) => [exception.date, exception]));
 
-  // Upcoming & current: date >= today, sorted ascending (closest upcoming Sunday/service first)
-  const upcomingRosters = allServiceRosters
-    .filter((r) => r.date >= todayStr)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  // Weekly services are shown automatically; a roster record is only created once someone edits it.
+  const upcomingByDate = new Map<string, ServiceRoster>();
+  for (const date of getUpcomingServiceDates(activeService.weekday, 8)) {
+    upcomingByDate.set(date, {
+      id: `${date}_${activeServiceId}`,
+      serviceId: activeServiceId,
+      date,
+      assignments: {},
+      updatedAt: '',
+    });
+  }
+  for (const exception of serviceExceptions.filter((item) => item.date >= todayStr)) {
+    if (!upcomingByDate.has(exception.date)) {
+      upcomingByDate.set(exception.date, {
+        id: `${exception.date}_${activeServiceId}`,
+        serviceId: activeServiceId,
+        date: exception.date,
+        assignments: {},
+        updatedAt: '',
+      });
+    }
+  }
+  for (const roster of allServiceRosters.filter((item) => item.date >= todayStr)) {
+    upcomingByDate.set(roster.date, roster);
+  }
+  const upcomingRosters = [...upcomingByDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 
   // Past: date < today, sorted descending (most recently passed at top of past section)
   const pastRosters = allServiceRosters
@@ -101,6 +128,14 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
       ...prev,
       [date]: !prev[date],
     }));
+  };
+
+  const getWeekdayShort = (dateStr: string) => {
+    const [yyyy, mm, dd] = dateStr.split('-');
+    const date = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+    const weekdaysZh = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const weekdaysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return language === 'zh' ? weekdaysZh[date.getDay()] : weekdaysEn[date.getDay()];
   };
 
   const getServiceShortName = (serviceId: string, defaultShortName: string) => {
@@ -135,13 +170,27 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
     { id: 'hospitality', label: t('filterHospitality', language) },
   ];
 
+  if (isElderMode) return <SeniorCareRosterScreen />;
 
   return (
     <div className="min-h-full">
-      <AppHeader
-        title={isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
-        action={<CoordinatorPinPopover />}
-      >
+      {/* Centered AppBar with Permission & Mode Switcher */}
+      <header className="app-header-safe bg-white dark:bg-black border-b border-slate-200 dark:border-zinc-800 px-4 md:px-6 pb-0 sticky top-0 z-30 shadow-2xs">
+        <div className="flex items-center justify-between pb-1">
+          {/* Title & Active Edit Mode Indicator */}
+          <div className="flex items-center gap-2">
+            <ChurchLogo className="w-6 h-6 md:w-7 md:h-7 object-contain shrink-0" />
+            <h1 className="text-base md:text-lg font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
+              {isEditMode ? t('editRosterTitle', language) : t('rosterTitle', language)}
+            </h1>
+
+          </div>
+
+          {/* Administration is intentionally kept in the overflow menu. */}
+          <div className="flex items-center gap-1.5">
+            <CoordinatorPinPopover />
+          </div>
+        </div>
 
         {/* TabBar: Material Underline Tabs */}
         <div className="flex border-b border-slate-200/80 dark:border-zinc-800 mt-2 px-1">
@@ -155,22 +204,20 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                 onClick={() => {
                   setActiveServiceId(svc.id);
                   setFilterType('all');
-                  const rosters = getRostersForService(svc.id);
-                  const up = rosters.filter((r) => r.date >= todayStr).sort((a, b) => a.date.localeCompare(b.date));
-                  const targetDate = up[0]?.date || rosters[0]?.date;
+                  const targetDate = getUpcomingServiceDates(svc.weekday, 1)[0];
                   if (targetDate) {
                     setExpandedDates({ [targetDate]: true });
                   }
                 }}
                 className={`flex-1 pb-2 pt-1 text-xs md:text-sm text-center transition-all duration-200 relative cursor-pointer ${
                   isActive
-                    ? 'text-blue-800 dark:text-blue-300 font-extrabold'
+                    ? 'text-blue-900 dark:text-blue-400 font-extrabold'
                     : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 font-medium'
                 }`}
               >
                 <span>{tabLabel}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-blue-800 dark:bg-blue-300 rounded-full transition-all duration-200" />
+                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-blue-900 dark:bg-blue-400 rounded-full transition-all duration-200" />
                 )}
               </button>
             );
@@ -191,14 +238,24 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
           </div>
 
           {isEditMode && (
-            <button
-              type="button"
-              onClick={() => setIsServiceModalOpen(true)}
-              className="text-[11px] md:text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 shrink-0 ml-2 cursor-pointer hover:underline"
-            >
-              <Pencil size={12} strokeWidth={2} />
-              <span>{language === 'zh' ? '编辑聚会设定' : 'Edit Service'}</span>
-            </button>
+            <div className="flex items-center gap-2 shrink-0 ml-2">
+              <button
+                type="button"
+                onClick={() => setIsExceptionsModalOpen(true)}
+                className="text-[11px] md:text-xs font-bold text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 flex items-center gap-1 cursor-pointer hover:underline"
+              >
+                <CalendarOff size={12} strokeWidth={2} />
+                <span>{language === 'zh' ? '例外日期' : 'Exceptions'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsServiceModalOpen(true)}
+                className="text-[11px] md:text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 cursor-pointer hover:underline"
+              >
+                <Pencil size={12} strokeWidth={2} />
+                <span>{language === 'zh' ? '编辑设定' : 'Edit'}</span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -212,7 +269,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
               onClick={() => setFilterType(chip.id)}
               className={`min-h-11 px-3.5 rounded-xl text-xs md:text-sm font-semibold shrink-0 transition-colors cursor-pointer ${
                 filterType === chip.id
-                  ? 'bg-blue-800 dark:bg-blue-600 text-white shadow-xs'
+                  ? 'bg-blue-900 dark:bg-blue-600 text-white shadow-xs'
                   : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
               }`}
             >
@@ -231,7 +288,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
             ))}
           </select>
         </div>
-      </AppHeader>
+      </header>
 
       <div className="px-4 md:px-6 pt-2"><RosterSaveStatus /></div>
 
@@ -254,7 +311,9 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
             const isNextUpcoming = !isPast && roster.date === upcomingRosters[0]?.date;
             const isFirstPast = isPast && (index === 0 || orderedRosters[index - 1]?.date >= todayStr);
             const isExpanded = expandedDates[roster.date] ?? (isNextUpcoming && index === 0);
-            const dateTitle = formatDateLabel(roster.date, language);
+            const dateTitle = `${roster.date.replace(/-/g, '/')} (${getWeekdayShort(roster.date)})`;
+            const serviceException = exceptionsByDate.get(roster.date);
+            const isCancelled = serviceException?.status === 'cancelled';
 
             // Active categories and roles for this service
             const activeRoles = churchState.roles.filter((r) =>
@@ -282,7 +341,9 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
 
                 <div
                   className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
-                    isPast
+                    isCancelled
+                      ? 'bg-rose-50/80 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/60'
+                      : isPast
                       ? 'bg-slate-50/70 dark:bg-zinc-900/40 border-slate-200/60 dark:border-zinc-800/60 opacity-60 hover:opacity-100'
                       : isNextUpcoming
                       ? 'bg-white dark:bg-zinc-900 border-blue-200/90 dark:border-blue-900/60 shadow-xs'
@@ -301,12 +362,14 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                     >
                       <div
                         className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border ${
-                          isPast
+                          isCancelled
+                            ? 'bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
+                            : isPast
                             ? 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 border-slate-200/60 dark:border-zinc-700/60'
                             : 'bg-blue-50 dark:bg-zinc-800 text-blue-700 dark:text-blue-400 border-blue-100/80 dark:border-zinc-700'
                         }`}
                       >
-                        <CalendarDays size={22} strokeWidth={2} />
+                        {isCancelled ? <CalendarOff size={22} strokeWidth={2} /> : <CalendarDays size={22} strokeWidth={2} />}
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -318,20 +381,24 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                             {dateTitle}
                           </span>
 
-                        </div>
-
-                        <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                           {isPast ? (
                             <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
                               {language === 'zh' ? '已结束' : 'Past'}
                             </span>
                           ) : isNextUpcoming ? (
-                            <span className="text-[10px] font-bold text-blue-500 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200/70 dark:border-blue-900/50">
+                            <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200/70 dark:border-blue-900/50">
                               {roster.date === todayStr ? (language === 'zh' ? '今日聚会' : 'Today') : (language === 'zh' ? '来临主日' : 'Upcoming')}
                             </span>
                           ) : null}
 
-                          {isEditMode && <div className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-slate-200/60 dark:border-zinc-700">
+                          {serviceException && (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${isCancelled ? 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-900/60' : 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border-blue-200/70 dark:border-blue-900/50'}`}>
+                              {isCancelled ? (language === 'zh' ? '聚会暂停' : 'Service paused') : (language === 'zh' ? '假期提示' : 'Holiday notice')}
+                            </span>
+                          )}
+
+                          {/* Staffing details are only needed by coordinators. */}
+                          {isEditMode && !isCancelled && <div className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-slate-200/60 dark:border-zinc-700">
                             <div className="w-12 h-1.5 bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden shrink-0">
                               <div
                                 className={`h-full rounded-full transition-all duration-300 ${
@@ -359,6 +426,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                             )}
                           </div>}
+
                           {roster.specialEvents?.map((ev) => (
                             <ServiceEventBadge key={ev} event={ev} />
                           ))}
@@ -367,17 +435,17 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                     </button>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      {/* <button
+                      {!isCancelled && <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setWhatsAppModalRoster(roster);
                         }}
                         title="预览并分享 WhatsApp 侍奉表"
-                        className="w-11 h-11 rounded-xl flex items-center justify-center text-blue-700 dark:text-blue-300 hover:text-emerald-800 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors active:scale-90 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
+                        className="w-11 h-11 rounded-xl flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors active:scale-90 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
                       >
                       <Share2 size={17} strokeWidth={2} />
-                    </button> */}
+                      </button>}
                     <button
                       type="button"
                       onClick={() => toggleExpand(roster.date)}
@@ -395,8 +463,21 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                 </div>
 
                 {/* Card Body */}
-                {isExpanded && (
+                {isExpanded && (isCancelled ? (
+                  <div className="px-4 pb-5 pt-4 animate-slide-up">
+                    <div className="rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 px-4 py-3 text-sm text-rose-900 dark:text-rose-100">
+                      <p className="font-extrabold">{language === 'zh' ? '当天聚会暂停' : 'This service is paused'}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-rose-700 dark:text-rose-300">{serviceException?.note || (language === 'zh' ? '请留意教会后续通知。' : 'Please watch for further church announcements.')}</p>
+                      {isEditMode && <p className="mt-2 text-[11px] text-rose-700 dark:text-rose-300">{language === 'zh' ? '如需恢复当天聚会，请在「例外日期」中移除此设定；原有排班会保留。' : 'Remove this exception under “Exceptions” to restore the service; any existing roster is retained.'}</p>}
+                    </div>
+                  </div>
+                ) : (
                   <div className="px-4 pb-4 pt-3 animate-slide-up space-y-3">
+                    {serviceException?.status === 'notice' && (
+                      <div className="rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/30 px-3 py-2 text-xs leading-relaxed text-blue-900 dark:text-blue-100">
+                        <span className="font-extrabold">{language === 'zh' ? '假期提醒：' : 'Holiday notice: '}</span>{serviceException.note || (language === 'zh' ? '聚会照常举行。' : 'This service continues as planned.')}
+                      </div>
+                    )}
                     {/* Theme / Scripture Bar */}
                     {(roster.theme || isEditMode) && <div className="py-1 px-0.5 flex items-center justify-between text-xs text-slate-600 dark:text-zinc-300">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -624,7 +705,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                       );
                     })()}
                   </div>
-                )}
+                ))}
               </div>
             </React.Fragment>
           );
@@ -676,6 +757,14 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
           isOpen={true}
           onClose={() => setIsServiceModalOpen(false)}
           initialEditingServiceId={activeServiceId}
+        />
+      )}
+
+      {isExceptionsModalOpen && (
+        <ServiceExceptionsModal
+          isOpen={true}
+          onClose={() => setIsExceptionsModalOpen(false)}
+          serviceId={activeServiceId}
         />
       )}
     </div>

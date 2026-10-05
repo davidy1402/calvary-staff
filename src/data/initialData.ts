@@ -419,4 +419,5 @@ export const INITIAL_STATE: ChurchState = {
   roles: INITIAL_ROLES,
   coworkers: INITIAL_COWORKERS,
   rosters: INITIAL_ROSTERS,
+  serviceExceptions: {},
 };

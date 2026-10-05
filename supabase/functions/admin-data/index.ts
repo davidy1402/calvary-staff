@@ -4,7 +4,7 @@ import { corsHeaders, sha256Base64Url } from '../_shared/admin.ts';
 const json = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
-const writableTables = new Set(['coworkers', 'services', 'rosters']);
+const writableTables = new Set(['coworkers', 'services', 'rosters', 'service_exceptions']);
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -36,8 +36,8 @@ Deno.serve(async (request) => {
       return json({ ok: true });
     }
 
-    if (body.action === 'delete' && table === 'coworkers' && typeof body.id === 'string') {
-      const { error } = await admin.from('coworkers').delete().eq('id', body.id);
+    if (body.action === 'delete' && (table === 'coworkers' || table === 'service_exceptions') && typeof body.id === 'string') {
+      const { error } = await admin.from(table).delete().eq('id', body.id);
       if (error) throw error;
       return json({ ok: true });
     }

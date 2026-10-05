@@ -22,6 +22,19 @@ export function getUpcomingServiceDate(targetWeekday: number, offsetWeeks = 0): 
   return `${yyyy}-${mm}-${dd}`;
 }
 
+/** Return recurring weekly dates without creating empty roster records. */
+export function getUpcomingServiceDates(targetWeekday: number, count: number, from = new Date()): string[] {
+  const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const currentWeekday = start.getDay() === 0 ? 7 : start.getDay();
+  start.setDate(start.getDate() + ((targetWeekday - currentWeekday + 7) % 7));
+
+  return Array.from({ length: Math.max(0, count) }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index * 7);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  });
+}
+
 export function formatDateLabel(dateStr: string, language: 'zh' | 'en' = 'zh'): string {
   if (!dateStr) return '';
   const [yyyy, mm, dd] = dateStr.split('-');

@@ -4,6 +4,7 @@ import type {
   Coworker,
   ServiceDefinition,
   ServiceRoster,
+  ServiceException,
   ChurchState,
   RoleCategoryId,
   WorshipSong,
@@ -46,6 +47,15 @@ interface DBRoster {
   theme: string | null;
   speaker: string | null;
   notes: string | null;
+  updated_at: string;
+}
+
+interface DBServiceException {
+  id: string;
+  service_id: string;
+  date: string;
+  status: 'cancelled' | 'notice';
+  note: string | null;
   updated_at: string;
 }
 
@@ -127,10 +137,29 @@ export const rosterToDB = (r: ServiceRoster): DBRoster => ({
   updated_at: r.updatedAt || new Date().toISOString(),
 });
 
+export const dbToServiceException = (db: DBServiceException): ServiceException => ({
+  id: db.id,
+  serviceId: db.service_id,
+  date: db.date,
+  status: db.status === 'cancelled' ? 'cancelled' : 'notice',
+  note: db.note || undefined,
+  updatedAt: db.updated_at || new Date().toISOString(),
+});
+
+export const serviceExceptionToDB = (exception: ServiceException): DBServiceException => ({
+  id: exception.id,
+  service_id: exception.serviceId,
+  date: exception.date,
+  status: exception.status,
+  note: exception.note || null,
+  updated_at: exception.updatedAt || new Date().toISOString(),
+});
+
 export interface RemoteData {
   coworkers: Coworker[];
   services: ServiceDefinition[];
   rosters: Record<string, ServiceRoster>;
+  serviceExceptions: Record<string, ServiceException>;
 }
 
 const writeAdminData = async (body: Record<string, unknown>): Promise<boolean> => {
@@ -157,17 +186,19 @@ export const fetchRemoteChurchData = async (): Promise<RemoteData | null> => {
   if (!supabase || !isSupabaseConfigured()) return null;
 
   try {
-    const [coworkersRes, servicesRes, rostersRes] = await Promise.all([
+    const [coworkersRes, servicesRes, rostersRes, exceptionsRes] = await Promise.all([
       supabase.from('coworkers').select('*'),
       supabase.from('services').select('*'),
       supabase.from('rosters').select('*'),
+      supabase.from('service_exceptions').select('*'),
     ]);
 
-    if (coworkersRes.error || servicesRes.error || rostersRes.error) {
+    if (coworkersRes.error || servicesRes.error || rostersRes.error || exceptionsRes.error) {
       console.warn('Supabase fetch error:', {
         cwErr: coworkersRes.error,
         svcErr: servicesRes.error,
         rstErr: rostersRes.error,
+        exceptionErr: exceptionsRes.error,
       });
       return null;
     }
@@ -180,7 +211,13 @@ export const fetchRemoteChurchData = async (): Promise<RemoteData | null> => {
       rostersRecord[roster.id] = roster;
     }
 
-    return { coworkers, services, rosters: rostersRecord };
+    const serviceExceptions: Record<string, ServiceException> = {};
+    for (const rawException of (exceptionsRes.data as DBServiceException[])) {
+      const exception = dbToServiceException(rawException);
+      serviceExceptions[exception.id] = exception;
+    }
+
+    return { coworkers, services, rosters: rostersRecord, serviceExceptions };
   } catch (err) {
     console.error('Failed to load from Supabase:', err);
     return null;
@@ -189,11 +226,16 @@ export const fetchRemoteChurchData = async (): Promise<RemoteData | null> => {
 
 // Seed remote DB with local initialState if cloud is completely empty
 export const seedRemoteDatabase = async (initialState: ChurchState): Promise<boolean> => {
-  const results = await Promise.all([
+  const writes = [
     writeAdminData({ action: 'upsert', table: 'coworkers', records: initialState.coworkers.map(coworkerToDB) }),
     writeAdminData({ action: 'upsert', table: 'services', records: initialState.services.map(serviceToDB) }),
     writeAdminData({ action: 'upsert', table: 'rosters', records: Object.values(initialState.rosters).map(rosterToDB) }),
-  ]);
+  ];
+  const initialExceptions = Object.values(initialState.serviceExceptions || {});
+  if (initialExceptions.length > 0) {
+    writes.push(writeAdminData({ action: 'upsert', table: 'service_exceptions', records: initialExceptions.map(serviceExceptionToDB) }));
+  }
+  const results = await Promise.all(writes);
   return results.every(Boolean);
 };
 
@@ -217,12 +259,22 @@ export const upsertRemoteService = async (service: ServiceDefinition): Promise<b
   return writeAdminData({ action: 'upsert', table: 'services', records: [serviceToDB(service)] });
 };
 
+export const upsertRemoteServiceException = async (exception: ServiceException): Promise<boolean> => {
+  return writeAdminData({ action: 'upsert', table: 'service_exceptions', records: [serviceExceptionToDB(exception)] });
+};
+
+export const deleteRemoteServiceException = async (exceptionId: string): Promise<boolean> => {
+  return writeAdminData({ action: 'delete', table: 'service_exceptions', id: exceptionId });
+};
+
 // Subscribe to real-time changes
 export interface RealtimeHandlers {
   onRosterChange: (roster: ServiceRoster) => void;
   onCoworkerChange: (coworker: Coworker) => void;
   onCoworkerDelete: (coworkerId: string) => void;
   onServiceChange: (service: ServiceDefinition) => void;
+  onServiceExceptionChange: (exception: ServiceException) => void;
+  onServiceExceptionDelete: (exceptionId: string) => void;
 }
 
 export const subscribeToRealtimeChanges = (handlers: RealtimeHandlers): (() => void) => {
@@ -239,6 +291,17 @@ export const subscribeToRealtimeChanges = (handlers: RealtimeHandlers): (() => v
         if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
           const updated = dbToRoster(payload.new as DBRoster);
           handlers.onRosterChange(updated);
+        }
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'service_exceptions' },
+      (payload) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          handlers.onServiceExceptionChange(dbToServiceException(payload.new as DBServiceException));
+        } else if (payload.eventType === 'DELETE') {
+          handlers.onServiceExceptionDelete((payload.old as { id: string }).id);
         }
       }
     )

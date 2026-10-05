@@ -78,6 +78,16 @@ export interface ServiceRoster {
   updatedAt: string;
 }
 
+/** A date-specific change to a normally recurring service. */
+export interface ServiceException {
+  id: string; // `${date}_${serviceId}`
+  serviceId: string;
+  date: string; // YYYY-MM-DD
+  status: 'cancelled' | 'notice';
+  note?: string;
+  updatedAt: string;
+}
+
 export interface ChurchState {
   churchName: string;
   shortName: string;
@@ -85,4 +95,5 @@ export interface ChurchState {
   roles: RoleDefinition[];
   coworkers: Coworker[];
   rosters: Record<string, ServiceRoster>; // rosterId -> ServiceRoster
+  serviceExceptions: Record<string, ServiceException>; // `${date}_${serviceId}` -> exception
 }
