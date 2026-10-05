@@ -307,7 +307,7 @@ export const LoginScreen: React.FC = () => {
 
       {/* Footer */}
       <footer className="text-center py-4 text-[11px] text-slate-400 pb-safe-bottom">
-        <p>新山加略山社区教会 · CCCJB Connect</p>
+        <p>CCCJB Connect</p>
       </footer>
     </div>
   );

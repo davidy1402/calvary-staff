@@ -117,7 +117,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
               {t('whatsappNotification', language)}
             </h2>
             <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
-              {targetService.name} · {targetRoster?.date ? formatDateLabel(targetRoster.date) : selectedDateStr}
+              {targetService.name} ({targetRoster?.date ? formatDateLabel(targetRoster.date) : selectedDateStr})
             </p>
           </div>
         </div>

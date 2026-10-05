@@ -96,7 +96,7 @@ export const LatestUpdateModal: React.FC<LatestUpdateModalProps> = ({
                 )}
               </div>
               <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
-                v{CURRENT_VERSION.version} · {CURRENT_VERSION.releaseDate}
+                v{CURRENT_VERSION.version}  ({CURRENT_VERSION.releaseDate})
               </p>
             </div>
           </div>
