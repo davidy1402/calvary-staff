@@ -17,27 +17,27 @@ export interface AppRelease {
 export const CURRENT_VERSION: AppRelease = {
   version: '1.7.2',
   releaseDate: '2026-10-05',
-  title: '生日滚轮选择器与排班分配体验细化',
-  summary: '用原生滚轮弹层取代文字输入框来选择生日，优化分配弹窗与同工管理列表的交互细节，并修正长者模式开关外观。',
+  title: '生日更容易填、排班更好用',
+  summary: '生日日期现在可以直接滑动选择，不再需要手动输入；分配服侍人员的标签也更新得更清楚了。',
   showOnLaunch: false,
   highlights: [
     {
       category: 'feature',
       label: '生日填写',
-      title: '滚轮弹层选择生日',
-      description: '点击生日按钮后弹出 iOS 式滚轮选择器，上下滑动直接选年、月、日；年份可留空，日期格式自动适配中英文显示。',
+      title: '滑动选择生日，不用再手动打字',
+      description: '点击个人资料的生日按钮，会弹出滑动选择器，上下滑动就能选好年、月、日。年份不想填可以留空，日期显示也会自动换算成易读的格式。',
     },
     {
       category: 'ui',
-      label: '分配弹窗',
-      title: '分配与同工管理列表细节优化',
-      description: '分配弹窗（AssignModal）与同工管理（CoworkerManagerModal）的列表排版与交互细节进一步打磨，常用标签更名为「近期服侍」，分类更贴近实际使用习惯。',
+      label: '排班分配',
+      title: '「近期服侍」标签让分配更一目了然',
+      description: '在分配服侍人员时，原本的「常用」分类已更名为「近期服侍」，更准确反映实际意思，方便快速找到合适人选。',
     },
     {
       category: 'fix',
-      label: '开关修正',
-      title: '长者模式切换开关外观修正',
-      description: '修正长者模式 Toggle 的尺寸与滑块位移，确保开关在开启与关闭状态下均能正确呈现圆形滑块与背景色变化。',
+      label: '显示修正',
+      title: '长者模式开关现在看起来正常了',
+      description: '设置页里的「长者模式」开关外观已修正，开启和关闭的状态都能清楚看出来，不再显示异常。',
     },
   ],
 };
