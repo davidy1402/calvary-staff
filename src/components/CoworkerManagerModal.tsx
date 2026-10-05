@@ -421,7 +421,7 @@ export const CoworkerManagerModal: React.FC<CoworkerManagerModalProps> = ({ isOp
                             href={`https://wa.me/60${cleanPhone}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg text-emerald-700 dark:text-emerald-300 font-medium hover:text-emerald-800 dark:hover:text-emerald-200 hover:underline underline-offset-2 transition-colors cursor-pointer"
+                            className="inline-flex min-h-5 items-center gap-1.5 rounded-lg text-emerald-700 dark:text-emerald-300 font-medium hover:text-emerald-800 dark:hover:text-emerald-200 hover:underline underline-offset-2 transition-colors cursor-pointer"
                             title="打开 WhatsApp 发送消息"
                           >
                             <Phone size={12} strokeWidth={1.9} />
