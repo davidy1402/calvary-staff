@@ -15,7 +15,7 @@ export interface AppRelease {
 }
 
 export const CURRENT_VERSION: AppRelease = {
-  version: '1.7.3',
+  version: '1.7.2',
   releaseDate: '2026-10-05',
   title: '聚会堂次可以自己安排',
   summary: '现在可以新增聚会、选择每周星期，并直接调整聚会在侍奉表上的显示顺序。',
