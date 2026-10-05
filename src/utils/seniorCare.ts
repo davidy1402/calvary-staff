@@ -16,6 +16,15 @@ export interface SeniorCareScheduleRow {
   value: string;
 }
 
+export interface SeniorCareDetailInput {
+  serviceDate: string;
+  serviceTime: string;
+  rehearsalTime: string;
+  venue: string;
+  theme?: string;
+  speaker?: string;
+}
+
 export const canShowSeniorCareRole = ({
   view,
   currentUserId,
@@ -48,6 +57,25 @@ export const isRedundantDutyNote = (note: string, assigneeNames: string[]): bool
     const remainingTextLength = normalizedNote.length - normalizedName.length;
     return normalizedNote.startsWith(normalizedName) && remainingTextLength >= 0 && remainingTextLength <= 8;
   });
+};
+
+export const getSeniorCareDetailRows = (
+  { serviceDate, serviceTime, rehearsalTime, venue, theme, speaker }: SeniorCareDetailInput,
+  language: Language,
+): SeniorCareScheduleRow[] => {
+  const labels = language === 'zh'
+    ? { date: '聚会日期', service: '聚会时间', rehearsal: '彩排时间', venue: '地点', theme: '主题', speaker: '讲员' }
+    : { date: 'Service date', service: 'Service time', rehearsal: 'Rehearsal time', venue: 'Venue', theme: 'Theme', speaker: 'Speaker' };
+  const rows: SeniorCareScheduleRow[] = [
+    { label: labels.date, value: serviceDate },
+    { label: labels.service, value: serviceTime },
+    { label: labels.rehearsal, value: rehearsalTime },
+    { label: labels.venue, value: venue },
+  ];
+
+  if (theme) rows.push({ label: labels.theme, value: theme });
+  if (speaker) rows.push({ label: labels.speaker, value: speaker });
+  return rows;
 };
 
 export const getSeniorCareNavigation = (

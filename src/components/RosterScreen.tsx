@@ -7,7 +7,6 @@ import {
   ChevronUp,
   Plus,
   X,
-  Share2,
   FileText,
   Clock,
   MapPin,
@@ -327,11 +326,14 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                           </span>
 
                           {isPast ? (
-                            <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
-                              {language === 'zh' ? '已结束' : 'Past'}
-                            </span>
+                            <>
+                              <br />
+                              <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                                {language === 'zh' ? '已结束' : 'Past'}
+                              </span>
+                            </>
                           ) : isNextUpcoming ? (
-                            <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200/70 dark:border-blue-900/50">
+                            <span className="text-[10px] font-bold text-blue-500 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200/70 dark:border-blue-900/50">
                               {roster.date === todayStr ? (language === 'zh' ? '今日聚会' : 'Today') : (language === 'zh' ? '来临主日' : 'Upcoming')}
                             </span>
                           ) : null}
@@ -374,7 +376,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                     </button>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <button
+                      {/* <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -384,7 +386,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                         className="w-11 h-11 rounded-xl flex items-center justify-center text-blue-700 dark:text-blue-300 hover:text-emerald-800 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors active:scale-90 cursor-pointer border border-slate-200/80 dark:border-zinc-700"
                       >
                       <Share2 size={17} strokeWidth={2} />
-                    </button>
+                    </button> */}
                     <button
                       type="button"
                       onClick={() => toggleExpand(roster.date)}

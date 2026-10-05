@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   canShowSeniorCareRole,
+  getSeniorCareDetailRows,
   getSeniorCareNavigation,
   getSeniorCareScheduleRows,
   getSeniorCareThemeSelection,
@@ -54,4 +55,25 @@ test('senior care detail hides labels that only repeat already-visible service o
   assert.equal(isRedundantServiceTheme('敬牧月', '实体祷告会 @hall 2'), false);
   assert.equal(isRedundantDutyNote('凯曰领 / 弹吉他', ['凯曰']), true);
   assert.equal(isRedundantDutyNote('提早 15 分钟配合鼓手对节拍', ['Selena']), false);
+});
+
+test('senior care home detail keeps only essential service information in a clear vertical order', () => {
+  assert.deepEqual(
+    getSeniorCareDetailRows({
+      serviceDate: '2026年10月4日（星期日）',
+      serviceTime: '10:30 AM',
+      rehearsalTime: '9:30 AM 彩排',
+      venue: '主堂 Main Sanctuary',
+      theme: '敬牧月',
+      speaker: '黄牧师',
+    }, 'zh'),
+    [
+      { label: '聚会日期', value: '2026年10月4日（星期日）' },
+      { label: '聚会时间', value: '10:30 AM' },
+      { label: '彩排时间', value: '9:30 AM 彩排' },
+      { label: '地点', value: '主堂 Main Sanctuary' },
+      { label: '主题', value: '敬牧月' },
+      { label: '讲员', value: '黄牧师' },
+    ],
+  );
 });

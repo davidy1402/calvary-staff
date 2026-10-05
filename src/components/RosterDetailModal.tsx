@@ -7,6 +7,7 @@ import { Clock, MapPin, Music, CalendarPlus, BookOpen, Mic, X } from 'lucide-rea
 import { downloadCalendarEvent } from '../utils/calendarUtils';
 import { SongPreviewLink } from './SongPreviewLink';
 import { isRedundantDutyNote, isRedundantServiceTheme } from '../utils/seniorCare';
+import { SeniorCareHomeDetailSheet } from './SeniorCareHomeDetailSheet';
 import type { ServiceRoster, ServiceDefinition, RoleCategoryId } from '../types';
 
 interface RosterDetailModalProps {
@@ -25,6 +26,9 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
   const { churchState, currentUser, language, isElderMode } = useChurch();
 
   if (!isOpen || !roster || !service) return null;
+  if (isElderMode) {
+    return <SeniorCareHomeDetailSheet isOpen={isOpen} onClose={onClose} roster={roster} service={service} language={language} />;
+  }
 
   const coworkerMap = new Map(churchState.coworkers.map((c) => [c.id, c]));
   const showTheme = Boolean(roster.theme) && !isRedundantServiceTheme(roster.theme || '', service.name);
