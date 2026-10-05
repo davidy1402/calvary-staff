@@ -15,12 +15,30 @@ export interface AppRelease {
 }
 
 export const CURRENT_VERSION: AppRelease = {
-  version: '1.7.2',
+  version: '1.7.3',
   releaseDate: '2026-10-05',
-  title: '生日更容易填、排班更好用',
-  summary: '生日日期现在可以直接滑动选择，不再需要手动输入；分配服侍人员的标签也更新得更清楚了。',
+  title: '聚会堂次可以自己安排',
+  summary: '现在可以新增聚会、选择每周星期，并直接调整聚会在侍奉表上的显示顺序。',
   showOnLaunch: false,
   highlights: [
+    {
+      category: 'feature',
+      label: '聚会管理',
+      title: '新增聚会堂次与每周星期设置',
+      description: '统筹管理模式现在可以新增聚会堂次，并自定义聚会名称、简称、每周星期、时间与地点；原有聚会也可以直接修改星期几。',
+    },
+    {
+      category: 'feature',
+      label: '显示顺序',
+      title: '聚会顺序可以自行调整',
+      description: '在每个聚会区块前使用拖拽手柄，或用上下箭头调整侍奉表 Tab 顺序；顺序会自动保存，重新打开应用也会保留。',
+    },
+    {
+      category: 'ui',
+      label: '使用体验',
+      title: '编辑聚会资料更整齐清楚',
+      description: '聚会时间、彩排调音时间与地点统一使用全宽输入框，电话号码直接点击即可打开 WhatsApp，编辑服侍人员时也会在当前视窗打开资料表。',
+    },
     {
       category: 'feature',
       label: '生日填写',

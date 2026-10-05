@@ -147,6 +147,8 @@ interface ChurchContextType {
   ) => string[];
 
   updateService: (service: ServiceDefinition) => void;
+  addService: (service: ServiceDefinition) => void;
+  reorderServices: (serviceIds: string[]) => void;
 
   // Supabase cloud sync state
   syncStatus: 'offline' | 'connecting' | 'synced' | 'error';
@@ -264,22 +266,30 @@ const mergeStateWithInitial = (saved: ChurchState): ChurchState => {
   };
 
   // Ensure all services have updated categories and retain user modifications
-  const savedServiceMap = new Map((saved.services || []).map((s) => [s.id, s]));
-  const mergedServices: ServiceDefinition[] = INITIAL_SERVICES.map((initSvc) => {
-    const found = savedServiceMap.get(initSvc.id);
-    if (found) {
-      return {
-        ...initSvc,
-        ...found,
-        categoryIds: found.categoryIds?.length ? found.categoryIds : initSvc.categoryIds,
-      };
+  const initialServiceMap = new Map(INITIAL_SERVICES.map((service) => [service.id, service]));
+  const mergeService = (service: ServiceDefinition) => {
+    const initialService = initialServiceMap.get(service.id);
+    if (!initialService) return service;
+    return {
+      ...initialService,
+      ...service,
+      categoryIds: service.categoryIds?.length ? service.categoryIds : initialService.categoryIds,
+    };
+  };
+  const mergedServices: ServiceDefinition[] = [];
+  const mergedServiceIds = new Set<string>();
+
+  // Keep the user's saved order, while still adding newly introduced defaults below it.
+  for (const savedService of saved.services || []) {
+    if (!mergedServiceIds.has(savedService.id)) {
+      mergedServices.push(mergeService(savedService));
+      mergedServiceIds.add(savedService.id);
     }
-    return initSvc;
-  });
-  // Also preserve any custom services added by the user
-  for (const s of saved.services || []) {
-    if (!INITIAL_SERVICES.some((init) => init.id === s.id)) {
-      mergedServices.push(s);
+  }
+  for (const initialService of INITIAL_SERVICES) {
+    if (!mergedServiceIds.has(initialService.id)) {
+      mergedServices.push(initialService);
+      mergedServiceIds.add(initialService.id);
     }
   }
 
@@ -1187,6 +1197,29 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     upsertRemoteService(updatedService);
   };
 
+  const addService = (service: ServiceDefinition) => {
+    setChurchState((prev) => ({
+      ...prev,
+      services: [...prev.services, service],
+    }));
+    upsertRemoteService(service);
+  };
+
+  const reorderServices = (serviceIds: string[]) => {
+    setChurchState((prev) => {
+      const serviceMap = new Map(prev.services.map((service) => [service.id, service]));
+      const orderedServices = serviceIds
+        .map((id) => serviceMap.get(id))
+        .filter((service): service is ServiceDefinition => Boolean(service));
+      const remainingServices = prev.services.filter((service) => !serviceIds.includes(service.id));
+
+      return {
+        ...prev,
+        services: [...orderedServices, ...remainingServices],
+      };
+    });
+  };
+
   const resetToDefault = () => {
     if (window.confirm('确定要恢复初始示例数据吗？本地已录入的更改将被替换。')) {
       setChurchState(INITIAL_STATE);
@@ -1250,6 +1283,8 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateCurrentUserAvatar,
         deleteCoworker,
         updateService,
+        addService,
+        reorderServices,
         syncStatus,
         localSaveStatus,
         retryRosterSync,
