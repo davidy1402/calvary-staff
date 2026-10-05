@@ -246,7 +246,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                       onClick={() => setSelectedDuty({ roster, service })}
                       className="w-full min-h-14 rounded-2xl border-2 border-slate-200 bg-white p-5 text-left shadow-xs transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-blue-500 dark:hover:bg-zinc-800"
                     >
-                      <p className="text-xl font-extrabold text-blue-900 dark:text-blue-300">{month}{day}日 · {weekday}</p>
+                      <p className="text-xl font-extrabold text-blue-900 dark:text-blue-300">{month}{day}日 （{weekday}）</p>
                       <h4 className="mt-1 text-2xl font-extrabold leading-8 text-slate-950 dark:text-white">{service.name}</h4>
                       <dl className="mt-5 divide-y divide-slate-200 dark:divide-zinc-800">
                         {scheduleRows.map((row) => (
