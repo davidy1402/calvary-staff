@@ -1,32 +1,14 @@
 import type { ServiceDefinition, RoleDefinition, Coworker, ServiceRoster, RoleCategoryId } from '../types';
-import { formatDateLabel } from './dateUtils';
+import { formatDateLabel, formatShortDate as formatRosterShortDate } from './dateUtils';
 
 export type WhatsAppTemplateType = 'roster' | 'setlist' | 'rundown' | 'dutyChange';
 
 export function formatShortDate(dateStr?: string): string {
-  if (!dateStr) return '';
-  const parts = dateStr.split('-');
-  if (parts.length === 3) {
-    const yearShort = parts[0].slice(-2);
-    const month = parseInt(parts[1], 10);
-    const day = parseInt(parts[2], 10);
-    return `${day}/${month}/${yearShort}`;
-  }
-  return dateStr;
+  return dateStr ? formatRosterShortDate(dateStr) : '';
 }
 
 export function formatDayMonthWeekday(dateStr?: string): string {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-  const parts = dateStr.split('-');
-  if (parts.length === 3) {
-    const day = parts[2];
-    const month = parts[1];
-    const wd = isNaN(d.getDay()) ? '' : `（${weekdays[d.getDay()]}）`;
-    return `${day}/${month}${wd}`;
-  }
-  return dateStr;
+  return dateStr ? formatDateLabel(dateStr) : '';
 }
 
 /**
@@ -335,4 +317,3 @@ export function getWhatsAppShareUrl(text: string, phone?: string): string {
   }
   return `https://wa.me/?text=${encodedText}`;
 }
-

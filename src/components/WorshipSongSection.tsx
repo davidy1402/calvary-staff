@@ -245,7 +245,6 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder={language === 'zh' ? '例如：这一生最美的祝福' : 'e.g. 10,000 Reasons'}
                     className="w-full min-h-11 text-sm px-3 bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900 dark:text-zinc-100"
                     required
                     autoFocus
@@ -260,7 +259,6 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                     type="text"
                     value={key}
                     onChange={(e) => setKey(e.target.value)}
-                    placeholder="G / Bb / C"
                     className="w-full min-h-11 text-sm px-3 bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono font-bold text-slate-900 dark:text-zinc-100"
                   />
                 </div>
@@ -293,7 +291,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
               <div className="space-y-1">
                 <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
                   <Video size={13} className="text-red-500 shrink-0" />
-                  <span>{language === 'zh' ? 'YouTube 试听链接 (可选)' : 'YouTube Link (optional)'}</span>
+                  <span>{language === 'zh' ? 'YouTube 链接 (可选)' : 'YouTube Link (optional)'}</span>
                 </label>
                 <input
                   type="url"
@@ -307,13 +305,13 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
               {/* Notes */}
               <div className="space-y-1">
                 <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  {language === 'zh' ? '段落编排 / 备注 (可选)' : 'Arrangement / Notes'}
+                  {language === 'zh' ? '备注 (可选)' : 'Arrangement / Notes'}
                 </label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder={language === 'zh' ? '例如：前奏4小节，副歌接回应祷告' : 'e.g. Intro 4 bars, bridge tag x2'}
+                  placeholder={language === 'zh' ? '例如：副歌接free worship' : 'e.g. Free worship after chorus'}
                   className="w-full min-h-10 text-xs px-3 bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-zinc-200"
                 />
               </div>

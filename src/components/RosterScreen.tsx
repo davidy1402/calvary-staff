@@ -18,6 +18,7 @@ import { WhatsAppModal } from './WhatsAppModal';
 import { WorshipSongSection } from './WorshipSongSection';
 import { ServiceManagerModal } from './ServiceManagerModal';
 import { ServiceEventBadge } from './ServiceEventBadge';
+import { formatDateLabel } from '../utils/dateUtils';
 import { AppHeader } from './AppHeader';
 import { SeniorCareRosterScreen } from './SeniorCareRosterScreen';
 import { t } from '../utils/i18n';
@@ -100,14 +101,6 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
       ...prev,
       [date]: !prev[date],
     }));
-  };
-
-  const getWeekdayShort = (dateStr: string) => {
-    const [yyyy, mm, dd] = dateStr.split('-');
-    const date = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
-    const weekdaysZh = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-    const weekdaysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return language === 'zh' ? weekdaysZh[date.getDay()] : weekdaysEn[date.getDay()];
   };
 
   const getServiceShortName = (serviceId: string, defaultShortName: string) => {
@@ -261,7 +254,7 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
             const isNextUpcoming = !isPast && roster.date === upcomingRosters[0]?.date;
             const isFirstPast = isPast && (index === 0 || orderedRosters[index - 1]?.date >= todayStr);
             const isExpanded = expandedDates[roster.date] ?? (isNextUpcoming && index === 0);
-            const dateTitle = `${roster.date.replace(/-/g, '/')} (${getWeekdayShort(roster.date)})`;
+            const dateTitle = formatDateLabel(roster.date, language);
 
             // Active categories and roles for this service
             const activeRoles = churchState.roles.filter((r) =>
@@ -325,20 +318,19 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                             {dateTitle}
                           </span>
 
+                        </div>
+
+                        <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                           {isPast ? (
-                            <>
-                              <br />
-                              <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
-                                {language === 'zh' ? '已结束' : 'Past'}
-                              </span>
-                            </>
+                            <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                              {language === 'zh' ? '已结束' : 'Past'}
+                            </span>
                           ) : isNextUpcoming ? (
                             <span className="text-[10px] font-bold text-blue-500 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200/70 dark:border-blue-900/50">
                               {roster.date === todayStr ? (language === 'zh' ? '今日聚会' : 'Today') : (language === 'zh' ? '来临主日' : 'Upcoming')}
                             </span>
                           ) : null}
 
-                          {/* Staffing details are only needed by coordinators. */}
                           {isEditMode && <div className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-zinc-800 px-2 py-0.5 rounded-full border border-slate-200/60 dark:border-zinc-700">
                             <div className="w-12 h-1.5 bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden shrink-0">
                               <div
@@ -367,7 +359,6 @@ export const RosterScreen: React.FC<{ setlistDate?: string | null }> = ({ setlis
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                             )}
                           </div>}
-
                           {roster.specialEvents?.map((ev) => (
                             <ServiceEventBadge key={ev} event={ev} />
                           ))}

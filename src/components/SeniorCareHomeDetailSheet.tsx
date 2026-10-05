@@ -25,7 +25,7 @@ export const SeniorCareHomeDetailSheet: React.FC<SeniorCareHomeDetailSheetProps>
   language,
 }) => {
   const detailRows = getSeniorCareDetailRows({
-    serviceDate: formatDateLabel(roster.date),
+    serviceDate: formatDateLabel(roster.date, language),
     serviceTime: service.time,
     rehearsalTime: service.rehearsalTime,
     venue: service.venue,

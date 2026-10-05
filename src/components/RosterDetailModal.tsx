@@ -32,6 +32,10 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
 
   const coworkerMap = new Map(churchState.coworkers.map((c) => [c.id, c]));
   const showTheme = Boolean(roster.theme) && !isRedundantServiceTheme(roster.theme || '', service.name);
+  const speakerValue = roster.speaker?.trim();
+  const displayedSpeaker = speakerValue && !['当天讲员', '讲员'].includes(speakerValue)
+    ? speakerValue
+    : language === 'zh' ? '尚未安排' : 'To be confirmed';
 
   const categoryGroups: Array<{
     id: RoleCategoryId;
@@ -51,14 +55,14 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       className="bg-slate-50 dark:bg-black"
-      maxHeight={isElderMode ? '94dvh' : '88vh'}
+      maxHeight={isElderMode ? '94dvh' : '80dvh'}
     >
-      <div className={`flex flex-col h-full ${isElderMode ? 'max-h-[91dvh]' : 'max-h-[85vh]'}`}>
+      <div className={`flex flex-col h-full ${isElderMode ? 'max-h-[91dvh]' : 'max-h-[77dvh]'}`}>
           {/* Header matching CoworkerManagerModal style */}
           <div className={`${isElderMode ? 'px-6 pt-3 pb-4' : 'px-5 pt-2 pb-2'} shrink-0`}>
             <div className={`flex justify-between ${isElderMode ? 'items-start gap-3' : 'items-center'}`}>
               <div className="min-w-0 flex-1 text-left">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 flex-wrap">
                   <h2 className={`${isElderMode ? 'text-2xl leading-8' : 'text-base leading-tight'} font-extrabold text-slate-900 dark:text-zinc-100`}>
                     {service.name}
                   </h2>
@@ -67,15 +71,11 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
                   )}
                 </div>
                   <p className={`${isElderMode ? 'mt-1 text-base leading-6 text-slate-700 dark:text-zinc-200' : 'text-[11px] text-slate-400 dark:text-zinc-500'} font-medium`}>
-                  {formatDateLabel(roster.date)} · {service.time}
+                  {formatDateLabel(roster.date, language)} <br /> {service.time}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                <button type="button" onClick={onClose} className={`${isElderMode ? 'min-h-12 px-3 text-base' : 'min-h-11 px-2.5 text-xs'} rounded-xl text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 font-bold flex items-center gap-1.5`}>
-                  <X size={isElderMode ? 20 : 16} strokeWidth={2.25} aria-hidden="true" />
-                  {language === 'zh' ? '关闭' : 'Close'}
-                </button>
+              <div className="flex items-center gap-1 shrink-0">
                 {!isElderMode && <button
                   type="button"
                   onClick={() => {
@@ -97,55 +97,47 @@ export const RosterDetailModal: React.FC<RosterDetailModalProps> = ({
                     speaker: roster.speaker,
                   });
                 }}
-                  className={`flex items-center gap-1.5 ${isElderMode ? 'min-h-12 px-3 text-base' : 'px-2.5 py-1.5 text-xs'} rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-blue-700 dark:text-blue-300 font-semibold transition-colors cursor-pointer active:scale-95 border border-blue-200/70 dark:border-zinc-700 shadow-2xs`}
+                  className={`flex items-center justify-center ${isElderMode ? 'min-h-12 w-12' : 'min-h-11 w-11'} rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-blue-700 dark:text-blue-300 font-semibold transition-colors cursor-pointer active:scale-95 border border-blue-200/70 dark:border-zinc-700 shadow-2xs`}
+                  aria-label={language === 'zh' ? '存入日历' : 'Add to calendar'}
                 title={language === 'zh' ? '添加至手机日历 (含1周与1天前提醒)' : 'Add to Calendar (with 1-week advance reminder)'}
               >
                   <CalendarPlus size={isElderMode ? 20 : 13} strokeWidth={2} />
-                  <span>{language === 'zh' ? '存入日历' : 'Add to Calendar'}</span>
                 </button>}
+                <button type="button" onClick={onClose} className={`${isElderMode ? 'min-h-12 px-3 text-base' : 'min-h-11 px-2.5 text-xs'} rounded-xl text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 font-bold flex items-center gap-1.5`}>
+                  <X size={isElderMode ? 20 : 16} strokeWidth={2.25} aria-hidden="true" />
+                  {language === 'zh' ? '关闭' : 'Close'}
+                </button>
               </div>
             </div>
           </div>
 
           {/* Content Area */}
           <div className={`${isElderMode ? 'px-6 pt-4 pb-9 space-y-6' : 'px-5 pt-3 pb-8 space-y-4'} overflow-y-auto flex-1 overscroll-contain`}>
-            {/* Timing & Venue */}
-            <div className={`${isElderMode ? 'space-y-3 text-lg leading-7' : 'flex items-center gap-3 text-xs flex-wrap pb-1'} text-slate-500 dark:text-zinc-400`}>
-              <span className={`flex items-center gap-1.5 ${isElderMode ? 'font-bold text-slate-900 dark:text-zinc-100' : 'font-medium text-slate-700 dark:text-zinc-300'}`}>
+            {/* Service information: one rhythm for rehearsal, venue, theme, and speaker. */}
+            <div className={`${isElderMode ? 'space-y-3 text-lg leading-7' : 'grid grid-cols-2 gap-x-4 gap-y-2 pt-0.5 text-xs'} text-slate-500 dark:text-zinc-400`}>
+              <span className={`flex min-w-0 items-start gap-1.5 ${isElderMode ? 'font-bold text-slate-900 dark:text-zinc-100' : 'font-medium text-slate-700 dark:text-zinc-300'}`}>
                 <Clock size={isElderMode ? 20 : 13} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
-                <span>{service.rehearsalTime.replace(/调音|预备/g, '').trim()}</span>
+                <span className="min-w-0 break-words">{service.rehearsalTime.replace(/调音|预备/g, '').trim()}</span>
               </span>
-              <span className={`flex items-center gap-1.5 ${isElderMode ? 'font-bold text-slate-900 dark:text-zinc-100' : ''}`}>
+              <span className={`flex min-w-0 items-start gap-1.5 ${isElderMode ? 'font-bold text-slate-900 dark:text-zinc-100' : ''}`}>
                 <MapPin size={isElderMode ? 20 : 13} strokeWidth={1.75} className="text-blue-700 dark:text-blue-400 shrink-0" />
-                <span>{service.venue}</span>
+                <span className="min-w-0 break-words">{service.venue}</span>
+              </span>
+              {showTheme && (
+                <span className="flex min-w-0 items-start gap-1.5 font-medium text-slate-700 dark:text-zinc-300">
+                  <BookOpen size={isElderMode ? 20 : 13} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                  <span className="min-w-0 break-words">{roster.theme}</span>
+                </span>
+              )}
+              <span className={`flex min-w-0 items-start gap-1.5 ${speakerValue && !['当天讲员', '讲员'].includes(speakerValue) ? 'font-medium text-slate-700 dark:text-zinc-300' : 'font-medium text-slate-400 dark:text-zinc-500'}`}>
+                <Mic size={isElderMode ? 20 : 13} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                <span className="min-w-0 break-words">{displayedSpeaker}</span>
               </span>
             </div>
 
-            {/* Theme / Speaker with icons */}
-            {(showTheme || roster.speaker) && (
-              <div className={`${isElderMode ? 'py-4 px-4 text-lg space-y-3' : 'py-2.5 px-3 text-xs space-y-1.5'} rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800`}>
-                {showTheme && (
-                  <div className="flex items-center gap-2">
-                    <BookOpen size={isElderMode ? 20 : 13} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
-                    <span className="font-bold text-slate-900 dark:text-zinc-100">
-                      {roster.theme}
-                    </span>
-                  </div>
-                )}
-                {roster.speaker && (
-                  <div className="flex items-center gap-2">
-                    <Mic size={isElderMode ? 20 : 13} strokeWidth={2} className="text-blue-600 dark:text-blue-400 shrink-0" />
-                    <span className="font-semibold text-slate-700 dark:text-zinc-300">
-                      {roster.speaker}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* Worship Songs */}
             {roster.songs && roster.songs.length > 0 && (
-              <div className={isElderMode ? 'space-y-3' : 'space-y-2'}>
+              <div className={isElderMode ? 'space-y-3' : 'space-y-2 pt-1'}>
                 <div className={`flex items-center gap-1.5 font-bold text-slate-800 dark:text-zinc-200 ${isElderMode ? 'text-lg' : 'text-xs'}`}>
                   <Music size={isElderMode ? 20 : 13} strokeWidth={2.2} className="text-blue-600 dark:text-blue-400" />
                   <span>{language === 'zh' ? '敬拜赞美诗歌' : 'Worship Songs'}</span>

@@ -20,7 +20,8 @@ const MainContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(() => {
     try {
-      return localStorage.getItem('calvary_seen_version') !== CURRENT_VERSION.version;
+      return CURRENT_VERSION.showOnLaunch !== false
+        && localStorage.getItem('calvary_seen_version') !== CURRENT_VERSION.version;
     } catch {
       return false;
     }

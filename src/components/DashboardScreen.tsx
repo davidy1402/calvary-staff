@@ -12,6 +12,7 @@ import { BirthdayCelebration } from './BirthdayCelebration';
 import { UserGuideSheet } from './UserGuideSheet';
 import { getClosestDatedItems } from '../utils/closestAssignments';
 import { getSeniorCareScheduleRows, isRedundantDutyNote } from '../utils/seniorCare';
+import { formatDateLabel } from '../utils/dateUtils';
 import type { ServiceRoster, ServiceDefinition } from '../types';
 
 interface DashboardScreenProps {
@@ -224,6 +225,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
           <div className="divide-y divide-slate-100 dark:divide-zinc-800/80">
             {assignmentsToDisplay.map(({ roster, service, roles }) => {
               const { month, day, weekday } = getDateParts(roster.date);
+              const dateLabel = formatDateLabel(roster.date, language);
               const notes = Object.entries(roster.assignments)
                 .filter(([, ids]) => currentUser && ids.includes(currentUser.id))
                 .map(([roleId]) => roster.dutyNotes?.[roleId])
@@ -246,7 +248,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                       onClick={() => setSelectedDuty({ roster, service })}
                       className="w-full min-h-14 rounded-2xl border-2 border-slate-200 bg-white p-5 text-left shadow-xs transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-blue-500 dark:hover:bg-zinc-800"
                     >
-                      <p className="text-xl font-extrabold text-blue-900 dark:text-blue-300">{month}{day}日 （{weekday}）</p>
+                      <p className="text-xl font-extrabold text-blue-900 dark:text-blue-300">{dateLabel}</p>
                       <h4 className="mt-1 text-2xl font-extrabold leading-8 text-slate-950 dark:text-white">{service.name}</h4>
                       <dl className="mt-5 divide-y divide-slate-200 dark:divide-zinc-800">
                         {scheduleRows.map((row) => (
@@ -304,7 +306,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigateToRo
                       {roles.map((rName) => (
                         <span
                           key={rName}
-                          className="px-2 py-0.5 text-xs rounded-md bg-blue-50 dark:bg-zinc-800 text-blue-800 dark:text-blue-300 font-bold"
+                          className="inline-flex items-center rounded-md bg-blue-700 px-2 py-0.5 text-xs font-bold text-white shadow-xs dark:bg-blue-500"
                         >
                           {rName}
                         </span>

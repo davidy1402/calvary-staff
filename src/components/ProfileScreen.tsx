@@ -31,7 +31,6 @@ interface ProfileScreenProps {
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onOpenUpdates }) => {
   const {
     currentUser,
-    isEditMode,
     updateCurrentUserAvatar,
     updateCoworker,
     language,

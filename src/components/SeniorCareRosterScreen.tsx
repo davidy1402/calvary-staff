@@ -5,6 +5,7 @@ import { useChurch } from '../context/ChurchContext';
 import type { ServiceRoster } from '../types';
 import { canShowSeniorCareRole, isRedundantDutyNote } from '../utils/seniorCare';
 import { SongPreviewLink } from './SongPreviewLink';
+import { formatDateLabel } from '../utils/dateUtils';
 
 const getTodayDateStr = () => new Date().toLocaleDateString('en-CA');
 
@@ -33,13 +34,6 @@ export const SeniorCareRosterScreen: React.FC = () => {
   const upcoming = rosters.filter((roster) => roster.date >= today).sort((a, b) => a.date.localeCompare(b.date));
   const past = rosters.filter((roster) => roster.date < today).sort((a, b) => b.date.localeCompare(a.date));
   const visibleRosters = [...(showAllUpcoming ? upcoming : upcoming.slice(0, 2)), ...(showPast ? past : [])];
-
-  const formatDate = (date: string) => {
-    const localDate = new Date(`${date}T12:00:00`);
-    return language === 'zh'
-      ? `${localDate.getFullYear()}年${localDate.getMonth() + 1}月${localDate.getDate()}日（星期${['日', '一', '二', '三', '四', '五', '六'][localDate.getDay()]}）`
-      : localDate.toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  };
 
   const rosterRoles = (roster: ServiceRoster) => churchState.roles
     .filter((role) => activeService.categoryIds.includes(role.category))
@@ -108,7 +102,7 @@ export const SeniorCareRosterScreen: React.FC = () => {
               const roles = rosterRoles(roster);
               return (
                 <article key={roster.id} className="rounded-2xl border-2 border-slate-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
-                  <p className="text-xl font-extrabold leading-8 text-slate-950 dark:text-white">{formatDate(roster.date)}</p>
+                  <p className="text-xl font-extrabold leading-8 text-slate-950 dark:text-white">{formatDateLabel(roster.date, language)}</p>
                   {roster.theme && <p className="mt-2 text-lg leading-7 text-slate-700 dark:text-zinc-200">{language === 'zh' ? '主题：' : 'Theme: '}{roster.theme}</p>}
                   {roles.length === 0 ? (
                     <p className="mt-4 text-lg leading-7 text-slate-700 dark:text-zinc-300">

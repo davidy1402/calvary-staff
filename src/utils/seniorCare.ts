@@ -90,7 +90,7 @@ export const getSeniorCareNavigation = (
     : [
         { id: 'dashboard', label: 'Home' },
         { id: 'roster', label: 'Roster' },
-        { id: 'profile', label: 'Settings & Help' },
+        { id: 'profile', label: 'Settings' },
       ];
 
 export const getSeniorCareScheduleRows = (

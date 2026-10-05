@@ -11,36 +11,64 @@ export interface AppRelease {
   title: string;
   summary: string;
   highlights: UpdateHighlight[];
+  showOnLaunch?: boolean;
 }
 
 export const CURRENT_VERSION: AppRelease = {
-  version: '1.7.0',
+  version: '1.7.1',
   releaseDate: '2026-10-05',
-  title: '长者关怀模式与首页详情升级',
-  summary: '为长者提供更大、更清楚、更专注的服侍查阅体验，并让首页聚会详情与敬拜歌单一眼看懂。',
+  title: '权限开放与互动细节修复',
+  summary: '开放个人资料照片与生日日期的自主更新，并修复 WhatsApp 弹层滑动时误触底部彩蛋的问题。',
+  showOnLaunch: false,
   highlights: [
     {
       category: 'feature',
-      label: '长者关怀',
-      title: '专属大字查阅模式',
-      description: '首页、侍奉表与设置改用更大的字级、明确的纵向资料与文字导航；模式选择会保留在下次打开应用时。',
-    },
-    {
-      category: 'ui',
-      label: '首页详情',
-      title: '聚会重点与歌单重新编排',
-      description: '长者模式首页详情只保留日期、时间、彩排、地点、主题、讲员及完整歌单；歌名不截断，调性与试听按钮自然分行。',
+      label: '个人资料',
+      title: '开放照片与生日日期更新',
+      description: '服侍人员可以上传或更换个人照片，也可以自行修改生日日期，让个人资料保持最新。',
     },
     {
       category: 'fix',
-      label: '清楚阅读',
-      title: '去除重复与拥挤资料',
-      description: '长者首页详情移除重复主题、日历动作与当日服侍名单，让重点资料保持清楚易读；完整名单仍可于侍奉表查阅。',
+      label: '手势修复',
+      title: 'WhatsApp 弹层不再误触彩蛋',
+      description: '打开 WhatsApp Bottom Sheet 后，上滑、滚动与弹层内的触摸操作不会再触发设置页底部彩蛋。',
+    },
+    {
+      category: 'ui',
+      label: '更新方式',
+      title: '小更新不打断开屏体验',
+      description: '本次版本仍会记录在设置里的更新历史，但不会在应用启动时自动弹出提示。',
     },
   ],
 };
 
 export const PAST_RELEASES: AppRelease[] = [
+  {
+    version: '1.7.0',
+    releaseDate: '2026-10-05',
+    title: '长者关怀模式与首页详情升级',
+    summary: '为长者提供更大、更清楚、更专注的服侍查阅体验，并让首页聚会详情与敬拜歌单一眼看懂。',
+    highlights: [
+      {
+        category: 'feature',
+        label: '长者关怀',
+        title: '专属大字查阅模式',
+        description: '首页、侍奉表与设置改用更大的字级、明确的纵向资料与文字导航；模式选择会保留在下次打开应用时。',
+      },
+      {
+        category: 'ui',
+        label: '首页详情',
+        title: '聚会重点与歌单重新编排',
+        description: '长者模式首页详情只保留日期、时间、彩排、地点、主题、讲员及完整歌单；歌名不截断，调性与试听按钮自然分行。',
+      },
+      {
+        category: 'fix',
+        label: '清楚阅读',
+        title: '去除重复与拥挤资料',
+        description: '长者首页详情移除重复主题、日历动作与当日服侍名单，让重点资料保持清楚易读；完整名单仍可于侍奉表查阅。',
+      },
+    ],
+  },
   {
     version: '1.6.0',
     releaseDate: '2026-10-04',

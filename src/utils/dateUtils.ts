@@ -22,17 +22,23 @@ export function getUpcomingServiceDate(targetWeekday: number, offsetWeeks = 0): 
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export function formatDateLabel(dateStr: string): string {
+export function formatDateLabel(dateStr: string, language: 'zh' | 'en' = 'zh'): string {
   if (!dateStr) return '';
   const [yyyy, mm, dd] = dateStr.split('-');
   const date = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+  const yearLabel = Number(yyyy) !== new Date().getFullYear() ? yyyy : '';
+  if (language === 'en') {
+    const monthDay = date.toLocaleDateString('en-MY', { day: 'numeric', month: 'short' });
+    return `${monthDay}${yearLabel ? ` ${yearLabel}` : ''} (${date.toLocaleDateString('en-MY', { weekday: 'short' })})`;
+  }
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
   const dayName = weekdays[date.getDay()];
-  return `${yyyy}年${Number(mm)}月${Number(dd)}日（星期${dayName}）`;
+  return `${yearLabel ? `${yearLabel}年` : ''}${Number(mm)}月${Number(dd)}日（星期${dayName}）`;
 }
 
 export function formatShortDate(dateStr: string): string {
   if (!dateStr) return '';
-  const [, mm, dd] = dateStr.split('-');
-  return `${Number(mm)}/${Number(dd)}`;
+  const [yyyy, mm, dd] = dateStr.split('-');
+  const yearLabel = Number(yyyy) !== new Date().getFullYear() ? `${yyyy}年` : '';
+  return `${yearLabel}${Number(mm)}月${Number(dd)}日`;
 }
