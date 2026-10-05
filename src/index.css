@@ -283,7 +283,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offs
   transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), color 180ms ease-out;
 }
 .bottom-nav-item span { font-size: 11px; line-height: 1.2; font-weight: 600; }
-.bottom-nav-item.is-active { color: #1d4ed8; }
+.bottom-nav-item.is-active { color: #1e40af; }
 .bottom-nav-item svg { transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1); }
 .bottom-nav-item.is-active svg { transform: translateY(-1px); }
 .bottom-nav-item:active { transform: scale(0.94); }
@@ -295,6 +295,49 @@ button:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offs
 .dark .bottom-nav-indicator { background: rgb(255 255 255 / 12%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%); }
 .dark .bottom-nav-item { color: #d4d4d8; }
 .dark .bottom-nav-item.is-active { color: #93c5fd; }
+
+/* Senior Care keeps the same three destinations, but makes every route explicit and easy to tap. */
+.senior-care-nav {
+  position: fixed;
+  z-index: 40;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0.625rem max(0.75rem, env(safe-area-inset-left, 0px)) max(0.75rem, env(safe-area-inset-bottom, 0px));
+  background: rgb(248 250 252 / 96%);
+  border-top: 1px solid rgb(203 213 225 / 92%);
+  box-shadow: 0 -8px 24px rgb(15 23 42 / 10%);
+}
+.senior-care-nav-inner {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+.senior-care-nav-item {
+  min-height: 4.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 1rem;
+  color: #1e293b;
+  background: #ffffff;
+  font-size: 1rem;
+  line-height: 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out, color 180ms ease-out;
+}
+.senior-care-nav-item:hover { background: #eff6ff; border-color: #93c5fd; }
+.senior-care-nav-item.is-active { color: #ffffff; background: #1e40af; border-color: #1e40af; }
+.dark .senior-care-nav { background: rgb(0 0 0 / 96%); border-color: #27272a; box-shadow: 0 -8px 24px rgb(0 0 0 / 36%); }
+.dark .senior-care-nav-item { color: #f4f4f5; background: #18181b; border-color: #3f3f46; }
+.dark .senior-care-nav-item:hover { color: #dbeafe; background: #27272a; border-color: #60a5fa; }
+.dark .senior-care-nav-item.is-active { color: #ffffff; background: #2563eb; border-color: #2563eb; }
 
 /* iPad & tablet landscape: float on the right edge (iOS 27 sidebar/side-rail ergonomic guideline) */
 @media (min-width: 768px) and (orientation: landscape) {
@@ -333,6 +376,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid #2563eb; outline-offs
     font-size: 10px;
     transform: scale(0.95);
   }
+}
+@media (min-width: 768px) {
+  .senior-care-nav { left: 50%; right: auto; width: min(100%, 48rem); transform: translateX(-50%); border: 1px solid rgb(203 213 225 / 92%); border-bottom: 0; border-radius: 1.25rem 1.25rem 0 0; }
+  .dark .senior-care-nav { border-color: #27272a; }
 }
 .press-feedback, .identity-content button {
   transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), background-color 180ms ease-out, color 180ms ease-out;
