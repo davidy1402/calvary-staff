@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
-import { Music, Plus, Trash2, Check, X, ChevronDown, ChevronUp, Play, Video, Edit2 } from 'lucide-react';
+import { Music, Plus, Trash2, Check, X, ChevronDown, ChevronUp, Video, Edit2 } from 'lucide-react';
 import type { WorshipSong } from '../types';
+import { SongPreviewLink } from './SongPreviewLink';
 
 interface WorshipSongSectionProps {
   date: string;
@@ -170,20 +171,12 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
 
                   {/* Right: Actions */}
                   <div className="flex items-center gap-1 shrink-0 -mt-0.5">
-                    <a
-                      href={
-                        song.youtubeUrl ||
-                        `https://www.youtube.com/results?search_query=${encodeURIComponent(song.title)}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      title="在 YouTube 试听"
-                      aria-label="在 YouTube 试听"
-                      className="w-8 h-8 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <Play size={14} className="fill-current" />
-                    </a>
+                    <SongPreviewLink
+                      title={song.title}
+                      youtubeUrl={song.youtubeUrl}
+                      language={language}
+                      onClick={(event) => event.stopPropagation()}
+                    />
 
                     {canEdit && (
                       <button
@@ -198,7 +191,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                           setIsAdding(true);
                         }}
                         aria-label={language === 'zh' ? `编辑诗歌 ${song.title}` : `Edit song ${song.title}`}
-                        className="w-8 h-8 rounded-lg text-slate-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-lg text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 hover:bg-blue-50 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer"
                       >
                         <Edit2 size={14} />
                       </button>
@@ -213,7 +206,7 @@ export const WorshipSongSection: React.FC<WorshipSongSectionProps> = ({
                         }}
                         title={language === 'zh' ? '删除诗歌' : 'Delete song'}
                         aria-label={language === 'zh' ? `删除诗歌 ${song.title}` : `Delete song ${song.title}`}
-                        className="w-8 h-8 rounded-lg text-slate-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-lg text-rose-700 dark:text-rose-300 hover:text-rose-800 dark:hover:text-rose-200 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition-colors cursor-pointer"
                       >
                         <Trash2 size={14} />
                       </button>
